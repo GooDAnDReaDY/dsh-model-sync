@@ -11,9 +11,9 @@ Goal: publish and verify a safe API-key model catalog synchronizer for DSH.
 - [x] Phase 5: provider-specific adapter registry
 - [x] Phase 6: credential-safe request layer
 - [x] Phase 7: diff and reconciliation engine
-- [ ] Phase 8: scheduler, manual run, and dry-run
-- [ ] Phase 9: settings API and UI
-- [ ] Phase 10: unit, integration, and staging tests
+- [x] Phase 8: scheduler, manual run, and dry-run
+- [x] Phase 9: settings API and UI
+- [x] Phase 10: unit, integration, browser smoke, and staging tests
 - [ ] Phase 11: release metadata and publication
 
 ## Decisions
@@ -29,3 +29,5 @@ Goal: publish and verify a safe API-key model catalog synchronizer for DSH.
 - Adapter selection is deterministic: generic first, then provider-specific descriptor, otherwise unsupported.
 - Credentials are resolved through DSH only and never written to logs, settings, or response metadata.
 - Missing advertised models are retained by default and only pruned when explicitly requested.
+- Staging validation uses the compose proxy endpoint and a clean profile without API-key routes; real apply remains a release/operator check with configured credentials.
+- The staging pnpm store must be selected explicitly with PNPM_CONFIG_STORE_DIR=/data/dsh/.pnpm-store when repairing this profile.
