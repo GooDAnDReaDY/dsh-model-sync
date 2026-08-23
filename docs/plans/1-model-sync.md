@@ -12,4 +12,6 @@
 10. Unit, integration, and staging tests
 11. Release metadata, publication, and DSH Awesome discovery
 
-Completed: 1, 2, 3, 4, 5, 6, 7. Reconciliation updates additions and metadata, preserves missing models by default, and supports explicit pruning. Each step is a meaningful commit and includes the affected documentation.
+Completed: 1, 2, 3, 4, 5, 6, 7, 8, 9. Reconciliation updates additions and metadata, preserves missing models by default, and supports explicit pruning. The runtime now has a dry-run-first scheduler, manual API, revision-safe apply path, and bilingual Settings UI.
+
+Remaining: 10 (unit/integration/staging verification) and 11 (release metadata, public publication, `dsh-plugin` topic, and DSH Awesome discovery).

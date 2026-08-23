@@ -49,3 +49,9 @@ For profiles with `baseURL` and `openai-completions` or `openai-responses`, the 
 - Updates use settings revision checks.
 - Failed providers do not stop other providers.
 - Secrets are resolved only for a request and never returned in status or logs.
+
+## Runtime HTTP contract
+
+The plugin exposes `GET /dsh-model-sync/status` and `POST /dsh-model-sync/run`. The POST payload is validated as `{ provider?, dryRun?, removeMissing? }` and defaults to a read-only dry-run. Applying changes uses the current `llm-pi-ai` settings revision, so concurrent edits fail safely instead of being overwritten.
+
+Reconciliation is additive by default: new models and metadata are applied, while models absent from one response are retained and reported as stale. Pruning requires an explicit `removeMissing: true` request.

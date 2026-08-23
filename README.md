@@ -12,8 +12,24 @@ OAuth, subscription, and tool-only routes are intentionally outside the scope.
 
 ## Status
 
-Initial public scaffold. The implementation is being developed through the DSH/Gitea workflow and will be installed from npm only after staging verification.
+Runtime, scheduler, HTTP API, reconciliation, and Settings UI are implemented. Release and staging verification remain before publication.
 
 ## Development
 
 See the project documentation under ``docs/`` for architecture, research, testing, and release notes.
+
+## API and safety
+
+`GET /dsh-model-sync/status` reports provider state without secrets.
+
+`POST /dsh-model-sync/run` defaults to a read-only dry-run:
+
+```json
+{ "provider": "openai", "dryRun": true }
+```
+
+Apply is explicit:
+
+```json
+{ "provider": "openai", "dryRun": false, "removeMissing": false }
+```
