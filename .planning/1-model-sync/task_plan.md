@@ -14,7 +14,7 @@ Goal: publish and verify a safe API-key model catalog synchronizer for DSH.
 - [x] Phase 8: scheduler, manual run, and dry-run
 - [x] Phase 9: settings API and UI
 - [x] Phase 10: unit, integration, browser smoke, and staging tests
-- [ ] Phase 11: release metadata and publication
+- [x] Phase 11: release metadata, publication, and production deployment
 
 ## Decisions
 
@@ -31,3 +31,4 @@ Goal: publish and verify a safe API-key model catalog synchronizer for DSH.
 - Missing advertised models are retained by default and only pruned when explicitly requested.
 - Staging validation uses the compose proxy endpoint and a clean profile without API-key routes; real apply remains a release/operator check with configured credentials.
 - The staging pnpm store must be selected explicitly with PNPM_CONFIG_STORE_DIR=/data/dsh/.pnpm-store when repairing this profile.
+- The Settings UI lists only providers whose API-key route is actually configured; the built-in capability catalog remains available only to the backend synchronizer.
