@@ -1,8 +1,15 @@
 {
   "name": "@goodandready/dsh-model-sync",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Automatic model catalog synchronization for API-key DeepSeek Harness providers.",
-  "keywords": ["deepseek-harness", "dsh", "dsh-plugin", "models", "api-key", "catalog"],
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "models",
+    "api-key",
+    "catalog"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/GooDAnDReaDY/dsh-model-sync.git"
@@ -19,7 +26,12 @@
     "./package.json": "./package.json",
     "./cordis.patch.yml": "./cordis.patch.yml"
   },
-  "files": ["lib", "cordis.patch.yml", "README.md", "LICENSE"],
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
