@@ -34,6 +34,10 @@ The registry first selects the generic OpenAI-compatible adapter for routes with
 
 Keys are resolved only through the DSH credentials service, trimmed and checked for printable header-safe characters, then discarded after the request. Error messages contain only the credential reference and never the key value. The plugin does not read environment variables directly.
 
+## Reconciliation policy
+
+Every discovery returns a normalized advertised list. Existing model ids are updated in place and new ids are appended. Models missing from an advertised response remain in the catalog by default and are reported as stale; pruning requires an explicit option. Settings patches replace only the selected provider profile and preserve credentials, transport, and retry fields.
+
 ## Generic endpoint adapter
 
 For profiles with `baseURL` and `openai-completions` or `openai-responses`, the generic adapter requests `GET <baseURL>/models` with a short-lived bearer key. It enforces a response-size limit, validates JSON, normalizes common metadata aliases, and never returns the credential.
