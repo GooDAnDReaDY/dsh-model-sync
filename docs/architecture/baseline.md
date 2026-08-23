@@ -36,7 +36,7 @@ Keys are resolved only through the DSH credentials service, trimmed and checked 
 
 ## Reconciliation policy
 
-Every discovery returns a normalized advertised list. Existing model ids are updated in place and new ids are appended. Models missing from an advertised response remain in the catalog by default and are reported as stale; pruning requires an explicit option. Settings patches replace only the selected provider profile and preserve credentials, transport, and retry fields.
+Every discovery returns a normalized advertised list. Existing model ids are updated in place and new ids are appended. Models missing from an advertised response remain in the catalog by default and are always reported as stale; pruning requires an explicit option. Settings patches replace only the selected provider profile and preserve credentials, transport, and retry fields.
 
 ## Generic endpoint adapter
 
