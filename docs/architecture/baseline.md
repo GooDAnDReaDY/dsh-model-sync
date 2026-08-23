@@ -7,11 +7,12 @@ Keep API-key model catalogs current without changing DSH core or coupling to nei
 ## Components
 
 1. Provider inventory: reads the DSH configurable-provider directory and current settings metadata.
-2. Credential resolver: obtains a one-shot credential through the DSH credentials service.
-3. Adapter registry: selects generic OpenAI-compatible discovery or a provider-specific adapter.
-4. Reconciliation engine: validates, deduplicates, diffs, and optionally applies model metadata.
-5. Scheduler and web API: expose manual/dry-run runs and periodic refresh.
-6. Settings UI: displays status, errors, and pending changes without showing secrets.
+2. Provider service: exposes a live inventory through the DSH context without making network requests.
+3. Credential resolver: obtains a one-shot credential through the DSH credentials service.
+4. Adapter registry: selects generic OpenAI-compatible discovery or a provider-specific adapter.
+5. Reconciliation engine: validates, deduplicates, diffs, and optionally applies model metadata.
+6. Scheduler and web API: expose manual/dry-run runs and periodic refresh.
+7. Settings UI: displays status, errors, and pending changes without showing secrets.
 
 ## Provider inventory rules
 
@@ -20,6 +21,10 @@ The directory supplied by ``ctx.llm.listConfigurableProviders()`` is the source 
 ## Model normalization
 
 Adapters return provider, id, name, optional contextWindow, optional maxTokens, and optional description. Unknown rows and duplicate ids are skipped deterministically. The reconciliation layer compares normalized metadata, not wire-specific field names.
+
+## Runtime service
+
+The plugin provides ``modelSync`` through the DSH context. Its inventory methods re-read the provider directory and settings on every call, so adding a route or key does not require a plugin restart.
 
 ## Safety boundaries
 
