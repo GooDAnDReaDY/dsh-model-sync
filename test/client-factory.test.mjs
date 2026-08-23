@@ -10,6 +10,7 @@ test('client factory uses a browser-safe CommonJS shim', () => {
   const src = readFileSync(srcPath, 'utf8')
   assert.match(src, /var module = \{ exports: \{\} \}/)
   assert.match(src, /var exports = module\.exports/)
+  assert.match(src, /const rows = \(status\?\.providers \?\? \[\]\)\.filter\(\(row\) => row\.configured\)/)
   let captured
   const window = { __ModuleLoader__: { load(entry) { captured = entry } } }
   runInNewContext(src, createContext({ window }))
