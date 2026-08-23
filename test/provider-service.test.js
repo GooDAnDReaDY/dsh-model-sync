@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { createProviderService } from '../lib/provider-service.js'
 
 test('provider service reads the current DSH directory on every call', () => {
-  let configured = false
+  let live = false
   const ctx = {
     llm: {
       listConfigurableProviders: () => [{
@@ -13,16 +13,16 @@ test('provider service reads the current DSH directory on every call', () => {
         settingsPath: ['providers', 'demo'],
         declared: true,
       }],
-      listProviders: () => configured ? [{ id: 'demo', name: 'Demo' }] : [],
+      listProviders: () => live ? [{ id: 'demo', name: 'Demo' }] : [],
     },
     get: () => ({
       get: () => ({
-        providers: configured ? { demo: { apiKeyEnv: 'DEMO_API_KEY' } } : {},
+        providers: { demo: { apiKeyEnv: 'DEMO_API_KEY' } },
       }),
     }),
   }
   const service = createProviderService(ctx)
   assert.equal(service.listProviders()[0].live, false)
-  configured = true
+  live = true
   assert.equal(service.getProvider('demo').live, true)
 })

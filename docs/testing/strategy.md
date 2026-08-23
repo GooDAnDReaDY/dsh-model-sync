@@ -18,3 +18,7 @@
 ## Staging
 
 Install the package as a bundle in the staging DSH profile, run manual dry-run and apply flows, verify the Settings UI, then test the npm-installed artifact before release.
+
+## Workflow gate
+
+Every commit must run ``npm test`` explicitly. The current repository hook performs static checks but does not replace the test command.
