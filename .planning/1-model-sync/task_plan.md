@@ -25,3 +25,4 @@ Goal: publish and verify a safe API-key model catalog synchronizer for DSH.
 - Built-in API-key capability uses the installed DSH/pi-ai provider catalog; custom routes require apiKeyEnv.
 - The runtime service re-reads inventory on each call and performs no network request.
 - Generic discovery is limited to OpenAI-compatible models endpoints; other protocols need explicit adapters.
+- Source files are verified with npm test and node --check before each commit.
