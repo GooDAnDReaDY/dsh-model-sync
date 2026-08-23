@@ -26,6 +26,10 @@ Adapters return provider, id, name, optional contextWindow, optional maxTokens, 
 
 The plugin provides ``modelSync`` through the DSH context. Its inventory methods re-read the provider directory and settings on every call, so adding a route or key does not require a plugin restart.
 
+## Generic endpoint adapter
+
+For profiles with ``baseURL`` and ``openai-completions`` or ``openai-responses``, the generic adapter requests ``GET <baseURL>/models`` with a short-lived bearer key. It enforces a response-size limit, validates JSON, normalizes common metadata aliases, and never returns the credential.
+
 ## Safety boundaries
 
 - Discovery is read-only by default.
