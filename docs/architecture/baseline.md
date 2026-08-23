@@ -16,7 +16,7 @@ Keep API-key model catalogs current without changing DSH core or coupling to nei
 
 ## Provider inventory rules
 
-The directory supplied by ``ctx.llm.listConfigurableProviders()`` is the source of provider identities. Built-in API-key capability is represented by a versioned allowlist derived from the installed DSH/pi-ai catalog. A configured route with ``apiKeyEnv`` is included even when it is a custom route. OAuth-only, subscription, and tool-only routes are excluded. A provider without a configured key remains visible as dormant and is never probed.
+The directory supplied by `ctx.llm.listConfigurableProviders()` is the source of provider identities. Built-in API-key capability is represented by a versioned allowlist derived from the installed DSH/pi-ai catalog. A configured route with `apiKeyEnv` is included even when it is a custom route. OAuth-only, subscription, and tool-only routes are excluded. A provider without a configured key remains visible as dormant and is never probed.
 
 ## Model normalization
 
@@ -24,11 +24,15 @@ Adapters return provider, id, name, optional contextWindow, optional maxTokens, 
 
 ## Runtime service
 
-The plugin provides ``modelSync`` through the DSH context. Its inventory methods re-read the provider directory and settings on every call, so adding a route or key does not require a plugin restart.
+The plugin provides `modelSync` through the DSH context. Its inventory methods re-read the provider directory and settings on every call, so adding a route or key does not require a plugin restart.
+
+## Adapter registry
+
+The registry first selects the generic OpenAI-compatible adapter for routes with a configured `baseURL` and supported protocol. For built-in API-key providers without a route `baseURL`, it uses provider descriptors with documented default endpoints and auth styles (Bearer, `x-api-key`, or query key). Unsupported protocols are reported explicitly instead of guessed.
 
 ## Generic endpoint adapter
 
-For profiles with ``baseURL`` and ``openai-completions`` or ``openai-responses``, the generic adapter requests ``GET <baseURL>/models`` with a short-lived bearer key. It enforces a response-size limit, validates JSON, normalizes common metadata aliases, and never returns the credential.
+For profiles with `baseURL` and `openai-completions` or `openai-responses`, the generic adapter requests `GET <baseURL>/models` with a short-lived bearer key. It enforces a response-size limit, validates JSON, normalizes common metadata aliases, and never returns the credential.
 
 ## Safety boundaries
 

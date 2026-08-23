@@ -8,7 +8,7 @@ Goal: publish and verify a safe API-key model catalog synchronizer for DSH.
 - [x] Phase 2: provider inventory and normalized model schema
 - [x] Phase 3: DSH provider discovery service
 - [x] Phase 4: generic OpenAI-compatible adapter
-- [ ] Phase 5: provider-specific adapter registry
+- [x] Phase 5: provider-specific adapter registry
 - [ ] Phase 6: credential-safe request layer
 - [ ] Phase 7: diff and reconciliation engine
 - [ ] Phase 8: scheduler, manual run, and dry-run
@@ -26,3 +26,4 @@ Goal: publish and verify a safe API-key model catalog synchronizer for DSH.
 - The runtime service re-reads inventory on each call and performs no network request.
 - Generic discovery is limited to OpenAI-compatible models endpoints; other protocols need explicit adapters.
 - Source files are verified with npm test and node --check before each commit.
+- Adapter selection is deterministic: generic first, then provider-specific descriptor, otherwise unsupported.
