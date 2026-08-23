@@ -1,0 +1,4 @@
+# Bundle entry for the public DSH model synchronization plugin.
+- insert:
+    - id: dsh-model-sync
+      name: '@goodandready/dsh-model-sync'

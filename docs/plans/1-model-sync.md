@@ -1,0 +1,15 @@
+# Implementation plan
+
+1. Scaffold and workflow
+2. Provider inventory and normalized model schema
+3. DSH provider discovery service
+4. Generic OpenAI-compatible adapter
+5. Provider-specific adapter registry
+6. Credential-safe request layer
+7. Diff and reconciliation engine
+8. Scheduler, manual run, and dry-run
+9. Settings API and UI
+10. Unit, integration, and staging tests
+11. Release metadata, publication, and DSH Awesome discovery
+
+Each step must produce a meaningful commit and updated documentation.
