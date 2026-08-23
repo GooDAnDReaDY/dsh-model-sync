@@ -5,7 +5,7 @@ Goal: publish and verify a safe API-key model catalog synchronizer for DSH.
 ## Phases
 
 - [x] Phase 1: scaffold, repository, issue, and workflow files
-- [ ] Phase 2: provider inventory and normalized model schema
+- [x] Phase 2: provider inventory and normalized model schema
 - [ ] Phase 3: DSH provider discovery service
 - [ ] Phase 4: generic OpenAI-compatible adapter
 - [ ] Phase 5: provider-specific adapter registry
@@ -21,3 +21,5 @@ Goal: publish and verify a safe API-key model catalog synchronizer for DSH.
 - Only API-key authentication modes are in scope.
 - OAuth and subscriptions are excluded.
 - DSH Awesome discovery is achieved through a public GitHub repository and the dsh-plugin topic, not artificial commits.
+- Provider identities come from the DSH configurable-provider directory.
+- Built-in API-key capability uses the installed DSH/pi-ai provider catalog; custom routes require apiKeyEnv.

@@ -12,4 +12,4 @@
 10. Unit, integration, and staging tests
 11. Release metadata, publication, and DSH Awesome discovery
 
-Each step must produce a meaningful commit and updated documentation.
+Completed: 1, 2. Each step is a meaningful commit and includes the affected documentation.
