@@ -12,7 +12,7 @@ OAuth, subscription, and tool-only routes are intentionally outside the scope.
 
 ## Status
 
-Runtime, scheduler, HTTP API, reconciliation, and Settings UI are implemented. Release and staging verification remain before publication.
+Runtime, scheduler, HTTP API, reconciliation, model allowlists, and Settings UI are implemented. The release workflow includes staging and production verification before publication.
 
 ## Development
 
@@ -33,3 +33,13 @@ Apply is explicit:
 ```json
 { "provider": "openai", "dryRun": false, "removeMissing": false }
 ```
+
+Omit `provider` to discover all enabled API-key providers in one run. The Settings UI exposes this as **Refresh all**.
+
+`POST /dsh-model-sync/selection` stores and applies a per-provider model allowlist:
+
+```json
+{ "provider": "openai", "models": ["gpt-5", "gpt-5-mini"] }
+```
+
+An empty `models` array means all models in the latest available catalog. The selected catalog is written to DSH's `llm-pi-ai` settings, so the standard DSH model picker refreshes from the resulting list.
