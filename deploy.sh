@@ -33,7 +33,15 @@ systemctl is-active --quiet "$DSH_SERVICE"
 
 if [[ -n "${DSH_HEALTHCHECK_URL:-}" ]]; then
   command -v curl >/dev/null
-  curl --fail --silent --show-error --max-time "${DSH_HEALTHCHECK_TIMEOUT:-15}" "$DSH_HEALTHCHECK_URL" >/dev/null
+  health_timeout="${DSH_HEALTHCHECK_TIMEOUT:-30}"
+  deadline=$((SECONDS + health_timeout))
+  while ! curl --fail --silent --show-error --max-time 3 "$DSH_HEALTHCHECK_URL" >/dev/null; do
+    if (( SECONDS >= deadline )); then
+      echo "health check did not become ready within ${health_timeout}s" >&2
+      exit 1
+    fi
+    sleep 1
+  done
 fi
 
 echo "Deployed $package to profile $DSH_PROFILE; service $DSH_SERVICE is active."
