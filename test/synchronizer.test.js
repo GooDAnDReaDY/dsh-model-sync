@@ -59,3 +59,23 @@ test('coalesces concurrent runs into one discovery', async () => {
   assert.equal(await first, await second)
   assert.equal(calls, 1)
 })
+
+
+test('applies and persists a model allowlist while retaining the full available catalog', async () => {
+  const { ctx, section } = makeContext()
+  let config = { modelSelections: {} }
+  const sync = createModelSynchronizer(ctx, {
+    getConfig: () => config,
+    saveConfig: async (patch) => { config = { ...config, ...patch } },
+    fetchImpl: async () => response({ data: [{ id: 'old', name: 'Old' }, { id: 'new', name: 'New' }] }),
+  })
+  await sync.run({ provider: 'demo', dryRun: true })
+  const narrowed = await sync.setModelSelection('demo', ['new'])
+  assert.equal(narrowed.applied, true)
+  assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['new'])
+  assert.deepEqual(config.modelSelections.demo, ['new'])
+  assert.deepEqual(sync.getProvider('demo').availableModels.map((row) => row.id), ['old', 'new'])
+  const restored = await sync.setModelSelection('demo', [])
+  assert.deepEqual(restored.models.map((row) => row.id), ['old', 'new'])
+  assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['old', 'new'])
+})
