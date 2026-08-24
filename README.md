@@ -43,3 +43,9 @@ Omit `provider` to discover all enabled API-key providers in one run. The Settin
 ```
 
 An empty `models` array means all models in the latest available catalog. The selected catalog is written to DSH's `llm-pi-ai` settings, so the standard DSH model picker refreshes from the resulting list.
+
+
+The full catalog discovered by an applied run is cached in the plugin's own settings
+separately from the model allowlist. After a restart, the model chooser can show the
+full last-known catalog while the standard DSH picker still exposes only the selected
+models. Dry-run remains read-only and does not persist this cache.

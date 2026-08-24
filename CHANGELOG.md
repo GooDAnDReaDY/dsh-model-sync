@@ -1,3 +1,11 @@
+## 0.2.7 — 2026-08-24
+
+- full discovered model catalogs are cached separately from modelSelections;
+- the picker can restore the full last-known catalog after a restart without
+  widening the active llm-pi-ai provider catalog;
+- dry-run remains read-only and does not persist the cache;
+- added regression tests for persistence, restart restoration, and dry-run safety.
+
 # Changelog
 
 ## 0.2.6 — 2026-08-24

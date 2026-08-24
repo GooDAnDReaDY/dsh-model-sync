@@ -12,7 +12,8 @@ Keep API-key model catalogs current without changing DSH core or coupling to nei
 4. Adapter registry: selects generic OpenAI-compatible discovery or a provider-specific adapter.
 5. Reconciliation engine: validates, deduplicates, diffs, and optionally applies model metadata.
 6. Scheduler and web API: expose manual/dry-run runs and periodic refresh.
-7. Settings UI: displays status, errors, and pending changes without showing secrets.
+7. Catalog cache: stores the last successful applied discovery separately from the active allowlist.
+8. Settings UI: displays status, errors, and pending changes without showing secrets.
 
 ## Provider inventory rules
 
@@ -55,3 +56,14 @@ For profiles with `baseURL` and `openai-completions` or `openai-responses`, the 
 The plugin exposes `GET /dsh-model-sync/status` and `POST /dsh-model-sync/run`. The POST payload is validated as `{ provider?, dryRun?, removeMissing? }` and defaults to a read-only dry-run. Applying changes uses the current `llm-pi-ai` settings revision, so concurrent edits fail safely instead of being overwritten.
 
 Reconciliation is additive by default: new models and metadata are applied, while models absent from one response are retained and reported as stale. Pruning requires an explicit `removeMissing: true` request.
+
+
+## Catalog cache and allowlist
+
+modelSelections is the explicit per-provider allowlist applied to llm-pi-ai.
+modelCatalogs is a separate plugin-owned cache of the full normalized catalog from
+the last successful non-dry-run discovery. A restart therefore does not make the
+model chooser collapse to the selected subset. Dry-run never writes either the
+active DSH catalog or this cache. A cache write failure is reported in the run
+result after a successful revision-checked DSH update and does not roll that update
+back.

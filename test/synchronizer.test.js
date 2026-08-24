@@ -61,6 +61,39 @@ test('coalesces concurrent runs into one discovery', async () => {
 })
 
 
+test('persists the full catalog after apply and restores it after restart', async () => {
+  const { ctx, section } = makeContext()
+  let config = { modelSelections: {}, modelCatalogs: {} }
+  const saved = []
+  const sync = createModelSynchronizer(ctx, {
+    getConfig: () => config,
+    saveConfig: async (patch) => {
+      saved.push(structuredClone(patch))
+      config = { ...config, ...structuredClone(patch) }
+    },
+    fetchImpl: async () => response({ data: [{ id: 'old', name: 'Old' }, { id: 'new', name: 'New' }] }),
+  })
+  const result = await sync.run({ provider: 'demo', dryRun: false })
+  assert.equal(result.catalogCachePersisted, true)
+  assert.deepEqual(config.modelCatalogs.demo.map((row) => row.id), ['old', 'new'])
+  assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['old', 'new'])
+
+  const restarted = createModelSynchronizer(ctx, { getConfig: () => config })
+  assert.deepEqual(restarted.getProvider('demo').availableModels.map((row) => row.id), ['old', 'new'])
+  assert.deepEqual(saved.at(-1).modelCatalogs.demo.map((row) => row.id), ['old', 'new'])
+})
+
+test('keeps dry-run read-only by not persisting the catalog cache', async () => {
+  const { ctx } = makeContext()
+  let saves = 0
+  const sync = createModelSynchronizer(ctx, {
+    saveConfig: async () => { saves += 1 },
+    fetchImpl: async () => response({ data: [{ id: 'new', name: 'New' }] }),
+  })
+  await sync.run({ provider: 'demo', dryRun: true })
+  assert.equal(saves, 0)
+})
+
 test('applies and persists a model allowlist while retaining the full available catalog', async () => {
   const { ctx, section } = makeContext()
   let config = { modelSelections: {} }
