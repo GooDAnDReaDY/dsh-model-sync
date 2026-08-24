@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.6 — 2026-08-24
+
+- frozen snapshots из scope.get() и watcher теперь клонируются перед Schema.resolve;
+- устранено падение boot с Cannot assign to read only property при сохранённом выборе моделей.
+
 ## 0.2.5 — 2026-08-24
 
 - Settings service привязывается синхронно до создания synchronizer, без окна CONFIG_UNAVAILABLE после старта;
