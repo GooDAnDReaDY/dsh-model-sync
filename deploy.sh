@@ -15,7 +15,6 @@ if [[ "${EUID}" -ne 0 ]]; then
   exit 2
 fi
 
-command -v dsh >/dev/null
 command -v runuser >/dev/null
 command -v systemctl >/dev/null
 
@@ -23,7 +22,12 @@ plugin_runner=(runuser -u "$DSH_RUNTIME_USER" --)
 if [[ -n "${DSH_PNPM_STORE_DIR:-}" ]]; then
   plugin_runner+=(env "PNPM_CONFIG_STORE_DIR=${DSH_PNPM_STORE_DIR}")
 fi
-"${plugin_runner[@]}" dsh plugin --profile "$DSH_PROFILE" add "$package"
+dsh_binary="$(${plugin_runner[@]} sh -lc 'command -v dsh')"
+if [[ -z "$dsh_binary" ]]; then
+  echo "dsh is not available in the runtime user's PATH" >&2
+  exit 1
+fi
+"${plugin_runner[@]}" "$dsh_binary" plugin --profile "$DSH_PROFILE" add "$package"
 systemctl restart "$DSH_SERVICE"
 systemctl is-active --quiet "$DSH_SERVICE"
 
