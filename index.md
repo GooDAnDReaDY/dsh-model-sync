@@ -15,3 +15,5 @@ Automatic model catalog synchronization for API-key providers in DeepSeek Harnes
 - After an applied run, the full catalog is persisted in the plugin namespace and
   restored for the picker after a DSH restart; dry-run does not write it.
 - Release candidate checks: npm test, node --check, git diff --check, npm audit.
+
+- Deployment: deploy.sh with explicit approval guard; see docs/deployment/production.md.
