@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.3 — 2026-08-24
+
+- writer выбора моделей теперь корректно подключается после асинхронной инициализации Cordis Settings;
+- сохранение allowlist больше не возвращает CONFIG_UNAVAILABLE в штатном DSH runtime.
+
 ## 0.2.2 — 2026-08-24
 
 - подключение namespace настроек переведено на штатный DSH Settings API через ctx.inject(['settings']);
