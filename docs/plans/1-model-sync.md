@@ -12,6 +12,6 @@
 10. Unit, integration, and staging tests
 11. Release metadata, publication, and DSH Awesome discovery
 
-Completed: 1, 2, 3, 4, 5, 6, 7, 8, 9. Reconciliation updates additions and metadata, preserves missing models by default, and supports explicit pruning. The runtime now has a dry-run-first scheduler, manual API, revision-safe apply path, and bilingual Settings UI.
+Completed: 1, 2, 3, 4, 5, 6, 7, 8, 9. Reconciliation updates additions and metadata, preserves missing models by default, and supports explicit pruning. The runtime now has a dry-run-first scheduler, manual API, revision-safe apply path, bilingual Settings UI, separate model allowlists, and persistent full-catalog cache.
 
-Remaining: 10 (unit/integration/staging verification) and 11 (release metadata, public publication, `dsh-plugin` topic, and DSH Awesome discovery).
+Remaining for this patch: staging verification with one controlled restart, then Gitea PR/review/merge and the normal RELEASE/GitHub/npm publication gate.
