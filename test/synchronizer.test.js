@@ -23,7 +23,7 @@ function makeContext() {
     },
     get: (key) => key === 'settings' ? settings : key === 'credentials' ? { resolve: async (ref) => ({ value: ref + '-value' }) } : undefined,
   }
-  return { ctx, section }
+  return { ctx, section, settings }
 }
 
 function response(payload) {
@@ -78,4 +78,44 @@ test('applies and persists a model allowlist while retaining the full available 
   const restored = await sync.setModelSelection('demo', [])
   assert.deepEqual(restored.models.map((row) => row.id), ['old', 'new'])
   assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['old', 'new'])
+})
+
+
+test('does not write the catalog when the allowlist cannot be persisted', async () => {
+  const { ctx, section } = makeContext()
+  let saveCalls = 0
+  const sync = createModelSynchronizer(ctx, {
+    saveConfig: async () => {
+      saveCalls += 1
+      throw Object.assign(new Error('settings unavailable'), { code: 'CONFIG_UNAVAILABLE' })
+    },
+    fetchImpl: async () => response({ data: [{ id: 'old', name: 'Old' }, { id: 'new', name: 'New' }] }),
+  })
+  await sync.run({ provider: 'demo', dryRun: true })
+  await assert.rejects(() => sync.setModelSelection('demo', ['new']), /settings unavailable/)
+  assert.equal(saveCalls, 1)
+  assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['old'])
+})
+
+test('rolls the allowlist back when the catalog write fails', async () => {
+  const { ctx, section, settings } = makeContext()
+  settings.replace = async () => { throw new Error('catalog unavailable') }
+  let config = { modelSelections: {} }
+  const saved = []
+  const sync = createModelSynchronizer(ctx, {
+    getConfig: () => config,
+    saveConfig: async (patch) => {
+      saved.push(structuredClone(patch))
+      config = { ...config, ...patch }
+    },
+    fetchImpl: async () => response({ data: [{ id: 'old', name: 'Old' }, { id: 'new', name: 'New' }] }),
+  })
+  await sync.run({ provider: 'demo', dryRun: true })
+  await assert.rejects(() => sync.setModelSelection('demo', ['new']), /catalog unavailable/)
+  assert.deepEqual(saved, [
+    { modelSelections: { demo: ['new'] } },
+    { modelSelections: {} },
+  ])
+  assert.deepEqual(config.modelSelections, {})
+  assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['old'])
 })
