@@ -11,8 +11,9 @@ Keep API-key model catalogs current without changing DSH core or coupling to nei
 3. Credential resolver: obtains a one-shot credential through the DSH credentials service.
 4. Adapter registry: selects generic OpenAI-compatible discovery or a provider-specific adapter.
 5. Reconciliation engine: validates, deduplicates, diffs, and optionally applies model metadata.
-6. Scheduler and web API: expose manual/dry-run runs and periodic refresh.
-7. Catalog cache: stores the last successful applied discovery separately from the active allowlist.
+6. Reliability layer: applies per-provider timeout, retry/backoff, concurrency limits, and transient-failure circuit breakers.
+7. Scheduler and web API: expose manual/dry-run runs and periodic refresh.
+8. Catalog cache: stores the last successful applied discovery separately from the active allowlist.
 8. Settings UI: displays status, errors, and pending changes without showing secrets.
 
 ## Provider inventory rules
@@ -28,6 +29,16 @@ capability flags (`vision`, `tools`, `reasoning`, `embeddings`) and pricing
 absent: the plugin never infers a capability from a model name or arbitrary raw
 payload. Unknown rows and duplicate ids are skipped deterministically. The
 reconciliation layer compares normalized metadata, not wire-specific field names.
+
+## Reliability policy
+
+Discovery runs are isolated per provider. Transient HTTP statuses (408, 425,
+429, 5xx) and transport/timeouts use bounded exponential backoff; permanent
+credential or schema failures are not retried. A concurrency limit prevents a
+mass refresh from flooding providers. A per-provider circuit opens after the
+configured number of transient failures and reports `circuit-open` without
+rewriting the catalog; the cooldown is bounded and configurable. All request
+signals are cleaned up when the Cordis operation ends.
 
 ## Runtime service
 

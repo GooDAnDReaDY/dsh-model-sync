@@ -14,7 +14,7 @@
 
 Completed: 1, 2, 3, 4, 5, 6, 7, 8, 9. Reconciliation updates additions and metadata, preserves missing models by default, and supports explicit pruning. The runtime now has a dry-run-first scheduler, manual API, revision-safe apply path, bilingual Settings UI, separate model allowlists, and persistent full-catalog cache.
 
-Current roadmap is split into two patch blocks. Block `v0.2.8` is the
+The #29 normalization step is complete on the block branch. Current roadmap is split into two patch blocks. Block `v0.2.8` is the
 reliability and selection foundation: #29 metadata normalization, #31 resilient
 mass sync, #30 provider health, #28 persistent selection policies, and #26
 background scheduling. Block `v0.2.9` follows with #27 history, #32 model

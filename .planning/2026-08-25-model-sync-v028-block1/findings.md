@@ -29,3 +29,10 @@
 - Unknown capabilities and pricing are omitted; no inference by model name.
 - Added regression coverage for array capabilities, nested pricing, explicit false, and unknown omission.
 - Updated architecture, testing strategy, plan, and root index documentation.
+
+## #31 implementation
+
+- Added `lib/reliability.js` with status classification, timeout signals, bounded retry/backoff, and concurrency mapping.
+- Adapter HTTP errors now carry a numeric status for safe transient/permanent classification.
+- Synchronizer isolates providers, exposes retry counts, and opens per-provider circuits after repeated transient failures.
+- Missing `providers` config now safely means all discovered configured providers, matching the DSH Config default.

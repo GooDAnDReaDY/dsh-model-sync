@@ -6,7 +6,7 @@
 
 ## Current Phase
 
-Phase 3 — #31 надёжность массовой синхронизации
+Phase 4 — #30 health-check провайдеров
 
 ## Phases
 
@@ -25,9 +25,9 @@ Status: complete
 - Добавить unit/regression tests и evidence в issue/PR.
 
 ### Phase 3 — #31 надёжность массовой синхронизации
-Status: in_progress
+Status: complete
 ### Phase 4 — #30 health-check провайдеров
-Status: pending
+Status: in_progress
 ### Phase 5 — #28 постоянные политики отбора
 Status: pending
 ### Phase 6 — #26 фоновый планировщик
@@ -59,7 +59,7 @@ Status: pending
 
 ## Next Step
 
-Исследовать текущий pipeline `run/discover` и готовые retry/backoff решения для #31.
+Исследовать текущие adapter endpoints и спроектировать отдельный health probe для #30.
 
 ## Decisions Made
 
@@ -74,3 +74,4 @@ Status: pending
 |---|---:|---|
 | Milestone assignment script получил `None` для issue без milestone | 1 | Исправлен обработчик `issue.get('milestone') or {}`, повторный запуск выполнен идемпотентно |
 | `apply_patch` отсутствует на MiniAI | 1 | Для server-side planning-файлов использован Python fallback; код проекта этим способом не меняется |
+| Новые #31 тесты получили 0 вызовов | 1 | Выявлено, что unit fallback с отсутствующим `providers` не совпадал с Config default; введён безопасный `providerConfig=[]` |

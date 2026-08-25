@@ -13,7 +13,8 @@
 - mocked OpenAI-compatible endpoint
 - mocked provider-specific endpoint
 - settings revision conflict
-- scheduler cancellation and retry
+- scheduler cancellation and retry/backoff
+- timeout signals, concurrency limits, permanent-vs-transient errors, and circuit breaker cooldown
 - full catalog cache persistence and restart restoration
 - dry-run remains free of plugin-settings writes
 
