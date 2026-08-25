@@ -31,3 +31,9 @@ test('patches only the provider model catalog', () => {
   assert.equal(next.providers.demo.apiKeyEnv, 'DEMO_API_KEY')
   assert.equal(next.providers.demo.models[0].id, 'new')
 })
+
+test('removes only lifecycle-confirmed ids when requested', () => {
+  const result = reconcileModels('demo', [{ id: 'old', name: 'Old' }, { id: 'keep', name: 'Keep' }], [], { removeIds: ['old'] })
+  assert.deepEqual(result.next.map((row) => row.id), ['keep'])
+  assert.deepEqual(result.stale.map((row) => row.id), ['old', 'keep'])
+})

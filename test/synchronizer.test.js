@@ -186,3 +186,38 @@ test('rolls back only the selected catalog and leaves model allowlist untouched'
   assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['old'])
   assert.deepEqual(config.modelSelections.demo, ['new'])
 })
+
+
+test('keeps stale catalogs across repeated discovery gaps and removes only after explicit grace action', async () => {
+  const { ctx, section } = makeContext()
+  let config = { modelCatalogs: {}, modelLifecycle: {}, staleGraceRuns: 2, history: [] }
+  let calls = 0
+  const sync = createModelSynchronizer(ctx, {
+    getConfig: () => config,
+    saveConfig: async (patch) => { config = { ...config, ...structuredClone(patch) } },
+    fetchImpl: async () => response({ data: calls++ === 0 ? [{ id: 'old', name: 'Old' }] : [] }),
+  })
+  await sync.run({ provider: 'demo', dryRun: false })
+  const gap = await sync.run({ provider: 'demo', dryRun: false })
+  assert.equal(gap.results[0].lifecycle[0].status, 'stale')
+  assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['old'])
+  assert.deepEqual(config.modelCatalogs.demo.map((row) => row.id), ['old'])
+  const removed = await sync.run({ provider: 'demo', dryRun: false, removeMissing: true })
+  assert.equal(removed.results[0].lifecycle[0].status, 'removed')
+  assert.deepEqual(section.providers.demo.models.map((row) => row.id), [])
+  assert.equal(config.modelLifecycle.demo.old.status, 'removed')
+})
+
+test('does not advance lifecycle state on discovery failure', async () => {
+  const { ctx } = makeContext()
+  let config = { modelCatalogs: { demo: [{ id: 'old', name: 'Old' }] }, modelLifecycle: { demo: { old: { status: 'active', consecutiveMissing: 0 } } }, history: [] }
+  const sync = createModelSynchronizer(ctx, {
+    getConfig: () => config,
+    saveConfig: async (patch) => { config = { ...config, ...structuredClone(patch) } },
+    fetchImpl: async () => { throw Object.assign(new Error('temporary upstream outage'), { status: 503 }) },
+  })
+  const result = await sync.run({ provider: 'demo', dryRun: false, retryAttempts: 1 })
+  assert.equal(result.results[0].status, 'error')
+  assert.equal(config.modelLifecycle.demo.old.status, 'active')
+  assert.equal(config.modelLifecycle.demo.old.consecutiveMissing, 0)
+})

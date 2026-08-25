@@ -107,3 +107,10 @@ model chooser collapse to the selected subset. Dry-run never writes either the
 active DSH catalog or this cache. A cache write failure is reported in the run
 result after a successful revision-checked DSH update and does not roll that update
 back.
+
+
+Lifecycle records are persisted separately from model selections. They track
+`active`, `stale`, `deprecated`, and `removed` states, consecutive missing runs,
+explicit deprecation timestamps, and bounded audit retention. A stale or
+ deprecated model is not included in the default selectable set; an explicit
+model selection can still reference a retained catalog entry.
