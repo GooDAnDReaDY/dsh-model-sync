@@ -1,4 +1,4 @@
-## Unreleased
+## 0.2.11 — 2026-08-25
 
 - credential diagnostics load on opening the section and no longer report missing providers before the check completes;
 - show the full discovered model catalog count instead of the selected allowlist count;
