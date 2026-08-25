@@ -42,3 +42,11 @@
 - Added adapter `health` probes that check HTTP status and cancel response bodies without parsing catalogs.
 - Added synchronizer `health()` snapshot, separate POST `/dsh-model-sync/health`, and Settings UI availability action.
 - Health uses #31 bounded timeout/retry/concurrency but never writes model catalogs or circuit state.
+
+## #28 research and implementation
+
+- Reused the existing `modelSelections`/full `modelCatalogs` split; no second catalog store was introduced.
+- Added normalized bounded provider tags so policies can match provider-supplied labels without guessing from model names.
+- Policy semantics are explicit: case-insensitive include/exclude regex against id/name/tags, plus only four known capability keys; absent metadata never satisfies a requirement.
+- Policies are persisted per configured provider and applied only by the next explicit run; the full catalog cache remains complete for later picker refinement.
+- Invalid regex and oversized inputs fail before settings writes.

@@ -14,3 +14,6 @@
 - Current phase advanced to #30.
 - #30 implementation complete: separate adapter probes, synchronizer health snapshot, HTTP route and UI button; full `npm test` 46/46, static checks and audit clean.
 - Current phase advanced to #28.
+
+- #28 implementation complete: persistent policy engine, `/policy` API, bilingual editor, tags/capability filtering, and dry-run/apply coverage. Full `npm test` 51/51; static checks and audit clean.
+- Current phase advanced to #26 scheduler.

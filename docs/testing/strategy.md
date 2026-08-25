@@ -4,7 +4,8 @@
 
 - provider classification
 - adapter selection
-- model normalization, capability aliases, pricing aliases, and deduplication
+- model normalization, capability aliases, pricing aliases, tags, and deduplication
+- policy validation, bounded regex filtering, and explicit capability matching
 - diff/reconciliation behavior
 - credential redaction
 
@@ -16,6 +17,7 @@
 - scheduler cancellation and retry/backoff
 - timeout signals, concurrency limits, permanent-vs-transient errors, and circuit breaker cooldown
 - full catalog cache persistence and restart restoration
+- policy persistence, preview filtering, and explicit apply behavior
 - dry-run remains free of plugin-settings writes
 
 ## Static checks

@@ -6,7 +6,7 @@
 
 ## Current Phase
 
-Phase 5 — #28 постоянные политики отбора
+Phase 6 — #26 фоновый планировщик
 
 ## Phases
 
@@ -29,9 +29,9 @@ Status: complete
 ### Phase 4 — #30 health-check провайдеров
 Status: complete
 ### Phase 5 — #28 постоянные политики отбора
-Status: in_progress
+Status: complete
 ### Phase 6 — #26 фоновый планировщик
-Status: pending
+Status: in_progress
 
 ### Phase 7 — проверки блока и релиз v0.2.8
 Status: pending
@@ -59,7 +59,7 @@ Status: pending
 
 ## Next Step
 
-Исследовать текущие `modelSelections` и спроектировать постоянные include/exclude policy для #28.
+Проверить текущий scheduler и довести #26: jitter, TTL/просрочку, per-provider cadence, наблюдаемые last/next run и безопасное изменение настроек.
 
 ## Decisions Made
 
@@ -77,3 +77,10 @@ Status: pending
 | Новые #31 тесты получили 0 вызовов | 1 | Выявлено, что unit fallback с отсутствующим `providers` не совпадал с Config default; введён безопасный `providerConfig=[]` |
 | HTTP health route добавил четвёртый disposer, старое ожидание теста было 3 | 1 | Обновлено ожидание и добавлен отдельный route contract test |
 | Ошибка оркестрации tool-вызова (`ReferenceError: command is not defined`) | 1 | Повторен вызов с корректным `exec_command` |
+
+## #28 DoD
+
+- Реализованы bounded include/exclude regex-паттерны, tags и explicit capability filters.
+- `modelPolicies` сохраняются через settings API; dry-run показывает policy-approved models, apply обновляет только активный каталог.
+- Добавлены `/policy`, bilingual Settings editor, tests/docs.
+- Проверка: `npm test` 51/51; `node --check lib/*.js`; `git diff --check`; `npm audit --omit=dev --audit-level=high` — 0 vulnerabilities.

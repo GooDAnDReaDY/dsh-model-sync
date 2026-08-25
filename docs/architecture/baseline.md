@@ -14,7 +14,8 @@ Keep API-key model catalogs current without changing DSH core or coupling to nei
 6. Reliability layer: applies per-provider timeout, retry/backoff, concurrency limits, and transient-failure circuit breakers.
 7. Scheduler and web API: expose manual/dry-run runs and periodic refresh.
 8. Catalog cache: stores the last successful applied discovery separately from the active allowlist.
-8. Settings UI: displays status, errors, and pending changes without showing secrets.
+9. Model policy engine: filters cached and discovered catalogs by bounded patterns, tags, and explicit capabilities.
+10. Settings UI: displays status, errors, and pending changes without showing secrets.
 
 ## Provider inventory rules
 
@@ -25,7 +26,7 @@ The directory supplied by `ctx.llm.listConfigurableProviders()` is the source of
 Adapters return provider, id, name, and optional normalized metadata. The common
 normalizer accepts explicit aliases for context window and output limits, plus
 capability flags (`vision`, `tools`, `reasoning`, `embeddings`) and pricing
-(`inputPerToken`, `outputPerToken`, optional currency/unit). Unknown values stay
+(`inputPerToken`, `outputPerToken`, optional currency/unit), and bounded provider tags. Unknown values stay
 absent: the plugin never infers a capability from a model name or arbitrary raw
 payload. Unknown rows and duplicate ids are skipped deterministically. The
 reconciliation layer compares normalized metadata, not wire-specific field names.
@@ -70,9 +71,21 @@ For profiles with `baseURL` and `openai-completions` or `openai-responses`, the 
 
 ## Runtime HTTP contract
 
-The plugin exposes `GET /dsh-model-sync/status`, `POST /dsh-model-sync/run`, and `POST /dsh-model-sync/health`. The run payload is validated as `{ provider?, dryRun?, removeMissing? }` and defaults to a read-only dry-run; health accepts only an optional provider and never writes settings. Applying changes uses the current `llm-pi-ai` settings revision, so concurrent edits fail safely instead of being overwritten.
+The plugin exposes `GET /dsh-model-sync/status`, `POST /dsh-model-sync/run`, `POST /dsh-model-sync/health`, `POST /dsh-model-sync/selection`, and `POST /dsh-model-sync/policy`. The run payload is validated as `{ provider?, dryRun?, removeMissing? }` and defaults to a read-only dry-run; health accepts only an optional provider and never writes settings. Selection writes a bounded per-provider allowlist, while policy writes bounded include/exclude patterns and explicit capability requirements. Applying changes uses the current `llm-pi-ai` settings revision, so concurrent edits fail safely instead of being overwritten.
 
 Reconciliation is additive by default: new models and metadata are applied, while models absent from one response are retained and reported as stale. Pruning requires an explicit `removeMissing: true` request.
+
+
+## Selection policies
+
+`modelPolicies` is persisted per configured API-key provider. Include and exclude
+patterns are case-insensitive regular expressions matched against normalized model
+id, name, and provider-supplied tags. Policies may require or deny only explicit
+capabilities (`vision`, `tools`, `reasoning`, `embeddings`); missing metadata never
+counts as a capability. Patterns and capability maps are bounded and invalid
+regular expressions are rejected before settings are written. A policy affects the
+next explicit apply run; the full discovered catalog remains cached separately so
+the picker can be refined without another network request.
 
 
 ## Catalog cache and allowlist

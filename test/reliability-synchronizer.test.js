@@ -104,3 +104,32 @@ test('limits provider discovery concurrency', async () => {
   assert.equal(maximum, 2)
   assert.deepEqual(result.results.map((row) => row.status), ['ok', 'ok', 'ok'])
 })
+
+
+test('persists provider policy and applies only policy-approved models', async () => {
+  const { ctx, section } = makeContext()
+  const config = { modelPolicies: {}, modelCatalogs: {} }
+  const saves = []
+  const sync = createModelSynchronizer(ctx, {
+    getConfig: () => config,
+    saveConfig: async (patch) => { saves.push(patch); Object.assign(config, patch) },
+    fetchImpl: async () => response({ data: [
+      { id: 'demo-old', name: 'Old', tags: ['legacy'] },
+      { id: 'demo-new', name: 'New', tags: ['featured'], capabilities: { vision: true } },
+    ] }),
+  })
+  const saved = await sync.setModelPolicy('demo', { include: ['featured'] })
+  assert.deepEqual(saved.policy.include, ['featured'])
+  assert.deepEqual(section.providers.demo.models.map((model) => model.id), ['demo-old'])
+
+  const preview = await sync.run({ dryRun: true, retryAttempts: 1 })
+  assert.deepEqual(preview.results[0].availableModels.map((model) => model.id), ['demo-new'])
+  assert.deepEqual(preview.results[0].advertised.map((model) => model.id), ['demo-new'])
+  assert.deepEqual(section.providers.demo.models.map((model) => model.id), ['demo-old'])
+
+  const applied = await sync.run({ dryRun: false, retryAttempts: 1 })
+  assert.equal(applied.applied, true)
+  assert.deepEqual(section.providers.demo.models.map((model) => model.id), ['demo-new'])
+  assert.deepEqual(config.modelCatalogs.demo.map((model) => model.id), ['demo-old', 'demo-new'])
+  assert.equal(saves.some((patch) => patch.modelPolicies), true)
+})
