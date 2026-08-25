@@ -1,4 +1,4 @@
-## 0.2.11 — 2026-08-25
+## 0.2.12 — 2026-08-25
 
 - moved Model Sync from the crowded settings sidebar into a collapsible Plugins settings card with a safe legacy fallback;
 - credential diagnostics load on opening the section and no longer report missing providers before the check completes;
