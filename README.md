@@ -59,3 +59,12 @@ History is written only by non-dry-run synchronization, is retained according to
 `historyLimit` (1–200, default 50), and redacts credential-shaped error values.
 Rename detection requires an explicit provider `aliases` or `previousIds` field;
 model-id similarity is never guessed.
+
+
+Lifecycle protection keeps a model `stale` after a missing discovery and only
+moves it to `removed` after the configured `staleGraceRuns` and an explicit
+removal confirmation. Provider-declared `deprecated`/`deprecationDate`/
+`expiration_date` metadata is retained as an audit status. Repeated transport or
+credential failures do not advance lifecycle counters. The full catalog cache
+retains stale entries until the user confirms removal; the model picker defaults
+to active models while explicit selections may still name a retained model.
