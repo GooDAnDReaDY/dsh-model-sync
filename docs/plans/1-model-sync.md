@@ -19,9 +19,12 @@ reliability and selection foundation: #29 metadata normalization, #31 resilient
 mass sync, #30 provider health, #28 persistent selection policies, and #26
 background scheduling. Block `v0.2.9` follows with #27 history, #32 model
 lifecycle, #33 credential diagnostics, #34 reporting, and #35 adapter registry.
-Block 2 has #27, #32, #33, and #34 merged; #35 adds the validated adapter registry and explicit runtime escape hatch while preserving existing adapters. The block still has no version bump; after #35 and staging smoke it will release once as 0.2.9.
-The version changes once after each complete five-issue block.
+Block 2 is complete: #27, #32, #33, #34, and #35 are merged. It adds history,
+model lifecycle, credential diagnostics, reports/notifications, and the validated
+adapter registry with an explicit runtime escape hatch. The release branch carries
+the single patch bump to 0.2.9; no individual issue in either block changes the
+version. Each complete five-issue block produces exactly one patch release.
 
-Block 1 implementation and staging verification are complete. The release branch
-now carries the single patch bump to `0.2.8`; after the release PR/tag, the next
-roadmap block targets `0.2.9` with no version change inside that block.
+Block 1 implementation and staging verification were released as 0.2.8.
+Block 2 passed final staging verification with the 0.2.9 package artifact;
+only the Gitea release PR/tag remains before publication approval.
