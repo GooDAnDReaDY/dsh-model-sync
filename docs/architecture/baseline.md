@@ -13,9 +13,10 @@ Keep API-key model catalogs current without changing DSH core or coupling to nei
 5. Reconciliation engine: validates, deduplicates, diffs, and optionally applies model metadata.
 6. Reliability layer: applies per-provider timeout, retry/backoff, concurrency limits, and transient-failure circuit breakers.
 7. Scheduler and web API: expose manual/dry-run runs and periodic refresh.
-8. Catalog cache: stores the last successful applied discovery separately from the active allowlist.
-9. Model policy engine: filters cached and discovered catalogs by bounded patterns, tags, and explicit capabilities.
-10. Settings UI: displays status, errors, and pending changes without showing secrets.
+8. Scheduler policy: keeps scheduling opt-in, supports per-provider cadence, TTL, jitter, and observable last/next timestamps.
+9. Catalog cache: stores the last successful applied discovery separately from the active allowlist.
+10. Model policy engine: filters cached and discovered catalogs by bounded patterns, tags, and explicit capabilities.
+11. Settings UI: displays status, errors, and pending changes without showing secrets.
 
 ## Provider inventory rules
 
@@ -40,6 +41,15 @@ mass refresh from flooding providers. A per-provider circuit opens after the
 configured number of transient failures and reports `circuit-open` without
 rewriting the catalog; the cooldown is bounded and configurable. All request
 signals are cleaned up when the Cordis operation ends.
+
+## Scheduler
+
+Scheduling is opt-in through `scheduleEnabled`; the plugin and its manual API remain
+usable when it is off. A single guarded timer polls due providers, while each
+configured provider may override the global interval and set a minimum TTL and
+jitter. Runs are serialized and use the same synchronizer path as manual requests;
+a failed provider is recorded and does not cancel the other providers. Status
+exposes scheduler activity plus last/next timestamps for the UI.
 
 ## Runtime service
 

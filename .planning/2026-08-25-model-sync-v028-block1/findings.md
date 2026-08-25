@@ -50,3 +50,10 @@
 - Policy semantics are explicit: case-insensitive include/exclude regex against id/name/tags, plus only four known capability keys; absent metadata never satisfies a requirement.
 - Policies are persisted per configured provider and applied only by the next explicit run; the full catalog cache remains complete for later picker refinement.
 - Invalid regex and oversized inputs fail before settings writes.
+
+## #26 research and implementation
+
+- Reused the existing scheduler lifecycle (`start`, `stop`, `reconfigure`) and the same synchronizer `run` path; no parallel discovery implementation was added.
+- Added an opt-in `scheduleEnabled` setting (the plugin itself can remain enabled while background traffic stays off).
+- A single minute safety timer drives due-provider checks; per-provider interval, TTL, jitter, enabled flag, and serialized execution are enforced in memory.
+- Scheduler status is exposed through the existing status endpoint and Settings UI; errors are isolated per provider.

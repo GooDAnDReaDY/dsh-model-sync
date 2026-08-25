@@ -17,3 +17,6 @@
 
 - #28 implementation complete: persistent policy engine, `/policy` API, bilingual editor, tags/capability filtering, and dry-run/apply coverage. Full `npm test` 51/51; static checks and audit clean.
 - Current phase advanced to #26 scheduler.
+
+- #26 implementation complete: opt-in scheduler, per-provider interval/TTL/jitter, overlap guard, last/next status API and UI. Full `npm test` 53/53; static checks and audit clean.
+- Block 1 implementation complete; current phase is release-artifact and staging verification for `v0.2.8`.

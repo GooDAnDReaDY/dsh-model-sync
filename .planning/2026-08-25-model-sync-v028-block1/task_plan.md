@@ -6,7 +6,7 @@
 
 ## Current Phase
 
-Phase 6 — #26 фоновый планировщик
+Phase 7 — проверки блока и релиз v0.2.8
 
 ## Phases
 
@@ -31,10 +31,10 @@ Status: complete
 ### Phase 5 — #28 постоянные политики отбора
 Status: complete
 ### Phase 6 — #26 фоновый планировщик
-Status: in_progress
+Status: complete
 
 ### Phase 7 — проверки блока и релиз v0.2.8
-Status: pending
+Status: in_progress
 
 - npm test, node --check, diff/audit/pack checks.
 - staging install from publication artifact and smoke/e2e.
@@ -59,7 +59,7 @@ Status: pending
 
 ## Next Step
 
-Проверить текущий scheduler и довести #26: jitter, TTL/просрочку, per-provider cadence, наблюдаемые last/next run и безопасное изменение настроек.
+Проверить публикационный артефакт и staging smoke для полного блока; затем открыть review/merge gate. До этого версия остаётся `0.2.7`.
 
 ## Decisions Made
 
@@ -84,3 +84,10 @@ Status: pending
 - `modelPolicies` сохраняются через settings API; dry-run показывает policy-approved models, apply обновляет только активный каталог.
 - Добавлены `/policy`, bilingual Settings editor, tests/docs.
 - Проверка: `npm test` 51/51; `node --check lib/*.js`; `git diff --check`; `npm audit --omit=dev --audit-level=high` — 0 vulnerabilities.
+
+## #26 DoD
+
+- Планировщик включается только через `scheduleEnabled`; ручной путь не зависит от него.
+- Один guarded timer поддерживает per-provider interval, TTL и jitter; overlap исключён.
+- Статус API/UI показывает active, last/next и ошибки по провайдерам.
+- Проверка: `npm test` 53/53; `node --check lib/*.js`; `git diff --check`; `npm audit --omit=dev --audit-level=high` — 0 vulnerabilities.

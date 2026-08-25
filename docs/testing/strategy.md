@@ -14,7 +14,7 @@
 - mocked OpenAI-compatible endpoint
 - mocked provider-specific endpoint and lightweight health probe
 - settings revision conflict
-- scheduler cancellation and retry/backoff
+- scheduler cancellation, opt-in behavior, per-provider cadence, TTL, jitter, and retry/backoff
 - timeout signals, concurrency limits, permanent-vs-transient errors, and circuit breaker cooldown
 - full catalog cache persistence and restart restoration
 - policy persistence, preview filtering, and explicit apply behavior
@@ -26,7 +26,7 @@ Run `node --check` for every runtime module before committing. The pre-commit ho
 
 ## Staging
 
-Install the package as a bundle in the staging DSH profile, run manual dry-run and apply flows, verify the Settings UI, restart once after the full flow, confirm the picker still sees the cached full catalog while the active catalog stays allowlisted, then test the npm-installed artifact before release.
+Install the package as a bundle in the staging DSH profile, run manual dry-run and apply flows, verify the Settings UI, restart once after the full flow, confirm the picker still sees the cached full catalog while the active catalog stays allowlisted, then test the npm-installed artifact before release. Scheduler smoke must verify opt-in defaults, one-run-at-a-time behavior, and visible last/next timestamps.
 
 ## Workflow gate
 
