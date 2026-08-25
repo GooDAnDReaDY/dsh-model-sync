@@ -1,3 +1,9 @@
+## Unreleased
+
+- show the full discovered model catalog count instead of the selected allowlist count;
+- expand model selection and policy editors directly inside the active provider row;
+- rename the policy action to “Manual model selection” / “Ручной выбор моделей”.
+
 ## 0.2.10 — 2026-08-25
 
 - polished the Model Sync settings UI into responsive theme-aware cards;

@@ -26,6 +26,11 @@ test('client factory uses a browser-safe CommonJS shim', () => {
   assert.match(src, /updateNotification/)
   assert.match(src, /dms-wrap/)
   assert.match(src, /dms-provider/)
+  assert.match(src, /dms-provider-wrap/)
+  assert.match(src, /availableModels/)
+  assert.match(src, /selectionProvider === row\.provider/)
+  assert.match(src, /Manual model selection/)
+  assert.match(src, /Ручной выбор моделей/)
   assert.match(src, /grid-template-columns/)
   assert.match(src, /ensureStyles/)
   let captured
