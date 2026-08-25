@@ -40,7 +40,7 @@ Prepare release metadata. Ask the user before npm/GitHub publication and product
 
 ## Next Step
 
-Wait for resolution/approval of the staging profile blocker, then install the feature tarball once and verify the UI/API.
+Finish issue #70 style verification, then update PR #69 and await the staging/profile gate.
 
 ## Errors Encountered
 

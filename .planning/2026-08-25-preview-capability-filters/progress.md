@@ -16,3 +16,6 @@
 - PR #69 opened.
 - Built feature tarball at .staging-preview-capability-filters; staging install was attempted inside the real container and correctly stopped on the pre-existing missing dsh-voice path.
 - Read-only inventory captured all file: references and profile SHAs; dsh-voice issue #21 opened. No staging profile or production changes were made.
+
+- Started issue #70 on the existing active UI branch after preflight; reused the dsh-grok-xsearch card geometry as the reference.
+- Updated dms-card, dms-card-header, dms-card-name, dms-card-description, and dms-card-body to shared DSH theme-token values; added source assertions and documentation.

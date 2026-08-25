@@ -51,6 +51,8 @@ A dry-run renders a per-provider diff preview (added, removed, and metadata-chan
 
 The model picker exposes a capability filter based only on explicit normalized metadata (`vision`, `tools`, `reasoning`, and `embeddings`). Multiple selected capabilities use an all-of match, and filtering does not discard hidden selections.
 
+The settings card uses the same spacing, typography, borders, and theme variables as the built-in DSH plugin cards in both light and dark themes.
+
 
 The plugin-owned `adapterRegistry` setting adds an opt-in declarative adapter without copying code. A provider entry can specify `endpoint`, `auth` (`bearer`, `x-api-key`, `query-key`, or `none`), `parser`, `modelsPath`, field paths, and explicit capability mappings. Endpoints must be HTTPS except loopback HTTP; credential-like static headers and URL query/fragment data are rejected. Existing built-in descriptors and OpenAI-compatible routes remain the default. Runtime integrations can register an explicit adapter implementation through the registry escape hatch, provided it implements `discover` and `health`.
 

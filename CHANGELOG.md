@@ -2,6 +2,7 @@
 
 - dry-run now renders an explicit per-provider diff preview with a separate apply action;
 - the model picker can filter the current catalog by normalized capabilities without changing the saved allowlist until it is explicitly applied.
+- the settings card now follows the shared DSH card geometry and theme tokens (12px radius, 14px/16px header spacing, 15px title, and bordered body).
 
 ## 0.2.13 — 2026-08-25
 
