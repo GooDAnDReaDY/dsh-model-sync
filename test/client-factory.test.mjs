@@ -16,6 +16,8 @@ test('client factory uses a browser-safe CommonJS shim', () => {
   assert.match(src, /Choose models/)
   assert.match(src, /Select at least one model/)
   assert.match(src, /All models/)
+  assert.match(src, /Synchronization history/)
+  assert.match(src, /Rollback catalog/)
   let captured
   const window = { __ModuleLoader__: { load(entry) { captured = entry } } }
   runInNewContext(src, createContext({ window }))

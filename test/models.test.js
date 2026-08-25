@@ -49,3 +49,14 @@ test('reports additions, removals, and metadata changes', () => {
   assert.equal(result.changed[0].after.name, 'A2')
   assert.equal(result.hasChanges, true)
 })
+
+test('reports explicit renames and keeps diff order stable', () => {
+  const result = diffModels([{ id: 'z', name: 'Z' }, { id: 'old', name: 'Old' }], [
+    { id: 'new', name: 'New', previousIds: ['old'] },
+    { id: 'a', name: 'A' },
+  ])
+  assert.deepEqual(result.added.map((row) => row.id), ['a'])
+  assert.equal(result.renamed[0].before.id, 'old')
+  assert.equal(result.renamed[0].after.id, 'new')
+  assert.deepEqual(result.removed.map((row) => row.id), ['z'])
+})

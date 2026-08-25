@@ -152,3 +152,37 @@ test('rolls the allowlist back when the catalog write fails', async () => {
   assert.deepEqual(config.modelSelections, {})
   assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['old'])
 })
+
+
+test('persists bounded history and restores it after restart', async () => {
+  const { ctx, section } = makeContext()
+  let config = { modelSelections: {}, historyLimit: 2, history: [] }
+  const sync = createModelSynchronizer(ctx, {
+    getConfig: () => config,
+    saveConfig: async (patch) => { config = { ...config, ...structuredClone(patch) } },
+    fetchImpl: async () => response({ data: [{ id: 'new', name: 'New' }] }),
+  })
+  const result = await sync.run({ provider: 'demo', dryRun: false })
+  assert.equal(result.historyPersisted, true)
+  assert.equal(config.history.length, 1)
+  assert.equal(config.history[0].providers[0].before[0].id, 'old')
+  const restarted = createModelSynchronizer(ctx, { getConfig: () => config })
+  assert.equal(restarted.status().history[0].id, result.historyId)
+  assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['old', 'new'])
+})
+
+test('rolls back only the selected catalog and leaves model allowlist untouched', async () => {
+  const { ctx, section } = makeContext()
+  let config = { modelSelections: { demo: ['new'] }, history: [] }
+  const sync = createModelSynchronizer(ctx, {
+    getConfig: () => config,
+    saveConfig: async (patch) => { config = { ...config, ...structuredClone(patch) } },
+    fetchImpl: async () => response({ data: [{ id: 'new', name: 'New' }] }),
+  })
+  const result = await sync.run({ provider: 'demo', dryRun: false })
+  const rollback = await sync.rollbackHistory({ historyId: result.historyId, provider: 'demo' })
+  assert.equal(rollback.applied, true)
+  assert.equal(rollback.allowlistUntouched, true)
+  assert.deepEqual(section.providers.demo.models.map((row) => row.id), ['old'])
+  assert.deepEqual(config.modelSelections.demo, ['new'])
+})
