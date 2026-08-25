@@ -1,0 +1,22 @@
+# Progress
+
+## 2026-08-25
+
+- Перечитаны применимые skills: Gitea workflow, DSH release workflow, DSH Plugin Authoring, planning-with-files.
+- Проверены Gitea issues/PRs/labels/branches и текущий version gate.
+- Созданы milestones `v0.2.8` и `v0.2.9`; issues #26–#35 назначены с порядком 1/5…5/5.
+- Создана ветка `feat/dsh-model-sync-v028-block1` от `origin/main`.
+- `apply_patch` на MiniAI отсутствует; planning-файлы созданы Python fallback в назначенном worktree.
+- Текущий этап: подготовка #29.
+- #29 research completed; Gitea evidence comment added; implementation contract fixed.
+- #29 implementation complete: `npm test` 34/34, `node --check lib/*.js`, `git diff --check`, `npm audit --omit=dev --audit-level=high` (0 vulnerabilities).
+- #31 implementation complete: retry/backoff, timeout, concurrency and circuit tests pass; full `npm test` 42/42; static checks and audit clean.
+- Current phase advanced to #30.
+- #30 implementation complete: separate adapter probes, synchronizer health snapshot, HTTP route and UI button; full `npm test` 46/46, static checks and audit clean.
+- Current phase advanced to #28.
+
+- #28 implementation complete: persistent policy engine, `/policy` API, bilingual editor, tags/capability filtering, and dry-run/apply coverage. Full `npm test` 51/51; static checks and audit clean.
+- Current phase advanced to #26 scheduler.
+
+- #26 implementation complete: opt-in scheduler, per-provider interval/TTL/jitter, overlap guard, last/next status API and UI. Full `npm test` 53/53; static checks and audit clean.
+- Block 1 implementation complete; current phase is release-artifact and staging verification for `v0.2.8`.

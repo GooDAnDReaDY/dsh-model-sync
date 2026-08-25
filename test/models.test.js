@@ -8,12 +8,30 @@ test('normalizes provider model metadata aliases', () => {
     display_name: 'Demo 1',
     context_window: 32768,
     max_output_tokens: 4096,
+    capabilities: ['vision', 'tools', 'reasoning'],
+    pricing: { input_per_token: '0.00001', output_per_token: 0.00003, currency: 'USD', unit: 'per_token' },
   }), {
     provider: 'demo',
     id: 'demo-1',
     name: 'Demo 1',
     contextWindow: 32768,
     maxTokens: 4096,
+    capabilities: { vision: true, tools: true, reasoning: true },
+    pricing: { inputPerToken: 0.00001, outputPerToken: 0.00003, currency: 'USD', unit: 'per_token' },
+  })
+})
+
+test('keeps explicit false capabilities and does not guess unknown values', () => {
+  assert.deepEqual(normalizeModel('demo', {
+    id: 'demo-2',
+    capabilities: { vision: false, tools: true },
+    description: 'No pricing or capability inference.',
+  }), {
+    provider: 'demo',
+    id: 'demo-2',
+    name: 'demo-2',
+    description: 'No pricing or capability inference.',
+    capabilities: { vision: false, tools: true },
   })
 })
 

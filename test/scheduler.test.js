@@ -39,3 +39,43 @@ test('autoApply enables explicit writes and prevents overlap', async () => {
   await first
   await second
 })
+
+
+test('schedules configured providers independently with TTL and jitter metadata', async () => {
+  let callback
+  let now = 1_000
+  const runs = []
+  const scheduler = createSyncScheduler({
+    listProviders: () => [{ provider: 'fast', configured: true }, { provider: 'slow', configured: true }],
+    run: async (options) => { runs.push(options) },
+  }, {
+    getConfig: () => ({ enabled: true, scheduleEnabled: true, intervalMinutes: 1, providers: [
+      { provider: 'fast', enabled: true, intervalMinutes: 1, ttlMinutes: 3 },
+      { provider: 'slow', enabled: true, intervalMinutes: 2, jitterMinutes: 2 },
+    ] }),
+    setIntervalFn: (fn, ms) => { callback = fn; assert.equal(ms, 60_000); return 5 },
+    clearIntervalFn: () => {},
+    nowFn: () => now,
+    randomFn: () => 0.5,
+  })
+  assert.equal(scheduler.start(), true)
+  await callback()
+  assert.deepEqual(runs.map((options) => options.provider), ['fast', 'slow'])
+  const snapshot = scheduler.status()
+  assert.equal(snapshot.providers.fast.lastStatus, 'ok')
+  assert.equal(snapshot.providers.fast.nextRunAt, 181_000)
+  assert.equal(snapshot.providers.slow.nextRunAt, 181_000)
+  assert.equal(snapshot.lastRunAt, 1_000)
+  assert.equal(snapshot.nextRunAt, 181_000)
+})
+
+test('schedule remains off unless explicitly enabled', () => {
+  let calls = 0
+  const scheduler = createSyncScheduler({ run: async () => { calls++ } }, {
+    getConfig: () => ({ enabled: true, scheduleEnabled: false, intervalMinutes: 1 }),
+    setIntervalFn: () => { calls++; return 9 },
+  })
+  assert.equal(scheduler.start(), false)
+  assert.equal(scheduler.status().active, false)
+  assert.equal(calls, 0)
+})
