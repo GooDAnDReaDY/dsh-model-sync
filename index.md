@@ -14,6 +14,7 @@ Automatic model catalog synchronization for API-key providers in DeepSeek Harnes
 - Declarative adapter registry entries can map endpoint/auth/parser/fields/capabilities; built-ins remain the default and explicit runtime adapters are opt-in.
 - Model selection stores an allowlist separately from a full discovered catalog.
 - Settings UI controls are grouped into responsive theme-aware cards with provider status badges and wrapped actions.
+- Provider rows show enabled/total model counts with a temporary +N discovery suffix, and model editors expand inside the selected row.
 - Model policies filter the catalog by bounded patterns, tags, and explicit capabilities before apply.
 - Scheduling is opt-in and reports per-provider last/next runs with interval, TTL, and jitter controls.
 - After an applied run, the full catalog is persisted in the plugin namespace and
