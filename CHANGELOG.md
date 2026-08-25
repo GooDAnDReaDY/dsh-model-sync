@@ -1,6 +1,7 @@
 ## Unreleased
 
 - show the full discovered model catalog count instead of the selected allowlist count;
+- show enabled/total counts and a `+N` suffix for models added by the latest discovery;
 - expand model selection and policy editors directly inside the active provider row;
 - rename the policy action to “Manual model selection” / “Ручной выбор моделей”.
 
