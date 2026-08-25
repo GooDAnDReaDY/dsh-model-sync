@@ -1,5 +1,6 @@
 ## Unreleased
 
+- credential diagnostics load on opening the section and no longer report missing providers before the check completes;
 - show the full discovered model catalog count instead of the selected allowlist count;
 - show enabled/total counts and a `+N` suffix for models added by the latest discovery;
 - expand model selection and policy editors directly inside the active provider row;
