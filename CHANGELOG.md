@@ -1,4 +1,4 @@
-## 0.2.12 — 2026-08-25
+## 0.2.13 — 2026-08-25
 
 - matched the DSH settings-card pattern: native list item structure, standard show/hide labels, and the same SVG chevron behavior;
 - moved Model Sync from the crowded settings sidebar into a collapsible Plugins settings card with a safe legacy fallback;
