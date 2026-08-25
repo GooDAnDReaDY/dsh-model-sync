@@ -49,3 +49,13 @@ The full catalog discovered by an applied run is cached in the plugin's own sett
 separately from the model allowlist. After a restart, the model chooser can show the
 full last-known catalog while the standard DSH picker still exposes only the selected
 models. Dry-run remains read-only and does not persist this cache.
+
+
+`GET /dsh-model-sync/history` returns the bounded history of applied runs. Use
+`?provider=<id>&details=true` for one provider's full snapshots and metadata diff.
+`POST /dsh-model-sync/history/rollback` accepts `{ "historyId": "sync-…", "provider": "openai" }`
+and restores only that provider's catalog; it never changes the model allowlist.
+History is written only by non-dry-run synchronization, is retained according to
+`historyLimit` (1–200, default 50), and redacts credential-shaped error values.
+Rename detection requires an explicit provider `aliases` or `previousIds` field;
+model-id similarity is never guessed.
