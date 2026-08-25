@@ -36,3 +36,9 @@
 - Adapter HTTP errors now carry a numeric status for safe transient/permanent classification.
 - Synchronizer isolates providers, exposes retry counts, and opens per-provider circuits after repeated transient failures.
 - Missing `providers` config now safely means all discovered configured providers, matching the DSH Config default.
+
+## #30 implementation
+
+- Added adapter `health` probes that check HTTP status and cancel response bodies without parsing catalogs.
+- Added synchronizer `health()` snapshot, separate POST `/dsh-model-sync/health`, and Settings UI availability action.
+- Health uses #31 bounded timeout/retry/concurrency but never writes model catalogs or circuit state.

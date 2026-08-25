@@ -9,7 +9,7 @@ Keep API-key model catalogs current without changing DSH core or coupling to nei
 1. Provider inventory: reads the DSH configurable-provider directory and current settings metadata.
 2. Provider service: exposes a live inventory through the DSH context without making network requests.
 3. Credential resolver: obtains a one-shot credential through the DSH credentials service.
-4. Adapter registry: selects generic OpenAI-compatible discovery or a provider-specific adapter.
+4. Adapter registry: selects generic OpenAI-compatible discovery or a provider-specific adapter and exposes a lightweight health probe.
 5. Reconciliation engine: validates, deduplicates, diffs, and optionally applies model metadata.
 6. Reliability layer: applies per-provider timeout, retry/backoff, concurrency limits, and transient-failure circuit breakers.
 7. Scheduler and web API: expose manual/dry-run runs and periodic refresh.
@@ -70,7 +70,7 @@ For profiles with `baseURL` and `openai-completions` or `openai-responses`, the 
 
 ## Runtime HTTP contract
 
-The plugin exposes `GET /dsh-model-sync/status` and `POST /dsh-model-sync/run`. The POST payload is validated as `{ provider?, dryRun?, removeMissing? }` and defaults to a read-only dry-run. Applying changes uses the current `llm-pi-ai` settings revision, so concurrent edits fail safely instead of being overwritten.
+The plugin exposes `GET /dsh-model-sync/status`, `POST /dsh-model-sync/run`, and `POST /dsh-model-sync/health`. The run payload is validated as `{ provider?, dryRun?, removeMissing? }` and defaults to a read-only dry-run; health accepts only an optional provider and never writes settings. Applying changes uses the current `llm-pi-ai` settings revision, so concurrent edits fail safely instead of being overwritten.
 
 Reconciliation is additive by default: new models and metadata are applied, while models absent from one response are retained and reported as stale. Pruning requires an explicit `removeMissing: true` request.
 

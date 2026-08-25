@@ -11,7 +11,7 @@
 ## Integration
 
 - mocked OpenAI-compatible endpoint
-- mocked provider-specific endpoint
+- mocked provider-specific endpoint and lightweight health probe
 - settings revision conflict
 - scheduler cancellation and retry/backoff
 - timeout signals, concurrency limits, permanent-vs-transient errors, and circuit breaker cooldown

@@ -6,7 +6,7 @@
 
 ## Current Phase
 
-Phase 4 — #30 health-check провайдеров
+Phase 5 — #28 постоянные политики отбора
 
 ## Phases
 
@@ -27,9 +27,9 @@ Status: complete
 ### Phase 3 — #31 надёжность массовой синхронизации
 Status: complete
 ### Phase 4 — #30 health-check провайдеров
-Status: in_progress
+Status: complete
 ### Phase 5 — #28 постоянные политики отбора
-Status: pending
+Status: in_progress
 ### Phase 6 — #26 фоновый планировщик
 Status: pending
 
@@ -59,7 +59,7 @@ Status: pending
 
 ## Next Step
 
-Исследовать текущие adapter endpoints и спроектировать отдельный health probe для #30.
+Исследовать текущие `modelSelections` и спроектировать постоянные include/exclude policy для #28.
 
 ## Decisions Made
 
@@ -75,3 +75,5 @@ Status: pending
 | Milestone assignment script получил `None` для issue без milestone | 1 | Исправлен обработчик `issue.get('milestone') or {}`, повторный запуск выполнен идемпотентно |
 | `apply_patch` отсутствует на MiniAI | 1 | Для server-side planning-файлов использован Python fallback; код проекта этим способом не меняется |
 | Новые #31 тесты получили 0 вызовов | 1 | Выявлено, что unit fallback с отсутствующим `providers` не совпадал с Config default; введён безопасный `providerConfig=[]` |
+| HTTP health route добавил четвёртый disposer, старое ожидание теста было 3 | 1 | Обновлено ожидание и добавлен отдельный route contract test |
+| Ошибка оркестрации tool-вызова (`ReferenceError: command is not defined`) | 1 | Повторен вызов с корректным `exec_command` |

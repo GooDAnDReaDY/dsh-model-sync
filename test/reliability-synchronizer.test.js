@@ -73,6 +73,19 @@ test('opens a per-provider circuit after repeated transient failures', async () 
   assert.equal(blocked.results[0].status, 'circuit-open')
 })
 
+test('runs health probes separately without changing model catalogs', async () => {
+  const { ctx, section } = makeContext()
+  const before = structuredClone(section.providers)
+  const sync = createModelSynchronizer(ctx, {
+    fetchImpl: async () => response({ data: [{ id: 'ignored-by-health', name: 'Ignored' }] }),
+  })
+  const result = await sync.health({ concurrency: 1, retryAttempts: 1 })
+  assert.equal(result.results[0].status, 'ok')
+  assert.equal(result.results[0].statusCode, 200)
+  assert.deepEqual(section.providers, before)
+  assert.deepEqual(sync.status().lastHealth.results.map((row) => row.provider), ['demo'])
+})
+
 test('limits provider discovery concurrency', async () => {
   const { ctx } = makeContext(['one', 'two', 'three'])
   let active = 0

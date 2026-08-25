@@ -12,3 +12,5 @@
 - #29 implementation complete: `npm test` 34/34, `node --check lib/*.js`, `git diff --check`, `npm audit --omit=dev --audit-level=high` (0 vulnerabilities).
 - #31 implementation complete: retry/backoff, timeout, concurrency and circuit tests pass; full `npm test` 42/42; static checks and audit clean.
 - Current phase advanced to #30.
+- #30 implementation complete: separate adapter probes, synchronizer health snapshot, HTTP route and UI button; full `npm test` 46/46, static checks and audit clean.
+- Current phase advanced to #28.
