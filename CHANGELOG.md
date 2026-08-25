@@ -1,3 +1,9 @@
+## 0.2.10 — 2026-08-25
+
+- polished the Model Sync settings UI into responsive theme-aware cards;
+- grouped controls, actions, notifications, credentials, history, and provider editors for clearer scanning;
+- kept model discovery, selection, policy, and apply behavior unchanged while improving the visual hierarchy.
+
 ## 0.2.9 — 2026-08-25
 
 - added history and diff APIs for comparing synchronization revisions;
