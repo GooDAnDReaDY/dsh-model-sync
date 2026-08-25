@@ -16,7 +16,8 @@ Keep API-key model catalogs current without changing DSH core or coupling to nei
 8. Scheduler policy: keeps scheduling opt-in, supports per-provider cadence, TTL, jitter, and observable last/next timestamps.
 9. Catalog cache: stores the last successful applied discovery separately from the active allowlist.
 10. Model policy engine: filters cached and discovered catalogs by bounded patterns, tags, and explicit capabilities.
-11. Settings UI: displays status, errors, and pending changes without showing secrets.
+11. Reporting and notification ledger: aggregates manual/scheduled outcomes, deduplicates repeated failures, and tracks read/acknowledged state.
+12. Settings UI: displays status, reports, notifications, errors, and pending changes without showing secrets.
 
 ## Provider inventory rules
 
@@ -61,7 +62,7 @@ The registry first selects the generic OpenAI-compatible adapter for routes with
 
 ## Credentials boundary
 
-Keys are resolved only through the DSH credentials service, trimmed and checked for printable header-safe characters, then discarded after the request. Error messages contain only the credential reference and never the key value. The plugin does not read environment variables directly. Credential diagnostics call `credentials.describe(ref)` without resolving values, mask reference labels, bound the checked reference set, and record only safe resolution/request status. Rotation settings are read as reference names and never rewritten by catalog synchronization; each provider's entries remain independently visible when one key fails.
+Keys are resolved only through the DSH credentials service, trimmed and checked for printable header-safe characters, then discarded after the request. Error messages contain only the credential reference and never the key value. The plugin does not read environment variables directly. Report and notification messages pass the same redaction boundary; only bounded provider/status/count data is stored, and repeated identical failures update an occurrence counter. Credential diagnostics call `credentials.describe(ref)` without resolving values, mask reference labels, bound the checked reference set, and record only safe resolution/request status. Rotation settings are read as reference names and never rewritten by catalog synchronization; each provider's entries remain independently visible when one key fails.
 
 ## Reconciliation policy
 
@@ -81,7 +82,7 @@ For profiles with `baseURL` and `openai-completions` or `openai-responses`, the 
 
 ## Runtime HTTP contract
 
-The plugin exposes `GET /dsh-model-sync/status`, `POST /dsh-model-sync/run`, `POST /dsh-model-sync/health`, `POST /dsh-model-sync/selection`, `POST /dsh-model-sync/policy`, `GET /dsh-model-sync/history`, `POST /dsh-model-sync/history/rollback`, `GET /dsh-model-sync/credentials`, and `POST /dsh-model-sync/credentials/check`. The run payload is validated as `{ provider?, dryRun?, removeMissing? }` and defaults to a read-only dry-run; health accepts only an optional provider and never writes settings. Selection writes a bounded per-provider allowlist, while policy writes bounded include/exclude patterns and explicit capability requirements. Applying changes uses the current `llm-pi-ai` settings revision, so concurrent edits fail safely instead of being overwritten. Applied runs append bounded history snapshots with deterministic added/removed/renamed/metadata-changed diffs; rollback writes only the selected provider catalog and leaves model selections untouched.
+The plugin exposes `GET /dsh-model-sync/status`, `POST /dsh-model-sync/run`, `POST /dsh-model-sync/health`, `POST /dsh-model-sync/selection`, `POST /dsh-model-sync/policy`, `GET /dsh-model-sync/history`, `POST /dsh-model-sync/history/rollback`, `GET /dsh-model-sync/credentials`, `POST /dsh-model-sync/credentials/check`, `GET /dsh-model-sync/report`, `GET /dsh-model-sync/notifications`, `POST /dsh-model-sync/notifications/read`, and `POST /dsh-model-sync/notifications/acknowledge`. The run payload is validated as `{ provider?, dryRun?, removeMissing? }` and defaults to a read-only dry-run; health accepts only an optional provider and never writes settings. Selection writes a bounded per-provider allowlist, while policy writes bounded include/exclude patterns and explicit capability requirements. Applying changes uses the current `llm-pi-ai` settings revision, so concurrent edits fail safely instead of being overwritten. Applied runs append bounded history snapshots with deterministic added/removed/renamed/metadata-changed diffs; rollback writes only the selected provider catalog and leaves model selections untouched.
 
 Reconciliation is additive by default: new models and metadata are applied, while models absent from one response are retained and reported as stale. Pruning requires an explicit `removeMissing: true` request.
 
@@ -114,3 +115,8 @@ Lifecycle records are persisted separately from model selections. They track
 explicit deprecation timestamps, and bounded audit retention. A stale or
  deprecated model is not included in the default selectable set; an explicit
 model selection can still reference a retained catalog entry.
+
+
+## Reporting and notifications
+
+Every manual or scheduled run produces a versioned report with provider outcome classes, severity, changed-provider count, and model diff counts. The report is available in the run response, status snapshot, and the report endpoint. Failure and partial results create a bounded notification ledger; identical fingerprints are coalesced, while read and acknowledged timestamps are explicit. Dry-run reports stay in memory so dry-run remains catalog/config read-only; applied runs persist the notification ledger. External webhook/MCP delivery is intentionally not part of the core plugin.

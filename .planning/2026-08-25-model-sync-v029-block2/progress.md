@@ -5,3 +5,5 @@
 - 2026-08-25: started #33 credential diagnostics from Gitea main.
 
 - #33 implementation: added describe-only credential diagnostics, masked reference labels, safe rotation visibility, per-provider request outcomes, HTTP/UI actions, and redaction tests.
+
+- #34 implementation: added stable manual/scheduled report aggregation, safe redaction, bounded notification deduplication with read/ack state, HTTP endpoints, UI rendering, scheduler source labels, and 75-test coverage.

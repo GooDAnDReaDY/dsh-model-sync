@@ -248,3 +248,24 @@ test('reports safe credential refs and rotation order without values', async () 
   assert.equal(after.results[0].lastRequest.status, 'ok')
   assert.equal(after.results[0].refs[0].lastResolution.status, 'resolved')
 })
+
+
+test('persists deduplicated failure reports and acknowledgement state', async () => {
+  const { ctx } = makeContext()
+  let config = { history: [], notifications: [], notificationLimit: 10 }
+  const sync = createModelSynchronizer(ctx, {
+    getConfig: () => config,
+    saveConfig: async (patch) => { config = { ...config, ...structuredClone(patch) } },
+    fetchImpl: async () => ({ ok: false, status: 401, text: async () => '' }),
+  })
+  const first = await sync.run({ provider: 'demo', dryRun: false, retryAttempts: 1 })
+  const second = await sync.run({ provider: 'demo', dryRun: false, retryAttempts: 1 })
+  assert.equal(first.report.outcome, 'failure')
+  assert.equal(second.report.outcome, 'failure')
+  assert.equal(config.notifications.length, 1)
+  assert.equal(config.notifications[0].occurrences, 2)
+  const id = config.notifications[0].id
+  await sync.updateNotification(id, 'acknowledged')
+  assert.ok(config.notifications[0].acknowledgedAt)
+  assert.equal(sync.notifications({ includeAcknowledged: false }).length, 0)
+})
