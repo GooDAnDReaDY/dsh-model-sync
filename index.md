@@ -5,12 +5,13 @@ Automatic model catalog synchronization for API-key providers in DeepSeek Harnes
 - Status: v0.2.8 release candidate; block 1 implementation and staging smoke complete
 - Entry point: ``lib/index.js``
 - Bundle: ``cordis.patch.yml``
-- Tests: npm test (53/53 currently passing)
+- Tests: npm test (78/78 currently passing on the Block 2 branch)
 - Architecture: [docs/architecture/baseline.md](docs/architecture/baseline.md)
 - Research: [docs/research/reuse.md](docs/research/reuse.md)
 - Test strategy: [docs/testing/strategy.md](docs/testing/strategy.md)
 - Release plan: [docs/plans/1-model-sync.md](docs/plans/1-model-sync.md)
 
+- Declarative adapter registry entries can map endpoint/auth/parser/fields/capabilities; built-ins remain the default and explicit runtime adapters are opt-in.
 - Model selection stores an allowlist separately from a full discovered catalog.
 - Model policies filter the catalog by bounded patterns, tags, and explicit capabilities before apply.
 - Scheduling is opt-in and reports per-provider last/next runs with interval, TTL, and jitter controls.

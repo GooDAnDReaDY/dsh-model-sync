@@ -57,6 +57,7 @@ test('does not retry a permanent credential failure', async () => {
   assert.equal(calls, 1)
   assert.equal(result.results[0].status, 'error')
   assert.equal(result.results[0].retryable, false)
+  assert.equal(result.results[0].errorType, 'auth')
 })
 
 test('opens a per-provider circuit after repeated transient failures', async () => {

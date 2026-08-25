@@ -19,7 +19,7 @@ reliability and selection foundation: #29 metadata normalization, #31 resilient
 mass sync, #30 provider health, #28 persistent selection policies, and #26
 background scheduling. Block `v0.2.9` follows with #27 history, #32 model
 lifecycle, #33 credential diagnostics, #34 reporting, and #35 adapter registry.
-Block 2 has #27, #32, and #33 merged; #34 adds aggregate reports and a bounded deduplicated read/ack notification ledger for manual and scheduled runs. #35 remains in progress; no version bump is made inside the block.
+Block 2 has #27, #32, #33, and #34 merged; #35 adds the validated adapter registry and explicit runtime escape hatch while preserving existing adapters. The block still has no version bump; after #35 and staging smoke it will release once as 0.2.9.
 The version changes once after each complete five-issue block.
 
 Block 1 implementation and staging verification are complete. The release branch

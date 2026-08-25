@@ -9,15 +9,16 @@ Keep API-key model catalogs current without changing DSH core or coupling to nei
 1. Provider inventory: reads the DSH configurable-provider directory and current settings metadata.
 2. Provider service: exposes a live inventory through the DSH context without making network requests.
 3. Credential resolver: obtains a one-shot credential through the DSH credentials service and exposes describe-only diagnostics for masked references.
-4. Adapter registry: selects generic OpenAI-compatible discovery or a provider-specific adapter and exposes a lightweight health probe.
+4. Adapter transport layer: executes discovery and lightweight health probes through the selected adapter.
 5. Reconciliation engine: validates, deduplicates, diffs, and optionally applies model metadata.
 6. Reliability layer: applies per-provider timeout, retry/backoff, concurrency limits, and transient-failure circuit breakers.
 7. Scheduler and web API: expose manual/dry-run runs and periodic refresh.
 8. Scheduler policy: keeps scheduling opt-in, supports per-provider cadence, TTL, jitter, and observable last/next timestamps.
 9. Catalog cache: stores the last successful applied discovery separately from the active allowlist.
 10. Model policy engine: filters cached and discovered catalogs by bounded patterns, tags, and explicit capabilities.
-11. Reporting and notification ledger: aggregates manual/scheduled outcomes, deduplicates repeated failures, and tracks read/acknowledged state.
-12. Settings UI: displays status, reports, notifications, errors, and pending changes without showing secrets.
+11. Adapter registry: preserves built-in descriptors, adds validated declarative endpoint/auth/parser/field mappings, and supports explicit runtime adapters.
+12. Reporting and notification ledger: aggregates manual/scheduled outcomes, deduplicates repeated failures, and tracks read/acknowledged state.
+13. Settings UI: displays status, reports, notifications, errors, and pending changes without showing secrets.
 
 ## Provider inventory rules
 
@@ -58,7 +59,7 @@ The plugin provides `modelSync` through the DSH context. Its inventory methods r
 
 ## Adapter registry
 
-The registry first selects the generic OpenAI-compatible adapter for routes with a configured `baseURL` and supported protocol. For built-in API-key providers without a route `baseURL`, it uses provider descriptors with documented default endpoints and auth styles (Bearer, `x-api-key`, or query key). Unsupported protocols are reported explicitly instead of guessed.
+The registry first selects an explicit runtime adapter when `adapterId` is requested, then a validated plugin-owned declarative configuration, then the generic OpenAI-compatible adapter for routes with a configured `baseURL` and supported protocol. For built-in API-key providers without a route `baseURL`, it uses provider descriptors with documented default endpoints and auth styles (Bearer, `x-api-key`, or query key). Unsupported protocols are reported explicitly instead of guessed.
 
 ## Credentials boundary
 
@@ -120,3 +121,6 @@ model selection can still reference a retained catalog entry.
 ## Reporting and notifications
 
 Every manual or scheduled run produces a versioned report with provider outcome classes, severity, changed-provider count, and model diff counts. The report is available in the run response, status snapshot, and the report endpoint. Failure and partial results create a bounded notification ledger; identical fingerprints are coalesced, while read and acknowledged timestamps are explicit. Dry-run reports stay in memory so dry-run remains catalog/config read-only; applied runs persist the notification ledger. External webhook/MCP delivery is intentionally not part of the core plugin.
+
+
+Declarative adapter entries are validated before network access: endpoint credentials/query/hash are rejected, public HTTP is rejected, auth/parser modes are allowlisted, static sensitive headers are rejected, and model field/capability maps are bounded. A malformed entry returns an explicit `invalid-config` provider result; it cannot take down a mass sync. Built-in provider descriptors and generic routes keep their previous selection and wire behavior. The explicit runtime adapter escape hatch is interface-checked and remains opt-in.
