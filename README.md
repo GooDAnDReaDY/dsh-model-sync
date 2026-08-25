@@ -14,6 +14,8 @@ OAuth, subscription, and tool-only routes are intentionally outside the scope.
 
 Runtime, scheduler, HTTP API, reconciliation, model allowlists, and Settings UI are implemented. The release workflow includes staging and production verification before publication.
 
+The Settings UI groups synchronization controls, run summaries, configured providers, diagnostics, notifications, history, and editors into responsive cards that follow the DSH theme.
+
 ## Development
 
 See the project documentation under ``docs/`` for architecture, research, testing, and release notes.
