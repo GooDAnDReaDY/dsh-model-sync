@@ -1,3 +1,12 @@
+## 0.2.9 — 2026-08-25
+
+- added history and diff APIs for comparing synchronization revisions;
+- added model lifecycle classification and safe apply/remove handling;
+- added credential diagnostics and rotation-reference visibility without exposing secrets;
+- added persisted sync reports, bounded deduplicated notifications, and read/ack APIs;
+- added a validated declarative provider adapter registry with explicit runtime adapters,
+  endpoint/auth/schema diagnostics, and backward-compatible built-ins.
+
 ## 0.2.8 — 2026-08-25
 
 - normalized explicit model metadata, capability flags, pricing, and provider tags;
