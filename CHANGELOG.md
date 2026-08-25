@@ -1,4 +1,4 @@
-## Unreleased
+## 0.2.14 — 2026-08-25
 
 - dry-run now renders an explicit per-provider diff preview with a separate apply action;
 - the model picker can filter the current catalog by normalized capabilities without changing the saved allowlist until it is explicitly applied.
