@@ -19,7 +19,7 @@ test('runs scheduled work in dry-run mode by default', async () => {
   })
   assert.equal(scheduler.start(), true)
   await callback()
-  assert.deepEqual(runs, [{ dryRun: true }])
+  assert.deepEqual(runs, [{ dryRun: true, reportSource: 'schedule' }])
   scheduler.stop()
 })
 

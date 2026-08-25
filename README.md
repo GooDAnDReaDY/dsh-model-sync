@@ -51,6 +51,8 @@ full last-known catalog while the standard DSH picker still exposes only the sel
 models. Dry-run remains read-only and does not persist this cache.
 
 
+`GET /dsh-model-sync/report` returns the latest stable aggregate report. It distinguishes success, partial success, failure, and empty runs, includes provider/model counts, and labels whether the source was manual or scheduled. `GET /dsh-model-sync/notifications` returns the bounded in-app notification ledger; repeated identical failures update an occurrence counter instead of creating noise. `POST /dsh-model-sync/notifications/read` and `POST /dsh-model-sync/notifications/acknowledge` accept `{ "id": "sync-notice-..." }` and persist the corresponding state for applied runs. Report and notification text is redacted before it leaves the synchronizer; no webhook or MCP dependency is required.
+
 `GET /dsh-model-sync/credentials` returns bounded diagnostics for configured provider credential references. It calls the DSH credentials `describe` seam only, reports masked reference labels, source/configured state, rotation order, and the last safe request outcome. It never resolves or returns a credential value. `POST /dsh-model-sync/credentials/check` runs the health probe and returns the same diagnostics in one response; a failed reference is recorded per provider without hiding the remaining rotation entries.
 
 `GET /dsh-model-sync/history` returns the bounded history of applied runs. Use
