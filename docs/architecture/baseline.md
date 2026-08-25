@@ -8,7 +8,7 @@ Keep API-key model catalogs current without changing DSH core or coupling to nei
 
 1. Provider inventory: reads the DSH configurable-provider directory and current settings metadata.
 2. Provider service: exposes a live inventory through the DSH context without making network requests.
-3. Credential resolver: obtains a one-shot credential through the DSH credentials service.
+3. Credential resolver: obtains a one-shot credential through the DSH credentials service and exposes describe-only diagnostics for masked references.
 4. Adapter registry: selects generic OpenAI-compatible discovery or a provider-specific adapter and exposes a lightweight health probe.
 5. Reconciliation engine: validates, deduplicates, diffs, and optionally applies model metadata.
 6. Reliability layer: applies per-provider timeout, retry/backoff, concurrency limits, and transient-failure circuit breakers.
@@ -61,7 +61,7 @@ The registry first selects the generic OpenAI-compatible adapter for routes with
 
 ## Credentials boundary
 
-Keys are resolved only through the DSH credentials service, trimmed and checked for printable header-safe characters, then discarded after the request. Error messages contain only the credential reference and never the key value. The plugin does not read environment variables directly.
+Keys are resolved only through the DSH credentials service, trimmed and checked for printable header-safe characters, then discarded after the request. Error messages contain only the credential reference and never the key value. The plugin does not read environment variables directly. Credential diagnostics call `credentials.describe(ref)` without resolving values, mask reference labels, bound the checked reference set, and record only safe resolution/request status. Rotation settings are read as reference names and never rewritten by catalog synchronization; each provider's entries remain independently visible when one key fails.
 
 ## Reconciliation policy
 
@@ -81,7 +81,7 @@ For profiles with `baseURL` and `openai-completions` or `openai-responses`, the 
 
 ## Runtime HTTP contract
 
-The plugin exposes `GET /dsh-model-sync/status`, `POST /dsh-model-sync/run`, `POST /dsh-model-sync/health`, `POST /dsh-model-sync/selection`, `POST /dsh-model-sync/policy`, `GET /dsh-model-sync/history`, and `POST /dsh-model-sync/history/rollback`. The run payload is validated as `{ provider?, dryRun?, removeMissing? }` and defaults to a read-only dry-run; health accepts only an optional provider and never writes settings. Selection writes a bounded per-provider allowlist, while policy writes bounded include/exclude patterns and explicit capability requirements. Applying changes uses the current `llm-pi-ai` settings revision, so concurrent edits fail safely instead of being overwritten. Applied runs append bounded history snapshots with deterministic added/removed/renamed/metadata-changed diffs; rollback writes only the selected provider catalog and leaves model selections untouched.
+The plugin exposes `GET /dsh-model-sync/status`, `POST /dsh-model-sync/run`, `POST /dsh-model-sync/health`, `POST /dsh-model-sync/selection`, `POST /dsh-model-sync/policy`, `GET /dsh-model-sync/history`, `POST /dsh-model-sync/history/rollback`, `GET /dsh-model-sync/credentials`, and `POST /dsh-model-sync/credentials/check`. The run payload is validated as `{ provider?, dryRun?, removeMissing? }` and defaults to a read-only dry-run; health accepts only an optional provider and never writes settings. Selection writes a bounded per-provider allowlist, while policy writes bounded include/exclude patterns and explicit capability requirements. Applying changes uses the current `llm-pi-ai` settings revision, so concurrent edits fail safely instead of being overwritten. Applied runs append bounded history snapshots with deterministic added/removed/renamed/metadata-changed diffs; rollback writes only the selected provider catalog and leaves model selections untouched.
 
 Reconciliation is additive by default: new models and metadata are applied, while models absent from one response are retained and reported as stale. Pruning requires an explicit `removeMissing: true` request.
 
