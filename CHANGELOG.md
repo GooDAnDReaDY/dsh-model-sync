@@ -1,5 +1,6 @@
 ## 0.2.12 — 2026-08-25
 
+- matched the DSH settings-card pattern: native list item structure, standard show/hide labels, and the same SVG chevron behavior;
 - moved Model Sync from the crowded settings sidebar into a collapsible Plugins settings card with a safe legacy fallback;
 - credential diagnostics load on opening the section and no longer report missing providers before the check completes;
 - show the full discovered model catalog count instead of the selected allowlist count;
