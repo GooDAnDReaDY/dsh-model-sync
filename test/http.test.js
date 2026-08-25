@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { normalizeHealthRequest, normalizeHistoryRequest, normalizeHistoryRollbackRequest, normalizePolicyRequest, normalizeRunRequest, normalizeSelectionRequest, registerHttpApi } from '../lib/http.js'
+import { normalizeCredentialCheckRequest, normalizeCredentialRequest, normalizeHealthRequest, normalizeHistoryRequest, normalizeHistoryRollbackRequest, normalizePolicyRequest, normalizeRunRequest, normalizeSelectionRequest, registerHttpApi } from '../lib/http.js'
 
 test('normalizes run requests to a safe dry-run default', () => {
   assert.deepEqual(normalizeRunRequest({}), { dryRun: true, removeMissing: false })
@@ -22,6 +22,12 @@ test('normalizes model policy requests and validates regex inputs', () => {
   assert.throws(() => normalizePolicyRequest({ provider: 'openai', include: ['['] }), /invalid include pattern/)
 })
 
+test('normalizes credential diagnostics requests', () => {
+  assert.deepEqual(normalizeCredentialRequest('/dsh-model-sync/credentials?provider=openai'), { provider: 'openai' })
+  assert.deepEqual(normalizeCredentialCheckRequest({ provider: 'openai' }), { provider: 'openai' })
+  assert.throws(() => normalizeCredentialRequest('/dsh-model-sync/credentials?provider=bad%20provider'), /provider must be a short string/)
+})
+
 test('normalizes history requests and rollback payloads', () => {
   assert.deepEqual(normalizeHistoryRequest('/dsh-model-sync/history?limit=5&provider=openai&details=true'), { limit: 5, provider: 'openai', details: true })
   assert.deepEqual(normalizeHistoryRollbackRequest({ historyId: 'sync-1-2', provider: 'openai' }), { historyId: 'sync-1-2', provider: 'openai' })
@@ -38,7 +44,7 @@ test('registers separate exact status and run endpoints', () => {
   const ctx = { webServer: { register: (route) => { routes.push(route); return () => {} } } }
   const sync = { status: () => ({ running: false }), listProviders: () => [], run: async () => ({}), health: async () => ({ results: [] }), setModelSelection: async () => ({}), setModelPolicy: async () => ({}) }
   const disposers = registerHttpApi(ctx, sync)
-  assert.equal(routes.length, 7)
+  assert.equal(routes.length, 9)
   assert.deepEqual(routes.map((route) => [route.kind, route.path]), [
     ['exact', '/dsh-model-sync/status'],
     ['exact', '/dsh-model-sync/run'],
@@ -47,6 +53,8 @@ test('registers separate exact status and run endpoints', () => {
     ['exact', '/dsh-model-sync/policy'],
     ['exact', '/dsh-model-sync/history'],
     ['exact', '/dsh-model-sync/history/rollback'],
+    ['exact', '/dsh-model-sync/credentials'],
+    ['exact', '/dsh-model-sync/credentials/check'],
   ])
-  assert.equal(disposers.length, 7)
+  assert.equal(disposers.length, 9)
 })

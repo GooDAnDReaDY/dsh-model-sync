@@ -51,6 +51,8 @@ full last-known catalog while the standard DSH picker still exposes only the sel
 models. Dry-run remains read-only and does not persist this cache.
 
 
+`GET /dsh-model-sync/credentials` returns bounded diagnostics for configured provider credential references. It calls the DSH credentials `describe` seam only, reports masked reference labels, source/configured state, rotation order, and the last safe request outcome. It never resolves or returns a credential value. `POST /dsh-model-sync/credentials/check` runs the health probe and returns the same diagnostics in one response; a failed reference is recorded per provider without hiding the remaining rotation entries.
+
 `GET /dsh-model-sync/history` returns the bounded history of applied runs. Use
 `?provider=<id>&details=true` for one provider's full snapshots and metadata diff.
 `POST /dsh-model-sync/history/rollback` accepts `{ "historyId": "sync-…", "provider": "openai" }`

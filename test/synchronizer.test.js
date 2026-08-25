@@ -221,3 +221,30 @@ test('does not advance lifecycle state on discovery failure', async () => {
   assert.equal(config.modelLifecycle.demo.old.status, 'active')
   assert.equal(config.modelLifecycle.demo.old.consecutiveMissing, 0)
 })
+
+
+test('reports safe credential refs and rotation order without values', async () => {
+  const section = { providers: { demo: { apiKeyEnv: 'DEMO_API_KEY', baseURL: 'https://demo.test/v1', api: 'openai-completions', models: [] } } }
+  const rotation = { providers: [{ provider: 'demo', keys: ['DEMO_API_KEY', 'DEMO_API_KEY_2'] }] }
+  const settings = {
+    get: (ns) => ns === 'dsh-key-rotation' ? rotation : section,
+    describe: () => [{ ns: 'llm-pi-ai', revision: 1, value: section }],
+    replace: async () => {},
+  }
+  const ctx = {
+    llm: { listConfigurableProviders: () => [{ provider: 'demo', displayName: 'Demo', declared: true }], listProviders: () => [{ id: 'demo' }] },
+    get: (key) => key === 'settings' ? settings : key === 'credentials' ? {
+      describe: async (ref) => ({ configured: ref === 'DEMO_API_KEY', source: 'file', writable: true }),
+      resolve: async () => ({ value: 'SERVER-ONLY-SECRET', source: 'file' }),
+    } : undefined,
+  }
+  const sync = createModelSynchronizer(ctx, { fetchImpl: async () => response({ data: [] }) })
+  const before = await sync.credentialDiagnostics()
+  assert.equal(before.results[0].rotation.keyCount, 2)
+  assert.deepEqual(before.results[0].rotation.fallbackOrder, ['DE…_KEY', 'DE…EY_2'])
+  assert.equal(JSON.stringify(before).includes('SERVER-ONLY-SECRET'), false)
+  await sync.run({ provider: 'demo', dryRun: true, retryAttempts: 1 })
+  const after = await sync.credentialDiagnostics({ provider: 'demo' })
+  assert.equal(after.results[0].lastRequest.status, 'ok')
+  assert.equal(after.results[0].refs[0].lastResolution.status, 'resolved')
+})

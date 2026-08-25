@@ -19,7 +19,7 @@ reliability and selection foundation: #29 metadata normalization, #31 resilient
 mass sync, #30 provider health, #28 persistent selection policies, and #26
 background scheduling. Block `v0.2.9` follows with #27 history, #32 model
 lifecycle, #33 credential diagnostics, #34 reporting, and #35 adapter registry.
-Block 2 has #27 merged and is implementing #32 lifecycle protection next; no version bump is made inside the block.
+Block 2 has #27 and #32 merged; #33 adds safe credential-reference and rotation diagnostics while keeping key values out of resolver results, logs, and responses. #34 and #35 remain in progress; no version bump is made inside the block.
 The version changes once after each complete five-issue block.
 
 Block 1 implementation and staging verification are complete. The release branch
