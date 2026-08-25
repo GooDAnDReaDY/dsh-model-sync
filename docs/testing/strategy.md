@@ -4,7 +4,7 @@
 
 - provider classification
 - adapter selection
-- model normalization and deduplication
+- model normalization, capability aliases, pricing aliases, and deduplication
 - diff/reconciliation behavior
 - credential redaction
 

@@ -21,7 +21,13 @@ The directory supplied by `ctx.llm.listConfigurableProviders()` is the source of
 
 ## Model normalization
 
-Adapters return provider, id, name, optional contextWindow, optional maxTokens, and optional description. Unknown rows and duplicate ids are skipped deterministically. The reconciliation layer compares normalized metadata, not wire-specific field names.
+Adapters return provider, id, name, and optional normalized metadata. The common
+normalizer accepts explicit aliases for context window and output limits, plus
+capability flags (`vision`, `tools`, `reasoning`, `embeddings`) and pricing
+(`inputPerToken`, `outputPerToken`, optional currency/unit). Unknown values stay
+absent: the plugin never infers a capability from a model name or arbitrary raw
+payload. Unknown rows and duplicate ids are skipped deterministically. The
+reconciliation layer compares normalized metadata, not wire-specific field names.
 
 ## Runtime service
 
