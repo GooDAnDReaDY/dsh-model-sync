@@ -1,3 +1,11 @@
+## 0.2.8 — 2026-08-25
+
+- normalized explicit model metadata, capability flags, pricing, and provider tags;
+- added bounded timeout/retry/backoff, concurrency limits, and per-provider circuit breakers;
+- added read-only provider health probes and a dedicated health API/UI action;
+- added persistent include/exclude/capability policies with full-catalog caching;
+- added opt-in per-provider scheduling with interval, TTL, jitter, and last/next status.
+
 ## 0.2.7 — 2026-08-24
 
 - full discovered model catalogs are cached separately from modelSelections;

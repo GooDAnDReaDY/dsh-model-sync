@@ -21,6 +21,6 @@ background scheduling. Block `v0.2.9` follows with #27 history, #32 model
 lifecycle, #33 credential diagnostics, #34 reporting, and #35 adapter registry.
 The version changes once after each complete five-issue block.
 
-Remaining for the current block: implement and verify all five issues, then run
-staging verification with one controlled restart, followed by Gitea PR/review/
-merge and the normal RELEASE/GitHub/npm publication gate.
+Block 1 implementation and staging verification are complete. The release branch
+now carries the single patch bump to `0.2.8`; after the release PR/tag, the next
+roadmap block targets `0.2.9` with no version change inside that block.

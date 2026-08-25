@@ -2,7 +2,7 @@
 
 Automatic model catalog synchronization for API-key providers in DeepSeek Harness.
 
-- Status: v0.2.7 released; v0.2.8 reliability/selection block in progress
+- Status: v0.2.8 release candidate; block 1 implementation and staging smoke complete
 - Entry point: ``lib/index.js``
 - Bundle: ``cordis.patch.yml``
 - Tests: npm test (53/53 currently passing)
