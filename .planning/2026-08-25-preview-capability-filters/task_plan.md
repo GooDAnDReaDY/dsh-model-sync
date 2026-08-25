@@ -26,7 +26,9 @@ Add a reusable pure filter helper and a multi-select capability control in the m
 
 ### Phase 4 — verification and staging
 
-Status: pending
+Status: blocked
+
+Code checks pass, but staging installation is blocked by the pre-existing missing dsh-voice file dependency tracked in goodandready/dsh-voice#21. Profile changes require separate user approval.
 
 Run tests, update docs/changelog, build a release candidate, install once in staging, and verify the UI/API.
 
@@ -38,7 +40,7 @@ Prepare release metadata. Ask the user before npm/GitHub publication and product
 
 ## Next Step
 
-Run the release-candidate checks and stage the combined feature branch.
+Wait for resolution/approval of the staging profile blocker, then install the feature tarball once and verify the UI/API.
 
 ## Errors Encountered
 

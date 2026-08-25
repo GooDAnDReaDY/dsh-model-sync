@@ -12,3 +12,7 @@
 - Implemented all-of capability filtering in the picker using explicit normalized metadata; hidden selections remain in the draft.
 - Updated English/Russian labels, README, and CHANGELOG.
 - npm test: 78/78 passed; node check client.js, git diff check, and npm audit high passed.
+
+- PR #69 opened.
+- Built feature tarball at .staging-preview-capability-filters; staging install was attempted inside the real container and correctly stopped on the pre-existing missing dsh-voice path.
+- Read-only inventory captured all file: references and profile SHAs; dsh-voice issue #21 opened. No staging profile or production changes were made.
