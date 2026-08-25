@@ -47,6 +47,10 @@ Omit `provider` to discover all enabled API-key providers in one run. The Settin
 
 An empty `models` array means all models in the latest available catalog. The selected catalog is written to DSH's `llm-pi-ai` settings, so the standard DSH model picker refreshes from the resulting list.
 
+A dry-run renders a per-provider diff preview (added, removed, and metadata-changed models). Use the explicit **Apply preview** action to write the catalog; stale-model removal still requires its confirmation.
+
+The model picker exposes a capability filter based only on explicit normalized metadata (`vision`, `tools`, `reasoning`, and `embeddings`). Multiple selected capabilities use an all-of match, and filtering does not discard hidden selections.
+
 
 The plugin-owned `adapterRegistry` setting adds an opt-in declarative adapter without copying code. A provider entry can specify `endpoint`, `auth` (`bearer`, `x-api-key`, `query-key`, or `none`), `parser`, `modelsPath`, field paths, and explicit capability mappings. Endpoints must be HTTPS except loopback HTTP; credential-like static headers and URL query/fragment data are rejected. Existing built-in descriptors and OpenAI-compatible routes remain the default. Runtime integrations can register an explicit adapter implementation through the registry escape hatch, provided it implements `discover` and `health`.
 

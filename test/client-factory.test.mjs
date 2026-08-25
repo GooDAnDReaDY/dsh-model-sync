@@ -16,6 +16,9 @@ test('client factory uses a browser-safe CommonJS shim', () => {
   assert.match(src, /Choose models/)
   assert.match(src, /Select at least one model/)
   assert.match(src, /All models/)
+  assert.match(src, /Changes preview/)
+  assert.match(src, /Предпросмотр изменений/)
+  assert.match(src, /filterModelsByCapabilities/)
   assert.match(src, /Synchronization history/)
   assert.match(src, /Rollback catalog/)
   assert.match(src, /Confirm stale removal/)
@@ -64,4 +67,7 @@ test('client factory uses a browser-safe CommonJS shim', () => {
   })
   assert.equal(typeof exported.apply, 'function')
   assert.equal(exported.inject.join(), String.fromCharCode(115,108,111,116,115,44,108,111,99,97,108,101))
+  const models = [{ id: 'vision-tools', capabilities: { vision: true, tools: true } }, { id: 'vision-only', capabilities: { vision: true } }, { id: 'plain' }]
+  assert.deepEqual(exported.filterModelsByCapabilities(models, ['vision', 'tools']).map((model) => model.id), ['vision-tools'])
+  assert.deepEqual(exported.filterModelsByCapabilities(models, []).map((model) => model.id), ['vision-tools', 'vision-only', 'plain'])
 })
