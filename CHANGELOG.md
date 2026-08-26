@@ -73,3 +73,7 @@
 - выбор моделей сохраняется в настройках DSH;
 - при ошибке записи каталога allowlist откатывается, чтобы конфигурация не расходилась с каталогом;
 - добавлены регрессионные тесты для wiring и атомарности.
+
+## 0.3.0 - 2026-08-26
+
+- Model info convenience: tags/description, docs link, diff preview, firstSeen/lifecycle/NEW, search/filter/sort, auto-source truth, notifications, cached fallback (#74-86)
