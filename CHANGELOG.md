@@ -77,3 +77,12 @@
 ## 0.3.0 - 2026-08-26
 
 - Model info convenience: tags/description, docs link, diff preview, firstSeen/lifecycle/NEW, search/filter/sort, auto-source truth, notifications, cached fallback (#74-86)
+
+## 0.3.1 - 2026-08-27
+
+- feat: 0.3.1 model info extras (#89-96)
+  - badge +N on card header
+  - per-provider autoApply
+  - prices in/cache/out
+  - try button per model
+  - flagship/cheapest tags, health latency, offline cache
