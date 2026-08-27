@@ -50,10 +50,11 @@ test('registers separate exact status and run endpoints', () => {
   const ctx = { webServer: { register: (route) => { routes.push(route); return () => {} } } }
   const sync = { status: () => ({ running: false }), listProviders: () => [], run: async () => ({}), health: async () => ({ results: [] }), setModelSelection: async () => ({}), setModelPolicy: async () => ({}) }
   const disposers = registerHttpApi(ctx, sync)
-  assert.equal(routes.length, 13)
+  assert.equal(routes.length, 14)
   assert.deepEqual(routes.map((route) => [route.kind, route.path]), [
     ['exact', '/dsh-model-sync/status'],
     ['exact', '/dsh-model-sync/run'],
+    ['exact', '/dsh-model-sync/try'],
     ['exact', '/dsh-model-sync/health'],
     ['exact', '/dsh-model-sync/selection'],
     ['exact', '/dsh-model-sync/policy'],
@@ -66,5 +67,5 @@ test('registers separate exact status and run endpoints', () => {
     ['exact', '/dsh-model-sync/notifications/read'],
     ['exact', '/dsh-model-sync/notifications/acknowledge'],
   ])
-  assert.equal(disposers.length, 13)
+  assert.equal(disposers.length, 14)
 })
