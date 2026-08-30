@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<h3>Dynamic Model Catalog Synchronization & Provider Balance Monitoring</h3>
+<h3>DeepSeek Harness 服务商模型目录动态同步与账户余额监控插件</h3>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@goodandready/dsh-model-sync"><img src="https://img.shields.io/npm/v/@goodandready/dsh-model-sync.svg?style=for-the-badge&color=6366f1&labelColor=1e1b4b" alt="npm version"></a>
@@ -21,21 +21,21 @@
 
 ---
 
-## ⚡ Overview
+## ⚡ 插件概览
 
-**`dsh-model-sync`** automatically discovers upstream model updates and tracks account credit balances across API-key providers (OpenRouter, DeepSeek, Together, Ollama).
+**`dsh-model-sync`** 自动发现上游服务商最新模型并实时监控 API 账户额度消耗情况。
 
 ```mermaid
 graph LR
-    Trigger[⏰ Dynamic Sync & Polling] --> Scanner[dsh-model-sync Engine]
-    Scanner -->|API Discovery| Endpoints[OpenRouter / DeepSeek / Together / Ollama]
-    Endpoints -->|Models & Credit Balance| Scanner
-    Scanner -->|Auto-Update| Catalog[DSH Active Models Catalog]
+    Trigger[⏰ 定时轮询调度] --> Scanner[dsh-model-sync 引擎]
+    Scanner -->|API 端点探测| Endpoints[OpenRouter / DeepSeek / Together / Ollama]
+    Endpoints -->|最新模型清单与余额数据| Scanner
+    Scanner -->|动态刷新| Catalog[DSH 本地模型选单]
 ```
 
 ---
 
-## 📦 Quick Installation
+## 📦 安装指南
 
 ```bash
 dsh plugin --profile web add @goodandready/dsh-model-sync
@@ -43,6 +43,6 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
-## 📄 License
+## 📄 开源协议
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
