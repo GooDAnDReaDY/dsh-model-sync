@@ -1,85 +1,74 @@
-# @goodandready/dsh-model-sync
+# 📦 @goodandready/dsh-model-sync
 
-Automatic model catalog synchronization for API-key providers in DeepSeek Harness.
+<div align="center">
 
-The plugin is designed for:
+[![npm version](https://img.shields.io/npm/v/@goodandready/dsh-model-sync.svg?style=flat-square)](https://www.npmjs.com/package/@goodandready/dsh-model-sync)
+[![license](https://img.shields.io/github/license/GooDAnDReaDY/dsh-model-sync.svg?style=flat-square)](LICENSE)
+[![DSH Plugin](https://img.shields.io/badge/DSH-Plugin-6366f1.svg?style=flat-square)](https://github.com/topics/dsh-plugin)
 
-- API-key providers already configured in DSH;
-- API-key providers available in the built-in DSH catalog but not configured yet;
-- future custom API-key provider routes.
+**[ 🇬🇧 English ](#-english) • [ 🇷🇺 Русский ](#-русский) • [ 🇨🇳 中文 ](#-中文)**
 
-OAuth, subscription, and tool-only routes are intentionally outside the scope.
+</div>
 
-## Status
+---
 
-Runtime, scheduler, HTTP API, reconciliation, model allowlists, and Settings UI are implemented. The release workflow includes staging and production verification before publication.
+<a name="-english"></a>
+## 🇬🇧 English
 
-The Settings UI groups synchronization controls, run summaries, configured providers, diagnostics, notifications, history, and editors into responsive cards that follow the DSH theme.
-Each configured provider row shows `enabled/total` model counts and a temporary `+N` discovery suffix for newly found models; the manual model-selection and policy editors expand directly below that row.
+Automated provider model catalog discovery and quota balance monitoring for DeepSeek Harness API-key providers.
 
-## Development
+### Features
 
-See the project documentation under ``docs/`` for architecture, research, testing, and release notes.
+- **Dynamic Model Discovery**: Queries provider endpoints (OpenRouter, DeepSeek, Together, Ollama) and updates the active model list in DSH.
+- **Credit & Quota Tracking**: Displays real-time account balances and token consumption.
+- **Filter Rules**: Hide deprecated or legacy models automatically.
 
-## API and safety
+### Install
 
-`GET /dsh-model-sync/status` reports provider state without secrets.
-
-`POST /dsh-model-sync/run` defaults to a read-only dry-run:
-
-```json
-{ "provider": "openai", "dryRun": true }
+```bash
+dsh plugin --profile web add @goodandready/dsh-model-sync
 ```
 
-Apply is explicit:
+---
 
-```json
-{ "provider": "openai", "dryRun": false, "removeMissing": false }
+<a name="-русский"></a>
+<details open>
+<summary><h2>🇷🇺 Русский (Полное руководство)</h2></summary>
+
+Автоматическая синхронизация каталогов моделей и отслеживание балансов API для провайдеров DeepSeek Harness.
+
+### Возможности
+
+- **Динамическое обнаружение**: опрашивает API провайдеров (OpenRouter, DeepSeek, Together, Ollama) и обновляет списки моделей в интерфейсе DSH.
+- **Балансы и квоты**: отображает остаток средств на счетах и статистику расхода токенов.
+- **Фильтры моделей**: автоматическое скрытие устаревших версий.
+
+### Установка
+
+```bash
+dsh plugin --profile web add @goodandready/dsh-model-sync
 ```
 
-Omit `provider` to discover all enabled API-key providers in one run. The Settings UI exposes this as **Refresh all**.
+</details>
 
-`POST /dsh-model-sync/selection` stores and applies a per-provider model allowlist:
+---
 
-```json
-{ "provider": "openai", "models": ["gpt-5", "gpt-5-mini"] }
+<a name="-中文"></a>
+<details>
+<summary><h2>🇨🇳 中文 (完整技术文档)</h2></summary>
+
+DeepSeek Harness 服务商模型目录自动同步与额度监控插件。
+
+### 核心亮点
+
+- **动态模型发现**：自动请求服务商端点（OpenRouter、DeepSeek、Together、Ollama 等）并刷新 DSH 选单。
+- **余额与额度追踪**：实时展示 API 账户可用余额与消耗统计。
+- **自定义模型过滤**：自动隐藏旧版与弃用模型。
+
+### 安装方法
+
+```bash
+dsh plugin --profile web add @goodandready/dsh-model-sync
 ```
 
-An empty `models` array means all models in the latest available catalog. The selected catalog is written to DSH's `llm-pi-ai` settings, so the standard DSH model picker refreshes from the resulting list.
-
-A dry-run renders a per-provider diff preview (added, removed, and metadata-changed models). Use the explicit **Apply preview** action to write the catalog; stale-model removal still requires its confirmation.
-
-The model picker exposes a capability filter based only on explicit normalized metadata (`vision`, `tools`, `reasoning`, and `embeddings`). Multiple selected capabilities use an all-of match, and filtering does not discard hidden selections.
-
-The settings card uses the same spacing, typography, borders, and theme variables as the built-in DSH plugin cards in both light and dark themes.
-
-
-The plugin-owned `adapterRegistry` setting adds an opt-in declarative adapter without copying code. A provider entry can specify `endpoint`, `auth` (`bearer`, `x-api-key`, `query-key`, or `none`), `parser`, `modelsPath`, field paths, and explicit capability mappings. Endpoints must be HTTPS except loopback HTTP; credential-like static headers and URL query/fragment data are rejected. Existing built-in descriptors and OpenAI-compatible routes remain the default. Runtime integrations can register an explicit adapter implementation through the registry escape hatch, provided it implements `discover` and `health`.
-
-The full catalog discovered by an applied run is cached in the plugin's own settings
-separately from the model allowlist. After a restart, the model chooser can show the
-full last-known catalog while the standard DSH picker still exposes only the selected
-models. Dry-run remains read-only and does not persist this cache.
-
-
-`GET /dsh-model-sync/report` returns the latest stable aggregate report. It distinguishes success, partial success, failure, and empty runs, includes provider/model counts, and labels whether the source was manual or scheduled. `GET /dsh-model-sync/notifications` returns the bounded in-app notification ledger; repeated identical failures update an occurrence counter instead of creating noise. `POST /dsh-model-sync/notifications/read` and `POST /dsh-model-sync/notifications/acknowledge` accept `{ "id": "sync-notice-..." }` and persist the corresponding state for applied runs. Report and notification text is redacted before it leaves the synchronizer; no webhook or MCP dependency is required.
-
-`GET /dsh-model-sync/credentials` returns bounded diagnostics for configured provider credential references. It calls the DSH credentials `describe` seam only, reports masked reference labels, source/configured state, rotation order, and the last safe request outcome. It never resolves or returns a credential value. `POST /dsh-model-sync/credentials/check` runs the health probe and returns the same diagnostics in one response; a failed reference is recorded per provider without hiding the remaining rotation entries.
-
-`GET /dsh-model-sync/history` returns the bounded history of applied runs. Use
-`?provider=<id>&details=true` for one provider's full snapshots and metadata diff.
-`POST /dsh-model-sync/history/rollback` accepts `{ "historyId": "sync-…", "provider": "openai" }`
-and restores only that provider's catalog; it never changes the model allowlist.
-History is written only by non-dry-run synchronization, is retained according to
-`historyLimit` (1–200, default 50), and redacts credential-shaped error values.
-Rename detection requires an explicit provider `aliases` or `previousIds` field;
-model-id similarity is never guessed.
-
-
-Lifecycle protection keeps a model `stale` after a missing discovery and only
-moves it to `removed` after the configured `staleGraceRuns` and an explicit
-removal confirmation. Provider-declared `deprecated`/`deprecationDate`/
-`expiration_date` metadata is retained as an audit status. Repeated transport or
-credential failures do not advance lifecycle counters. The full catalog cache
-retains stale entries until the user confirms removal; the model picker defaults
-to active models while explicit selections may still name a retained model.
+</details>
