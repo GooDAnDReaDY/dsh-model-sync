@@ -23,14 +23,37 @@
 
 ## ⚡ 插件概览
 
-**`dsh-model-sync`** 自动发现上游服务商最新模型并实时监控 API 账户额度消耗情况。
+**`dsh-model-sync`** 保持 **DeepSeek Harness** 模型选单与上游大模型服务商实时同步。
+
+每当服务商上线新模型、扩充上下文长度或调整定价时，插件自动拉取最新清单，同步模型能力标签（`vision` 视觉、`tools` 工具调用、`reasoning` 深度思考、`embeddings` 嵌入），并在无需重启服务的前提下热重载目录。
 
 ```mermaid
 graph LR
-    Trigger[⏰ 定时轮询调度] --> Scanner[dsh-model-sync 引擎]
-    Scanner -->|API 端点探测| Endpoints[OpenRouter / DeepSeek / Together / Ollama]
-    Endpoints -->|最新模型清单与余额数据| Scanner
-    Scanner -->|动态刷新| Catalog[DSH 本地模型选单]
+    subgraph Trigger [调度与手动触发]
+        Cron[⏰ 后台定时轮询调度器] --> Engine[dsh-model-sync 核心引擎]
+        WebUI[🖥️ 设置面板: 立即同步按钮] --> Engine
+    end
+
+    subgraph Providers [25+ 上游服务商]
+        Engine --> Registry{适配器注册表}
+        Registry -->|Bearer 鉴权| P1[OpenAI / DeepSeek / OpenRouter / Groq]
+        Registry -->|x-api-key 鉴权| P2[Anthropic Claude / 自定义网关]
+        Registry -->|query-key 鉴权| P3[Google Gemini]
+        Registry -->|本地探针| P4[本地 Ollama / vLLM / SGLang]
+    end
+
+    subgraph Reconcile [目录对齐与审计]
+        P1 --> Normalizer[模型归一化与能力特征打标]
+        P2 --> Normalizer
+        P3 --> Normalizer
+        P4 --> Normalizer
+        Normalizer --> Diff[差异审计流: 新增 / 废弃模型]
+        Diff --> Catalog[DSH 当前生效模型选单]
+    end
+
+    style Trigger fill:#1e1e2e,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4
+    style Providers fill:#181825,stroke:#cba6f7,stroke-width:2px,color:#cdd6f4
+    style Reconcile fill:#11111b,stroke:#a6e3a1,stroke-width:2px,color:#cdd6f4
 ```
 
 ---
