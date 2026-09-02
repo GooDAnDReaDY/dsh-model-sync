@@ -107,6 +107,26 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🚀 Enhancements in v0.3.5
+
+* ⏱️ **Adaptive Rate Limit & Retry-After Handling**:
+  * Automatically parses HTTP headers `Retry-After` (in seconds or RFC dates) and `x-ratelimit-reset`.
+  * Exponential backoff prioritizes the exact delay requested by upstream providers, eliminating unnecessary throttling.
+  * Re-classified HTTP 429 errors under a dedicated `rate-limit` diagnostic label.
+* 🔄 **Optimistic Concurrency & Conflict Auto-Recovery**:
+  * Added automated retry loop for `SETTINGS_CONFLICT` (HTTP 409). When concurrent settings updates occur in DSH, the plugin seamlessly re-fetches the latest revision and reapplies the catalog mutations.
+* 🎯 **Advanced Web UI Picker & Filtering**:
+  * **Tokenized Smart Search**: Multi-word queries (`claude 3.5 sonnet`) match across model IDs, display names, tags, and descriptions simultaneously.
+  * **Quick Filter Chips**: One-click toggles for `Context ≥ 100k` and `Cheap ≤ $1/1M` in addition to capability toggles (`Vision`, `Tools`, `Reasoning`, `Embeddings`).
+  * **Batch Selection Controls**: One-click buttons to *Select all shown*, *Deselect all shown*, and *Invert selection*.
+  * **Chunked Rendering / Pagination**: Renders models in batches of 50 to maintain smooth 60fps UI performance even with catalogs containing 1,000+ models.
+  * **Deprecation Badges**: Models with scheduled retirement dates display an explicit countdown badge (`Deprecates in Nd`).
+* 💾 **Storage & Metadata Optimizations**:
+  * Robust context limit parser supporting suffix multipliers (`128k`, `1M`, `128,000`).
+  * Automatic history compaction: historical snapshots older than the 5 latest sync runs have heavy before/after dumps pruned while retaining summary diffs, keeping `settings.yaml` ultra-compact.
+
+---
+
 ## ⚙️ Configuration Reference (`settings.yaml`)
 
 ```yaml
