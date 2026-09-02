@@ -107,6 +107,26 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🛠️ Enhancements & Fixes in v0.3.6
+
+* 🔑 **Universal Credential Resolution (`credentialRef` & `apiKeyRef`)**:
+  * Added full support for modern DSH `credentialRef` and `apiKeyRef` references across inventory detection, provider adapters, and OpenAI-compatible generic routes.
+  * Providers configured via DSH Credentials Service are now accurately discovered and authenticated without requiring legacy `apiKeyEnv`.
+* ♻️ **Lifecycle Cleanup for Deprecated Models**:
+  * Fixed an issue where models previously marked as `deprecated` would remain indefinitely in settings when removed by the upstream provider. When `removeMissing: true` is enabled, missing deprecated models now cleanly transition to `removed` status once the grace period expires.
+* ⏰ **Accurate Scheduler Inactive Status**:
+  * Corrected `scheduler.status()` to return `nextRunAt: null` when background synchronization is disabled, avoiding misleading run times in the Web UI.
+* 🛡️ **Web UI Resilience & Big Catalog Scalability**:
+  * Eliminated potential UI crashes during model sorting by safely handling missing model display names.
+  * Replaced spread operations on model arrays with iterative aggregations, preventing call stack overflow (`RangeError`) on massive catalogs (10,000+ models).
+  * Surfaced detailed probe error messages in the UI when testing individual models via the `▶` button.
+  * Localized cache expiration and offline status strings in Russian and English.
+* ⚡ **Deterministic Model Diffing & HTTP Stream Safety**:
+  * Implemented stable key-sorted serialization in `diffModels` and `sameModel` to eliminate false-positive diffs caused by non-deterministic JSON key order.
+  * Added early stream destruction on oversized HTTP request bodies to prevent memory bloat.
+
+---
+
 ## 🚀 Enhancements in v0.3.5
 
 * ⏱️ **Adaptive Rate Limit & Retry-After Handling**:

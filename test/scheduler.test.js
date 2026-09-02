@@ -77,5 +77,6 @@ test('schedule remains off unless explicitly enabled', () => {
   })
   assert.equal(scheduler.start(), false)
   assert.equal(scheduler.status().active, false)
+  assert.equal(scheduler.status().nextRunAt, null)
   assert.equal(calls, 0)
 })

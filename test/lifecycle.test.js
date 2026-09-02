@@ -29,3 +29,17 @@ test('normalizes explicit provider deprecation signals without guessing', () => 
   const result = updateLifecycle({}, [], [{ id: 'old', lifecycle: { deprecated: true } }], { runNumber: 1 })
   assert.equal(result.records.old.status, 'deprecated')
 })
+
+test('removes deprecated model when missing and removeMissing is true', () => {
+  const previous = {
+    'dep-model': { status: 'deprecated', consecutiveMissing: 2, firstMissingAt: 1, lastObservedRun: 2 },
+  }
+  const result = updateLifecycle(previous, [{ id: 'dep-model', name: 'Dep Model' }], [], {
+    runNumber: 3,
+    staleGraceRuns: 2,
+    removeMissing: true,
+  })
+  assert.deepEqual(result.removedIds, ['dep-model'])
+  assert.equal(result.records['dep-model'].status, 'removed')
+  assert.match(result.records['dep-model'].reason, /missing for 3 discovery runs/)
+})

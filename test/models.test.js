@@ -60,3 +60,21 @@ test('reports explicit renames and keeps diff order stable', () => {
   assert.equal(result.renamed[0].after.id, 'new')
   assert.deepEqual(result.removed.map((row) => row.id), ['z'])
 })
+
+test('diffModels is insensitive to key ordering in capabilities and pricing', () => {
+  const before = [{
+    id: 'm1',
+    name: 'M1',
+    capabilities: { vision: true, tools: true },
+    pricing: { inputPerToken: 0.01, outputPerToken: 0.02 },
+  }]
+  const after = [{
+    id: 'm1',
+    name: 'M1',
+    capabilities: { tools: true, vision: true },
+    pricing: { outputPerToken: 0.02, inputPerToken: 0.01 },
+  }]
+  const result = diffModels(before, after)
+  assert.equal(result.hasChanges, false)
+  assert.equal(result.changed.length, 0)
+})

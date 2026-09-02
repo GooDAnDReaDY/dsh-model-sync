@@ -39,3 +39,23 @@ test('rejects unsupported protocol before network access', async () => {
     baseURL: 'https://example.test',
   }, { fetchImpl: async () => { throw new Error('must not call') } }))
 })
+
+test('resolves credential via credentialRef when apiKeyEnv is missing', async () => {
+  const calls = []
+  await discoverOpenAIModels({
+    provider: 'demo',
+    api: 'openai-completions',
+    baseURL: 'https://example.test/v1',
+    credentialRef: 'CRED_REF_KEY',
+  }, {
+    resolveCredential: async (ref) => {
+      assert.equal(ref, 'CRED_REF_KEY')
+      return 'resolved-token'
+    },
+    fetchImpl: async (url, options) => {
+      calls.push({ url, options })
+      return new Response(JSON.stringify({ data: [{ id: 'm1' }] }), { status: 200, headers: { 'content-type': 'application/json' } })
+    },
+  })
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer resolved-token')
+})
