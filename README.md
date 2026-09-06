@@ -107,6 +107,21 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🛠️ Enhancements & Fixes in v0.3.8
+
+* ⚙️ **Reactive Settings Card Binding (`settingsScope`)**:
+  * Integrated modern DSH kernel `settingsScope` service (`ctx.settingsScope.bind({ namespace: 'dsh-model-sync' })`) with `useSyncExternalStore`.
+  * Added direct configuration controls for the background scheduler in the Web UI: enable/disable background sync (`scheduleEnabled`), customize interval (`intervalMinutes`), and toggle automatic application of new models (`autoApply`).
+  * Gracefully handles all snapshot lifecycle states (`ready`, `loading`, `unavailable`) and collects field validation errors without dropping form drafts.
+* 🌐 **Full Model Picker Localization**:
+  * Translated all previously hardcoded strings in the model selector, including search input placeholder and sorting options (`Name A→Z`, `Price ↑`, `Context ↓`, `Newest ↓`), dynamically reacting to DSH locale switching (`en` / `ru`).
+* 📜 **Synchronization History Localization**:
+  * Added the missing `noHistory` key to English and Russian localization dictionaries, ensuring informative feedback when sync history is empty.
+* 📋 **Project Design Contract**:
+  * Added authoritative `docs/design/DESIGN.md` defining UI surfaces, styling foundations, token conventions, and state contracts.
+
+---
+
 ## 🛠️ Enhancements & Fixes in v0.3.6
 
 * 🔑 **Universal Credential Resolution (`credentialRef` & `apiKeyRef`)**:
