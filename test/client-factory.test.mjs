@@ -53,6 +53,23 @@ test('client factory uses a browser-safe CommonJS shim', () => {
   assert.match(src, /Ручной выбор моделей/)
   assert.match(src, /grid-template-columns/)
   assert.match(src, /ensureStyles/)
+  // Issue #108: noHistory dictionary entries
+  assert.match(src, /noHistory:\s*'No synchronization history\.'/)
+  assert.match(src, /noHistory:\s*'Истории синхронизаций нет\.'/)
+  // Issue #109: model picker localization keys
+  assert.match(src, /searchPlaceholder:\s*'Search id\/name\/tag'/)
+  assert.match(src, /searchPlaceholder:\s*'Поиск id\/name\/tag'/)
+  assert.match(src, /sortName:\s*'Name A→Z'/)
+  assert.match(src, /sortPrice:\s*'Price ↑'/)
+  assert.match(src, /t\.searchPlaceholder/)
+  assert.match(src, /t\.sortName/)
+  assert.match(src, /t\.sortPrice/)
+  // Issue #107: scheduler UI and settingsScope binding
+  assert.match(src, /schedulerSettings:\s*'Scheduler configuration'/)
+  assert.match(src, /scheduleEnabled:\s*'Enable background schedule'/)
+  assert.match(src, /intervalMinutes:\s*'Interval \(minutes\)'/)
+  assert.match(src, /saveScheduler/)
+  assert.match(src, /settingsScope\.bind\(\{\s*namespace:\s*NS\s*\}\)/)
   let captured
   const window = { __ModuleLoader__: { load(entry) { captured = entry } } }
   runInNewContext(src, createContext({ window }))
@@ -70,8 +87,69 @@ test('client factory uses a browser-safe CommonJS shim', () => {
     throw new Error('unexpected require ' + name)
   })
   assert.equal(typeof exported.apply, 'function')
-  assert.equal(exported.inject.join(), String.fromCharCode(115,108,111,116,115,44,108,111,99,97,108,101))
+  assert.deepEqual(Array.from(exported.inject), ['slots', 'locale', 'settingsScope'])
   const models = [{ id: 'vision-tools', capabilities: { vision: true, tools: true } }, { id: 'vision-only', capabilities: { vision: true } }, { id: 'plain' }]
   assert.deepEqual(exported.filterModelsByCapabilities(models, ['vision', 'tools']).map((model) => model.id), ['vision-tools'])
   assert.deepEqual(exported.filterModelsByCapabilities(models, []).map((model) => model.id), ['vision-tools', 'vision-only', 'plain'])
+})
+
+test('client apply registers settings.plugin.item and supports settingsScope', () => {
+  const srcPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '../lib/client.js')
+  const src = readFileSync(srcPath, 'utf8')
+  let captured
+  const window = { __ModuleLoader__: { load(entry) { captured = entry } } }
+  runInNewContext(src, createContext({ window }))
+  
+  let registeredSlot = null
+  let registeredComp = null
+  let boundScope = null
+
+  const fakeScope = {
+    subscribe(cb) { return () => {} },
+    getSnapshot() { return { status: 'ready', value: { scheduleEnabled: true, intervalMinutes: 30, autoApply: true } } },
+    async set(k, v) {}
+  }
+
+  const mockCtx = {
+    effect(fn, label) { fn() },
+    locale: {
+      register(ns, dicts) {},
+      subscribe(cb) { return () => {} },
+      getSnapshot() { return { active: 'ru' } }
+    },
+    settingsScope: {
+      bind(opts) {
+        boundScope = opts
+        return fakeScope
+      }
+    },
+    slots: {
+      inject(name, fn) { fn(); return true },
+      register(opts, comp) {
+        registeredSlot = opts
+        registeredComp = comp
+      }
+    }
+  }
+
+  const fakeReact = {
+    createElement(type, props, ...children) { return { type, props, children } },
+    useSyncExternalStore(sub, getSnap) { return getSnap() },
+    useMemo(fn) { return fn() },
+    useCallback(fn) { return fn },
+    useState(value) { return [value, () => {}] },
+    useEffect(fn) { fn() },
+    Fragment: 'Fragment'
+  }
+
+  const exported = captured.factory((name) => {
+    if (name === 'react') return fakeReact
+    throw new Error('unexpected require ' + name)
+  })
+
+  exported.apply(mockCtx)
+  assert.ok(registeredSlot)
+  assert.equal(registeredSlot.name, 'settings.plugin.item')
+  assert.equal(registeredSlot.key, 'dsh-model-sync')
+  assert.equal(registeredSlot.locale, 'dsh-model-sync')
 })
