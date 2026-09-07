@@ -142,6 +142,19 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🚀 Enhancements in v0.3.9
+
+* 🔒 **Serialized Settings Mutations (`saveConfig`)**:
+  * Chained internal settings persistence via an async promise mutex (`saveQueue`).
+  * Eliminates race conditions between simultaneous sync runs and user UI interactions, ensuring clean atomic writes to `settings.yaml`.
+* 🛡️ **Hardened Cross-Origin & CSRF Protections**:
+  * Enhanced `trusted(req)` checking to evaluate `sec-fetch-site`, `origin`, and `referer` against the HTTP `Host`.
+  * Blocks unauthorized cross-origin mutations while preserving legitimate local and reverse-proxy requests.
+* 🎨 **Standardized Plugin Style Discovery**:
+  * Added `data-dsh-plugin="dsh-model-sync"` attribute to injected UI style tags in compliance with the DeepSeek Harness plugin authoring standard.
+
+---
+
 ## 🚀 Enhancements in v0.3.5
 
 * ⏱️ **Adaptive Rate Limit & Retry-After Handling**:
