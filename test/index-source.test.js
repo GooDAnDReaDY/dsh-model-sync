@@ -16,5 +16,6 @@ test('uses the DSH settings injection seam for the writable plugin namespace', (
   assert.match(source, /base: baseConfig/)
   assert.match(source, /settings = ctx\.get\('settings'\)/)
   assert.match(source, /return saveConfigImpl\(patch\)/)
+  assert.match(source, /saveQueue/)
   assert.doesNotMatch(source, /settings\.settings\.register/)
 })
