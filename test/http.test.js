@@ -69,3 +69,37 @@ test('registers separate exact status and run endpoints', () => {
   ])
   assert.equal(disposers.length, 14)
 })
+
+test('rejects cross-site and mismatched origin requests', async () => {
+  const routes = new Map()
+  const ctx = { webServer: { register: (route) => { routes.set(route.path, route.handler); return () => {} } } }
+  const sync = { status: () => ({ running: false }), listProviders: () => [] }
+  registerHttpApi(ctx, sync)
+  const statusHandler = routes.get('/dsh-model-sync/status')
+
+  const createMockRes = () => {
+    const res = {
+      status: 0,
+      headers: {},
+      body: '',
+      writeHead(s, h) { this.status = s; this.headers = h },
+      end(b) { this.body = b },
+    }
+    return res
+  }
+
+  // Cross-site fetch header
+  const crossSiteRes = createMockRes()
+  await statusHandler({ method: 'GET', headers: { 'sec-fetch-site': 'cross-site', host: 'localhost:3000' } }, crossSiteRes)
+  assert.equal(crossSiteRes.status, 403)
+
+  // Mismatched origin
+  const badOriginRes = createMockRes()
+  await statusHandler({ method: 'GET', headers: { origin: 'http://malicious.site', host: 'localhost:3000' } }, badOriginRes)
+  assert.equal(badOriginRes.status, 403)
+
+  // Valid same-origin
+  const validRes = createMockRes()
+  await statusHandler({ method: 'GET', headers: { origin: 'http://localhost:3000', host: 'localhost:3000' } }, validRes)
+  assert.equal(validRes.status, 200)
+})
