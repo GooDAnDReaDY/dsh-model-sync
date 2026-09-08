@@ -80,3 +80,20 @@ test('schedule remains off unless explicitly enabled', () => {
   assert.equal(scheduler.status().nextRunAt, null)
   assert.equal(calls, 0)
 })
+
+test('triggers immediate tick on start when scheduleEnabled and no previous runs', async () => {
+  let calls = 0
+  const scheduler = createSyncScheduler({
+    run: async () => { calls++ },
+  }, {
+    getConfig: () => ({ enabled: true, scheduleEnabled: true, intervalMinutes: 60 }),
+    setIntervalFn: () => 10,
+    clearIntervalFn: () => {},
+  })
+
+  assert.equal(scheduler.start(), true)
+  // Allow microtask to resolve
+  await new Promise((resolve) => setTimeout(resolve, 10))
+  assert.equal(calls, 1)
+  scheduler.stop()
+})
