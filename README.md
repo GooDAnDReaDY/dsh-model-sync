@@ -142,6 +142,18 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🚀 Enhancements in v0.3.10
+
+* 📦 **Compacted History Storage**:
+  * Stripped non-essential metadata (`description`, `tags`, `aliases`) from catalog snapshots (`before`/`after`) in `settings.yaml`, retaining only essential properties (`id`, `name`, `capabilities`, `pricing`, `contextWindow`, `maxTokens`).
+  * Optimized default snapshot retention (`DEFAULT_SNAPSHOT_RETENTION = 3`) to keep configuration files lean while preserving full rollback functionality.
+* ⚡ **Immediate Scheduler First Tick**:
+  * Scheduler now triggers an initial discovery run immediately upon startup when enabled without requiring an initial 60-minute wait.
+* 🛡️ **Client-side Policy Regex Validation**:
+  * Added instant regex pattern verification in the Web UI before submitting `/policy` requests with localized error feedback.
+
+---
+
 ## 🚀 Enhancements in v0.3.9
 
 * 🔒 **Serialized Settings Mutations (`saveConfig`)**:
