@@ -1,3 +1,16 @@
+## 0.3.11 — 2026-09-10
+
+- removed top-level sidebar fallback (`settings.section`) to keep UI clean and consistent with DSH standards (Settings → Plugins → Plugin Settings);
+- safe Cordis service access via `ctx.get(...)` with fallback to direct proxy access (`ctx.settings`, `ctx.llm`) to prevent silent failures on core variants;
+- updated design contract and documentation.
+
+## 0.3.10 — 2026-09-08
+
+- deduplicated UI polling between active settings card and section view;
+- paused UI polling when browser tab is hidden (`document.hidden`);
+- added fast catalog diff comparison shortcut in synchronization engine;
+- pruned unused helper functions and refined repository `.gitignore`.
+
 ## 0.2.14 — 2026-08-25
 
 - dry-run now renders an explicit per-provider diff preview with a separate apply action;

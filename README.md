@@ -107,6 +107,15 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🛠️ Enhancements & Fixes in v0.3.11
+
+* 🗂️ **Streamlined Settings UI Surface**:
+  * Removed the redundant top-level settings sidebar section fallback (`settings.section`), keeping configuration strictly inside the standard DSH plugin settings card (`settings.plugin.item`).
+* 🛡️ **Hardened Cordis Service Access**:
+  * Service access for `settings` and `llm` is now performed via `ctx.get(...)` with safe fallback to direct property inspection, preventing silent resolution failures on Cordis proxy implementations.
+
+---
+
 ## 🛠️ Enhancements & Fixes in v0.3.8
 
 * ⚙️ **Reactive Settings Card Binding (`settingsScope`)**:
