@@ -1,6 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { normalizeCredentialCheckRequest, normalizeCredentialRequest, normalizeHealthRequest, normalizeHistoryRequest, normalizeHistoryRollbackRequest, normalizeNotificationAction, normalizeNotificationRequest, normalizePolicyRequest, normalizeRunRequest, normalizeSelectionRequest, registerHttpApi } from '../lib/http.js'
+import { EventEmitter } from 'node:events'
+import { normalizeCredentialCheckRequest, normalizeCredentialRequest, normalizeHealthRequest, normalizeHistoryRequest, normalizeHistoryRollbackRequest, normalizeNotificationAction, normalizeNotificationRequest, normalizePolicyRequest, normalizeRunRequest, normalizeSelectionRequest, normalizeTryRequest, registerHttpApi } from '../lib/http.js'
 
 test('normalizes run requests to a safe dry-run default', () => {
   assert.deepEqual(normalizeRunRequest({}), { dryRun: true, removeMissing: false })
@@ -102,4 +103,93 @@ test('rejects cross-site and mismatched origin requests', async () => {
   const validRes = createMockRes()
   await statusHandler({ method: 'GET', headers: { origin: 'http://localhost:3000', host: 'localhost:3000' } }, validRes)
   assert.equal(validRes.status, 200)
+})
+
+
+test('normalizes try requests and validates model and provider', () => {
+  assert.deepEqual(normalizeTryRequest({ provider: 'openai', model: 'gpt-5' }), { provider: 'openai', model: 'gpt-5' })
+  assert.throws(() => normalizeTryRequest({ provider: 123, model: 'gpt-5' }), /provider is required/)
+  assert.throws(() => normalizeTryRequest({ provider: 'openai', model: '' }), /model is required/)
+  assert.throws(() => normalizeTryRequest('not-an-object'), /request body must be an object/)
+})
+
+test('handles try, history, credentials, report and notification routes via HTTP handlers', async () => {
+  const routes = new Map()
+  const ctx = { webServer: { register: (route) => { routes.set(route.path, route.handler); return () => {} } } }
+  let tryCalledWith = null
+  let noticeActionCalled = null
+  const sync = {
+    status: () => ({ running: false }),
+    listProviders: () => [{ provider: 'openai', configured: true }],
+    history: () => [{ id: 'hist-1', version: 1 }],
+    credentialDiagnostics: async () => ({ results: [] }),
+    report: () => ({ total: 1 }),
+    notifications: () => [{ id: 'n-1' }],
+    tryModel: async (opts) => { tryCalledWith = opts; return { provider: opts.provider, model: opts.model, ok: true, latencyMs: 42 } },
+    updateNotification: async (id, action) => { noticeActionCalled = { id, action }; return { id, read: true } },
+    rollbackHistory: async () => ({ applied: true }),
+  }
+  registerHttpApi(ctx, sync)
+
+  const createMockRes = () => ({
+    status: 0,
+    headers: {},
+    body: '',
+    writeHead(s, h) { this.status = s; this.headers = h },
+    end(b) { this.body = b },
+  })
+
+  const makeReq = (method, path, body = null) => {
+    const req = new EventEmitter()
+    req.method = method
+    req.url = path
+    req.headers = { host: 'localhost:3000', origin: 'http://localhost:3000' }
+    if (body !== null) {
+      process.nextTick(() => {
+        req.emit('data', Buffer.from(JSON.stringify(body)))
+        req.emit('end')
+      })
+    } else {
+      process.nextTick(() => req.emit('end'))
+    }
+    return req
+  }
+
+  // GET /dsh-model-sync/history
+  const histRes = createMockRes()
+  await routes.get('/dsh-model-sync/history')(makeReq('GET', '/dsh-model-sync/history?limit=2'), histRes)
+  assert.equal(histRes.status, 200)
+  assert.equal(JSON.parse(histRes.body).history.length, 1)
+
+  // GET /dsh-model-sync/credentials
+  const credRes = createMockRes()
+  await routes.get('/dsh-model-sync/credentials')(makeReq('GET', '/dsh-model-sync/credentials'), credRes)
+  assert.equal(credRes.status, 200)
+
+  // GET /dsh-model-sync/report
+  const repRes = createMockRes()
+  await routes.get('/dsh-model-sync/report')(makeReq('GET', '/dsh-model-sync/report'), repRes)
+  assert.equal(repRes.status, 200)
+
+  // GET /dsh-model-sync/notifications
+  const notRes = createMockRes()
+  await routes.get('/dsh-model-sync/notifications')(makeReq('GET', '/dsh-model-sync/notifications'), notRes)
+  assert.equal(notRes.status, 200)
+
+  // POST /dsh-model-sync/try
+  const tryRes = createMockRes()
+  await routes.get('/dsh-model-sync/try')(makeReq('POST', '/dsh-model-sync/try', { provider: 'openai', model: 'gpt-5' }), tryRes)
+  assert.equal(tryRes.status, 200)
+  assert.deepEqual(tryCalledWith, { provider: 'openai', model: 'gpt-5' })
+
+  // POST /dsh-model-sync/notifications/read
+  const readRes = createMockRes()
+  await routes.get('/dsh-model-sync/notifications/read')(makeReq('POST', '/dsh-model-sync/notifications/read', { id: 'n-1' }), readRes)
+  assert.equal(readRes.status, 200)
+  assert.deepEqual(noticeActionCalled, { id: 'n-1', action: 'read' })
+
+  // Method not allowed checks
+  const badMethodRes = createMockRes()
+  await routes.get('/dsh-model-sync/history')(makeReq('POST', '/dsh-model-sync/history'), badMethodRes)
+  assert.equal(badMethodRes.status, 405)
 })

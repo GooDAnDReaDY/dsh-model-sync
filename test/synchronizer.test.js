@@ -269,3 +269,35 @@ test('persists deduplicated failure reports and acknowledgement state', async ()
   assert.ok(config.notifications[0].acknowledgedAt)
   assert.equal(sync.notifications({ includeAcknowledged: false }).length, 0)
 })
+
+
+test('tryModel probes model latency and handles invalid parameters', async () => {
+  const ctx = {
+    llm: {
+      listConfigurableProviders: () => [{
+        provider: 'demo',
+        displayName: 'Demo',
+        settingsNs: 'llm-pi-ai',
+        settingsPath: ['providers', 'demo'],
+        declared: true,
+      }],
+      listProviders: () => [{ id: 'demo', name: 'Demo' }],
+    },
+    get: () => ({
+      get: () => ({
+        providers: { demo: { apiKeyEnv: 'DEMO_KEY' } },
+      }),
+    }),
+  }
+  const synchronizer = createModelSynchronizer(ctx, { getConfig: () => ({}) })
+  
+  // Validation errors
+  await assert.rejects(() => synchronizer.tryModel({}), /provider is required/)
+  await assert.rejects(() => synchronizer.tryModel({ provider: 'demo' }), /model is required/)
+  
+  // Probe returns latency result
+  const res = await synchronizer.tryModel({ provider: 'demo', model: 'demo-v1' })
+  assert.equal(res.provider, 'demo')
+  assert.equal(res.model, 'demo-v1')
+  assert.equal(typeof res.latencyMs, 'number')
+})
