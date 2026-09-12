@@ -78,3 +78,23 @@ test('diffModels is insensitive to key ordering in capabilities and pricing', ()
   assert.equal(result.hasChanges, false)
   assert.equal(result.changed.length, 0)
 })
+
+
+test('detects code and reasoning capabilities from modern model ids and tokens', () => {
+  // DeepSeek-R1 reasoning detection
+  const r1Model = normalizeModel('openrouter', { id: 'deepseek/deepseek-r1', name: 'DeepSeek R1' })
+  assert.equal(r1Model.capabilities?.reasoning, true)
+
+  // o1 / o3 reasoning detection
+  const o1Model = normalizeModel('openai', { id: 'o1-mini', name: 'o1-mini' })
+  assert.equal(o1Model.capabilities?.reasoning, true)
+
+  // Qwen Coder code detection
+  const qwenCoder = normalizeModel('openrouter', { id: 'qwen/qwen-2.5-coder-32b-instruct', name: 'Qwen 2.5 Coder 32B' })
+  assert.equal(qwenCoder.capabilities?.code, true)
+
+  // Explicit code capability
+  const explicitCode = normalizeModel('custom', { id: 'custom-model', capabilities: ['code', 'thinking'] })
+  assert.equal(explicitCode.capabilities?.code, true)
+  assert.equal(explicitCode.capabilities?.reasoning, true)
+})
