@@ -25,6 +25,21 @@
 
 ---
 
+## 🚀 v0.3.13 性能与质量优化
+
+* ⚡ **ETag / 304 Not Modified 状态缓存**:
+  * 为 `GET /dsh-model-sync/status` 提供弱 ETag 支持。UI 定时 15 秒轮询时直接返回 `304 Not Modified`，避免多余 JSON 序列化与流量损耗。
+* 🌐 **上游条件请求 (Upstream Conditional Requests)**:
+  * 向提供商 API 发送 `If-None-Match` / `If-Modified-Since`。当提供商返回 304 时直接命中缓存，无需重复解析。
+* 🎯 **模型搜索防抖与 useMemo 优化**:
+  * 模型选择器搜索框加入 150ms debounce 与 `React.useMemo` 缓存，大幅提升大模型列表下的筛选与排序流畅度。
+* 🧠 **扩展模型能力检测**:
+  * 支持现代推理/思考模型（DeepSeek-R1、o1/o3-mini）及代码专用模型（`code`）的能力标记与策略过滤。
+* 🛡️ **带抖动的指数退避重试 (Exponential Jitter)**:
+  * 在 API 失败重试时加入随机抖动系数，有效防止高并发下的惊群效应。
+
+---
+
 ## ⚡ 插件概览
 
 **`dsh-model-sync`** 保持 **DeepSeek Harness** 模型选单与上游大模型服务商实时同步。

@@ -107,6 +107,21 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🚀 Enhancements in v0.3.13
+
+* ⚡ **Zero-Overhead Polling via HTTP ETag / 304 Not Modified**:
+  * Implemented weak ETag generation for `GET /dsh-model-sync/status`. When the Web UI polls every 15 seconds, unchanged catalogs receive an empty `304 Not Modified` response, eliminating redundant JSON serialization and network traffic.
+* 🌐 **Upstream Conditional HTTP Requests**:
+  * Added `If-None-Match` and `If-Modified-Since` headers to upstream provider discovery. Catalogs that return `304 Not Modified` resolve instantly from memory cache without re-parsing or diff re-computation.
+* 🎯 **Debounced Search & Memoized Sorting in UI**:
+  * Introduced 150ms input debouncing and `React.useMemo` for model filtering/sorting in the model picker, ensuring fluid search responsiveness on catalogs with hundreds of models.
+* 🧠 **Expanded Capability Detection**:
+  * Added detection for modern reasoning models (`DeepSeek-R1`, `o1`, `o3-mini`, `thinking`) and specialized code generation models (`code`), plus support for the `code` capability filter in policy matching and UI picker.
+* 🛡️ **Exponential Retry Jitter**:
+  * Enhanced `retryWithBackoff` with randomized jitter (`0.5 - 1.0` multiplier) to prevent thundering-herd effects on provider APIs during network hiccups or rate limits.
+
+---
+
 ## 🛠️ Enhancements & Fixes in v0.3.11
 
 * 🗂️ **Streamlined Settings UI Surface**:

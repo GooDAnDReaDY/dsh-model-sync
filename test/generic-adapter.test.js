@@ -59,3 +59,29 @@ test('resolves credential via credentialRef when apiKeyEnv is missing', async ()
   })
   assert.equal(calls[0].options.headers.Authorization, 'Bearer resolved-token')
 })
+
+
+test('discoverOpenAIModels passes etag and handles 304 not modified', async () => {
+  let passedHeaders = null
+  const fakeFetch = async (url, options) => {
+    passedHeaders = options.headers
+    return {
+      status: 304,
+      ok: false,
+      headers: new Headers({ etag: '"up-123"' }),
+    }
+  }
+
+  const profile = { provider: 'custom-ai', baseURL: 'https://api.example.com/v1', api: 'openai-completions' }
+  const result = await discoverOpenAIModels(profile, {
+    resolveCredential: async () => 'test-key',
+    fetchImpl: fakeFetch,
+    etag: '"up-123"',
+    lastModified: 'Mon, 01 Jan 2026 00:00:00 GMT',
+  })
+
+  assert.equal(passedHeaders['If-None-Match'], '"up-123"')
+  assert.equal(passedHeaders['If-Modified-Since'], 'Mon, 01 Jan 2026 00:00:00 GMT')
+  assert.equal(result.notModified, true)
+  assert.equal(result.etag, '"up-123"')
+})

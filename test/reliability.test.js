@@ -47,3 +47,25 @@ test('aborts a timed request signal', async () => {
   assert.equal(timed.signal.reason.name, 'TimeoutError')
   timed.cleanup()
 })
+
+
+test('applies jitter factor to retry backoff delay', async () => {
+  let calls = 0
+  const delays = []
+  const value = await retryWithBackoff(async () => {
+    calls += 1
+    if (calls < 2) throw catalogRequestError(503)
+    return 'ok'
+  }, {
+    attempts: 2,
+    baseDelayMs: 200,
+    maxDelayMs: 500,
+    jitter: true,
+    onRetry: ({ delayMs }) => { delays.push(delayMs) },
+  })
+  assert.equal(value, 'ok')
+  assert.equal(calls, 2)
+  assert.equal(delays.length, 1)
+  // Jitter factor is in [0.5, 1.0] range of 200ms -> [100ms, 200ms]
+  assert.ok(delays[0] >= 100 && delays[0] <= 200, `delayMs ${delays[0]} should be between 100 and 200`)
+})

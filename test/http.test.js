@@ -193,3 +193,50 @@ test('handles try, history, credentials, report and notification routes via HTTP
   await routes.get('/dsh-model-sync/history')(makeReq('POST', '/dsh-model-sync/history'), badMethodRes)
   assert.equal(badMethodRes.status, 405)
 })
+
+
+test('returns ETag header on GET /status and responds with 304 when If-None-Match matches', async () => {
+  const routes = new Map()
+  const ctx = { webServer: { register: (route) => { routes.set(route.path, route.handler); return () => {} } } }
+  const sync = {
+    status: () => ({ running: false, lastRun: { finishedAt: 123456 } }),
+    listProviders: () => [{ provider: 'openai', configured: true }],
+  }
+  registerHttpApi(ctx, sync)
+  const statusHandler = routes.get('/dsh-model-sync/status')
+
+  const createMockRes = () => ({
+    status: 0,
+    headers: {},
+    body: '',
+    writeHead(s, h) { this.status = s; this.headers = h },
+    end(b) { this.body = b ?? '' },
+  })
+
+  // 1. First request without If-None-Match
+  const firstRes = createMockRes()
+  await statusHandler({ method: 'GET', headers: { host: 'localhost:3000', origin: 'http://localhost:3000' } }, firstRes)
+  assert.equal(firstRes.status, 200)
+  const etag = firstRes.headers.etag
+  assert.ok(etag && etag.startsWith('W/"'))
+  assert.ok(firstRes.body.length > 0)
+
+  // 2. Second request with matching If-None-Match
+  const matchRes = createMockRes()
+  await statusHandler({
+    method: 'GET',
+    headers: { host: 'localhost:3000', origin: 'http://localhost:3000', 'if-none-match': etag },
+  }, matchRes)
+  assert.equal(matchRes.status, 304)
+  assert.equal(matchRes.body, '')
+  assert.equal(matchRes.headers.etag, etag)
+
+  // 3. Request with mismatched If-None-Match
+  const mismatchRes = createMockRes()
+  await statusHandler({
+    method: 'GET',
+    headers: { host: 'localhost:3000', origin: 'http://localhost:3000', 'if-none-match': 'W/"stale-etag"' },
+  }, mismatchRes)
+  assert.equal(mismatchRes.status, 200)
+  assert.equal(mismatchRes.body, firstRes.body)
+})
