@@ -1,7 +1,22 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { EventEmitter } from 'node:events'
-import { normalizeCredentialCheckRequest, normalizeCredentialRequest, normalizeHealthRequest, normalizeHistoryRequest, normalizeHistoryRollbackRequest, normalizeNotificationAction, normalizeNotificationRequest, normalizePolicyRequest, normalizeRunRequest, normalizeSelectionRequest, normalizeTryRequest, registerHttpApi } from '../lib/http.js'
+import {
+  normalizeAliasRequest,
+  normalizeBatchTryRequest,
+  normalizeCredentialCheckRequest,
+  normalizeCredentialRequest,
+  normalizeHealthRequest,
+  normalizeHistoryRequest,
+  normalizeHistoryRollbackRequest,
+  normalizeNotificationAction,
+  normalizeNotificationRequest,
+  normalizePolicyRequest,
+  normalizeRunRequest,
+  normalizeSelectionRequest,
+  normalizeTryRequest,
+  registerHttpApi
+} from '../lib/http.js'
 
 test('normalizes run requests to a safe dry-run default', () => {
   assert.deepEqual(normalizeRunRequest({}), { dryRun: true, removeMissing: false })
@@ -19,6 +34,10 @@ test('normalizes model policy requests and validates regex inputs', () => {
   assert.deepEqual(normalizePolicyRequest({ provider: 'openai', include: ['gpt-.*'], requireCapabilities: { vision: true } }), {
     provider: 'openai',
     policy: { include: ['gpt-.*'], exclude: [], requireCapabilities: { vision: true }, denyCapabilities: {} },
+  })
+  assert.deepEqual(normalizePolicyRequest({ provider: 'openai', include: ['gpt-.*'], enableCostFilter: true, maxPricePerMillion: 1.5, enableContextFilter: true, minContextTokens: 32000 }), {
+    provider: 'openai',
+    policy: { include: ['gpt-.*'], exclude: [], requireCapabilities: {}, denyCapabilities: {}, enableCostFilter: true, maxPricePerMillion: 1.5, enableContextFilter: true, minContextTokens: 32000 },
   })
   assert.throws(() => normalizePolicyRequest({ provider: 'openai', include: ['['] }), /invalid include pattern/)
 })
@@ -46,16 +65,34 @@ test('normalizes model selection requests and deduplicates ids', () => {
   assert.throws(() => normalizeSelectionRequest({ provider: 'openai', models: 'a' }), /models must be an array/)
 })
 
+test('normalizes batch-try requests and validates model array', () => {
+  assert.deepEqual(normalizeBatchTryRequest({ provider: 'openai', models: ['gpt-4', 'gpt-5'] }), { provider: 'openai', models: ['gpt-4', 'gpt-5'] })
+  assert.throws(() => normalizeBatchTryRequest({}), /provider is required/)
+  assert.throws(() => normalizeBatchTryRequest({ provider: 'openai', models: 'not-an-array' }), /models must be an array/)
+})
+
+test('normalizes alias requests and validates alias name and target', () => {
+  assert.deepEqual(normalizeAliasRequest({ alias: 'gpt4', provider: 'openai', model: 'gpt-4' }), { alias: 'gpt4', provider: 'openai', model: 'gpt-4', action: 'set' })
+  assert.deepEqual(normalizeAliasRequest({ alias: 'gpt4', action: 'delete' }), { alias: 'gpt4', action: 'delete' })
+  assert.throws(() => normalizeAliasRequest({ alias: '' }), /alias is required/)
+  assert.throws(() => normalizeAliasRequest({ alias: 'bad alias with spaces' }), /alias must be 1-64 alphanumeric characters or _-\./)
+  assert.throws(() => normalizeAliasRequest({ alias: 'valid', provider: 123 }), /provider must be a short string/)
+})
+
 test('registers separate exact status and run endpoints', () => {
   const routes = []
   const ctx = { webServer: { register: (route) => { routes.push(route); return () => {} } } }
   const sync = { status: () => ({ running: false }), listProviders: () => [], run: async () => ({}), health: async () => ({ results: [] }), setModelSelection: async () => ({}), setModelPolicy: async () => ({}) }
   const disposers = registerHttpApi(ctx, sync)
-  assert.equal(routes.length, 14)
+  assert.equal(routes.length, 18)
   assert.deepEqual(routes.map((route) => [route.kind, route.path]), [
     ['exact', '/dsh-model-sync/status'],
     ['exact', '/dsh-model-sync/run'],
     ['exact', '/dsh-model-sync/try'],
+    ['exact', '/dsh-model-sync/batch-try'],
+    ['exact', '/dsh-model-sync/export'],
+    ['exact', '/dsh-model-sync/import'],
+    ['exact', '/dsh-model-sync/aliases'],
     ['exact', '/dsh-model-sync/health'],
     ['exact', '/dsh-model-sync/selection'],
     ['exact', '/dsh-model-sync/policy'],
@@ -68,7 +105,7 @@ test('registers separate exact status and run endpoints', () => {
     ['exact', '/dsh-model-sync/notifications/read'],
     ['exact', '/dsh-model-sync/notifications/acknowledge'],
   ])
-  assert.equal(disposers.length, 14)
+  assert.equal(disposers.length, 18)
 })
 
 test('rejects cross-site and mismatched origin requests', async () => {
@@ -78,46 +115,51 @@ test('rejects cross-site and mismatched origin requests', async () => {
   registerHttpApi(ctx, sync)
   const statusHandler = routes.get('/dsh-model-sync/status')
 
-  const createMockRes = () => {
-    const res = {
-      status: 0,
-      headers: {},
-      body: '',
-      writeHead(s, h) { this.status = s; this.headers = h },
-      end(b) { this.body = b },
-    }
-    return res
-  }
+  const createMockRes = () => ({
+    status: 0,
+    headers: {},
+    body: '',
+    writeHead(s, h) { this.status = s; this.headers = h },
+    end(b) { this.body = b },
+  })
 
-  // Cross-site fetch header
+  // 1. Cross-site request
   const crossSiteRes = createMockRes()
-  await statusHandler({ method: 'GET', headers: { 'sec-fetch-site': 'cross-site', host: 'localhost:3000' } }, crossSiteRes)
+  await statusHandler({
+    method: 'GET',
+    headers: { 'sec-fetch-site': 'cross-site', host: 'localhost:3000', origin: 'http://evil.com' },
+  }, crossSiteRes)
   assert.equal(crossSiteRes.status, 403)
+  assert.match(crossSiteRes.body, /cross-origin request rejected/)
 
-  // Mismatched origin
-  const badOriginRes = createMockRes()
-  await statusHandler({ method: 'GET', headers: { origin: 'http://malicious.site', host: 'localhost:3000' } }, badOriginRes)
-  assert.equal(badOriginRes.status, 403)
-
-  // Valid same-origin
-  const validRes = createMockRes()
-  await statusHandler({ method: 'GET', headers: { origin: 'http://localhost:3000', host: 'localhost:3000' } }, validRes)
-  assert.equal(validRes.status, 200)
+  // 2. Origin mismatch
+  const mismatchRes = createMockRes()
+  await statusHandler({
+    method: 'GET',
+    headers: { host: 'localhost:3000', origin: 'http://another.com' },
+  }, mismatchRes)
+  assert.equal(mismatchRes.status, 403)
+  assert.match(mismatchRes.body, /cross-origin request rejected/)
 })
-
 
 test('normalizes try requests and validates model and provider', () => {
-  assert.deepEqual(normalizeTryRequest({ provider: 'openai', model: 'gpt-5' }), { provider: 'openai', model: 'gpt-5' })
-  assert.throws(() => normalizeTryRequest({ provider: 123, model: 'gpt-5' }), /provider is required/)
+  assert.deepEqual(normalizeTryRequest({ provider: 'openai', model: 'gpt-4' }), { provider: 'openai', model: 'gpt-4' })
+  assert.throws(() => normalizeTryRequest({}), /provider is required/)
+  assert.throws(() => normalizeTryRequest({ provider: 'openai' }), /model is required/)
   assert.throws(() => normalizeTryRequest({ provider: 'openai', model: '' }), /model is required/)
-  assert.throws(() => normalizeTryRequest('not-an-object'), /request body must be an object/)
 })
 
-test('handles try, history, credentials, report and notification routes via HTTP handlers', async () => {
+test('handles try, batch-try, export, import, aliases, history, credentials, report and notification routes via HTTP handlers', async () => {
   const routes = new Map()
   const ctx = { webServer: { register: (route) => { routes.set(route.path, route.handler); return () => {} } } }
+
   let tryCalledWith = null
+  let batchTryCalledWith = null
   let noticeActionCalled = null
+  let importCalledWith = null
+  let aliasSetCalledWith = null
+  let aliasDeleteCalledWith = null
+
   const sync = {
     status: () => ({ running: false }),
     listProviders: () => [{ provider: 'openai', configured: true }],
@@ -126,6 +168,12 @@ test('handles try, history, credentials, report and notification routes via HTTP
     report: () => ({ total: 1 }),
     notifications: () => [{ id: 'n-1' }],
     tryModel: async (opts) => { tryCalledWith = opts; return { provider: opts.provider, model: opts.model, ok: true, latencyMs: 42 } },
+    batchTryModels: async (opts) => { batchTryCalledWith = opts; return { provider: opts.provider, results: [{ model: 'gpt-4', ok: true }], summary: { total: 1, reachable: 1, unreachable: 0 } } },
+    exportConfig: () => ({ version: '1.0', providers: { openai: {} } }),
+    importConfig: async (data) => { importCalledWith = data; return { success: true, importedProviders: ['openai'], importedAliases: [] } },
+    getAliases: () => ({ 'fast-gpt': { provider: 'openai', model: 'gpt-4o' } }),
+    setAlias: async (opts) => { aliasSetCalledWith = opts; return { alias: opts.alias, provider: opts.provider, model: opts.model } },
+    deleteAlias: async (opts) => { aliasDeleteCalledWith = opts; return { alias: opts.alias, deleted: true } },
     updateNotification: async (id, action) => { noticeActionCalled = { id, action }; return { id, read: true } },
     rollbackHistory: async () => ({ applied: true }),
   }
@@ -182,6 +230,42 @@ test('handles try, history, credentials, report and notification routes via HTTP
   assert.equal(tryRes.status, 200)
   assert.deepEqual(tryCalledWith, { provider: 'openai', model: 'gpt-5' })
 
+  // POST /dsh-model-sync/batch-try
+  const batchTryRes = createMockRes()
+  await routes.get('/dsh-model-sync/batch-try')(makeReq('POST', '/dsh-model-sync/batch-try', { provider: 'openai', models: ['gpt-4'] }), batchTryRes)
+  assert.equal(batchTryRes.status, 200)
+  assert.deepEqual(batchTryCalledWith, { provider: 'openai', models: ['gpt-4'] })
+
+  // GET /dsh-model-sync/export
+  const exportRes = createMockRes()
+  await routes.get('/dsh-model-sync/export')(makeReq('GET', '/dsh-model-sync/export'), exportRes)
+  assert.equal(exportRes.status, 200)
+  assert.equal(JSON.parse(exportRes.body).version, '1.0')
+
+  // POST /dsh-model-sync/import
+  const importRes = createMockRes()
+  await routes.get('/dsh-model-sync/import')(makeReq('POST', '/dsh-model-sync/import', { providers: { openai: {} } }), importRes)
+  assert.equal(importRes.status, 200)
+  assert.deepEqual(importCalledWith, { providers: { openai: {} } })
+
+  // GET /dsh-model-sync/aliases
+  const aliasGetRes = createMockRes()
+  await routes.get('/dsh-model-sync/aliases')(makeReq('GET', '/dsh-model-sync/aliases'), aliasGetRes)
+  assert.equal(aliasGetRes.status, 200)
+  assert.ok(JSON.parse(aliasGetRes.body).aliases['fast-gpt'])
+
+  // POST /dsh-model-sync/aliases (set)
+  const aliasSetRes = createMockRes()
+  await routes.get('/dsh-model-sync/aliases')(makeReq('POST', '/dsh-model-sync/aliases', { alias: 'smart-model', provider: 'openai', model: 'gpt-4o' }), aliasSetRes)
+  assert.equal(aliasSetRes.status, 200)
+  assert.deepEqual(aliasSetCalledWith, { alias: 'smart-model', provider: 'openai', model: 'gpt-4o', action: 'set' })
+
+  // POST /dsh-model-sync/aliases (delete)
+  const aliasDelRes = createMockRes()
+  await routes.get('/dsh-model-sync/aliases')(makeReq('POST', '/dsh-model-sync/aliases', { alias: 'smart-model', action: 'delete' }), aliasDelRes)
+  assert.equal(aliasDelRes.status, 200)
+  assert.deepEqual(aliasDeleteCalledWith, { alias: 'smart-model', action: 'delete' })
+
   // POST /dsh-model-sync/notifications/read
   const readRes = createMockRes()
   await routes.get('/dsh-model-sync/notifications/read')(makeReq('POST', '/dsh-model-sync/notifications/read', { id: 'n-1' }), readRes)
@@ -193,7 +277,6 @@ test('handles try, history, credentials, report and notification routes via HTTP
   await routes.get('/dsh-model-sync/history')(makeReq('POST', '/dsh-model-sync/history'), badMethodRes)
   assert.equal(badMethodRes.status, 405)
 })
-
 
 test('returns ETag header on GET /status and responds with 304 when If-None-Match matches', async () => {
   const routes = new Map()

@@ -26,3 +26,20 @@ test('rejects invalid and oversized patterns', () => {
   assert.throws(() => validatePolicy({ include: ['['] }), (error) => error.code === 'INVALID_POLICY')
   assert.throws(() => validatePolicy({ exclude: ['x'.repeat(257)] }), (error) => error.code === 'INVALID_POLICY')
 })
+
+test('filters models by maxPricePerMillion and minContextTokens when enabled', () => {
+  const list = [
+    { id: 'cheap-small', pricing: { inputPerToken: 0.0000005 }, contextWindow: 16384 },
+    { id: 'expensive-big', pricing: { inputPerToken: 0.000005 }, contextWindow: 131072 },
+    { id: 'cheap-big', pricing: { inputPerToken: 0.000001 }, contextWindow: 65536 },
+  ]
+  const costPolicy = { enableCostFilter: true, maxPricePerMillion: 2.0 }
+  assert.deepEqual(filterModels(list, costPolicy).map((m) => m.id), ['cheap-small', 'cheap-big'])
+
+  const contextPolicy = { enableContextFilter: true, minContextTokens: 32768 }
+  assert.deepEqual(filterModels(list, contextPolicy).map((m) => m.id), ['expensive-big', 'cheap-big'])
+
+  const bothPolicy = { enableCostFilter: true, maxPricePerMillion: 2.0, enableContextFilter: true, minContextTokens: 32768 }
+  assert.deepEqual(filterModels(list, bothPolicy).map((m) => m.id), ['cheap-big'])
+  assert.equal(hasPolicy(bothPolicy), true)
+})

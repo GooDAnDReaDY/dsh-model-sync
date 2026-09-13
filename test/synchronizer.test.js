@@ -301,3 +301,161 @@ test('tryModel probes model latency and handles invalid parameters', async () =>
   assert.equal(res.model, 'demo-v1')
   assert.equal(typeof res.latencyMs, 'number')
 })
+
+test('batchTryModels validates inputs and probes multiple models in batches', async () => {
+  const ctx = {
+    llm: {
+      listConfigurableProviders: () => [{
+        provider: 'demo',
+        displayName: 'Demo',
+        settingsNs: 'llm-pi-ai',
+        settingsPath: ['providers', 'demo'],
+        declared: true,
+      }],
+      listProviders: () => [{ id: 'demo', name: 'Demo' }],
+    },
+    get: () => ({
+      get: () => ({
+        providers: { demo: { apiKeyEnv: 'DEMO_KEY' } },
+      }),
+    }),
+  }
+  const synchronizer = createModelSynchronizer(ctx, { getConfig: () => ({}) })
+
+  await assert.rejects(() => synchronizer.batchTryModels({}), /provider is required/)
+  await assert.rejects(() => synchronizer.batchTryModels({ provider: 'demo', models: 'not-array' }), /models must be an array/)
+
+  const res = await synchronizer.batchTryModels({
+    provider: 'demo',
+    models: ['m1', 'm2', 'm1', '  ']
+  })
+  assert.equal(res.provider, 'demo')
+  assert.equal(res.results.length, 2)
+  assert.equal(res.summary.total, 2)
+  assert.equal(typeof res.summary.reachable, 'number')
+  assert.equal(typeof res.summary.unreachable, 'number')
+})
+
+test('exportConfig and importConfig round-trip policies, selections, aliases and scheduler', async () => {
+  let storedConfig = {
+    modelPolicies: { demo: { include: ['gpt-.*'], exclude: [] } },
+    modelSelections: { demo: ['gpt-4'] },
+    aliases: { 'smart': { provider: 'demo', model: 'gpt-4', updatedAt: 12345 } },
+    scheduleEnabled: true,
+    intervalMinutes: 120,
+    autoApply: true,
+  }
+
+  const ctx = {
+    llm: {
+      listConfigurableProviders: () => [{
+        provider: 'demo',
+        displayName: 'Demo',
+        settingsNs: 'llm-pi-ai',
+        settingsPath: ['providers', 'demo'],
+        declared: true,
+      }],
+      listProviders: () => [{ id: 'demo', name: 'Demo' }],
+    },
+    get: () => ({
+      get: () => ({
+        providers: { demo: { apiKeyEnv: 'DEMO_KEY' } },
+      }),
+    }),
+  }
+
+  const synchronizer = createModelSynchronizer(ctx, {
+    getConfig: () => storedConfig,
+    saveConfig: async (patch) => {
+      storedConfig = { ...storedConfig, ...patch }
+    },
+  })
+
+  // Export
+  const exported = synchronizer.exportConfig()
+  assert.equal(exported.version, '1.0')
+  assert.ok(exported.providers.demo)
+  assert.deepEqual(exported.aliases, storedConfig.aliases)
+  assert.equal(exported.scheduler.intervalMinutes, 120)
+
+  // Invalid import
+  await assert.rejects(() => synchronizer.importConfig(null), /invalid config payload/)
+  await assert.rejects(() => synchronizer.importConfig('string'), /invalid config payload/)
+
+  // Successful import
+  const importPayload = {
+    version: '1.0',
+    providers: {
+      demo: {
+        policy: { include: ['claude-.*'], exclude: [] },
+        selectedModels: ['claude-3-opus'],
+      },
+    },
+    aliases: {
+      'fast': { provider: 'demo', model: 'claude-3-haiku' },
+    },
+    scheduler: {
+      scheduleEnabled: false,
+      intervalMinutes: 30,
+      autoApply: false,
+    },
+  }
+
+  const importResult = await synchronizer.importConfig(importPayload)
+  assert.equal(importResult.success, true)
+  assert.deepEqual(importResult.importedProviders, ['demo'])
+  assert.deepEqual(importResult.importedAliases, ['fast'])
+  assert.equal(storedConfig.intervalMinutes, 30)
+  assert.equal(storedConfig.scheduleEnabled, false)
+  assert.equal(storedConfig.modelSelections.demo[0], 'claude-3-opus')
+  assert.ok(storedConfig.aliases.fast)
+})
+
+test('manages model aliases with getAliases, setAlias, and deleteAlias', async () => {
+  let storedConfig = { aliases: {} }
+  const ctx = {
+    llm: {
+      listConfigurableProviders: () => [{
+        provider: 'demo',
+        displayName: 'Demo',
+        settingsNs: 'llm-pi-ai',
+        settingsPath: ['providers', 'demo'],
+        declared: true,
+      }],
+      listProviders: () => [{ id: 'demo', name: 'Demo' }],
+    },
+    get: () => ({
+      get: () => ({
+        providers: { demo: { apiKeyEnv: 'DEMO_KEY' } },
+      }),
+    }),
+  }
+
+  const synchronizer = createModelSynchronizer(ctx, {
+    getConfig: () => storedConfig,
+    saveConfig: async (patch) => {
+      storedConfig = { ...storedConfig, ...patch }
+    },
+  })
+
+  // Initial aliases
+  assert.deepEqual(synchronizer.getAliases(), {})
+
+  // Set alias validation
+  await assert.rejects(() => synchronizer.setAlias({ alias: '' }), /alias must be 1-64 alphanumeric characters/)
+  await assert.rejects(() => synchronizer.setAlias({ alias: 'my-alias', provider: '' }), /provider is required/)
+  await assert.rejects(() => synchronizer.setAlias({ alias: 'my-alias', provider: 'demo', model: '' }), /model is required/)
+
+  // Successful set
+  const setResult = await synchronizer.setAlias({ alias: 'gpt4', provider: 'demo', model: 'gpt-4o' })
+  assert.equal(setResult.alias, 'gpt4')
+  assert.equal(setResult.provider, 'demo')
+  assert.equal(setResult.model, 'gpt-4o')
+  assert.ok(storedConfig.aliases.gpt4)
+
+  // Delete alias validation & success
+  await assert.rejects(() => synchronizer.deleteAlias({ alias: '' }), /alias is required/)
+  const delResult = await synchronizer.deleteAlias({ alias: 'gpt4' })
+  assert.equal(delResult.deleted, true)
+  assert.equal(storedConfig.aliases.gpt4, undefined)
+})
