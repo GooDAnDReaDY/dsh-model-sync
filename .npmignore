@@ -1,0 +1,17 @@
+# Development and tests
+test/
+*.test.js
+*.test.mjs
+docs/
+.worktrees/
+scratch/
+
+# Multilingual documentation (canonical README.md is in release)
+README.ru.md
+README.zh.md
+
+# Logs and system
+*.log
+.DS_Store
+Thumbs.db
+EOF

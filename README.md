@@ -117,6 +117,15 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🚀 Enhancements in v0.3.14
+
+- **Language Standard**: Canonical plugin in `en` and `zh`. Runtime Russian translations decoupled into `goodandready/dsh-russian-lang` (#191).
+- **Packaging Isolation**: Dedicated `.npmignore` excludes tests, plans, and documentation to maintain a minimal < 256 KiB npm release bundle.
+- **Batch Health Check**: Probe multiple selected models in parallel via `POST /dsh-model-sync/batch-try` with latency badges and one-click removal of unreachable models.
+- **Cost & Context Policies**: Set maximum price per million tokens and minimum context window thresholds in provider policies.
+- **Catalog Export & Import**: Backup and restore full plugin configuration (policies, selections, aliases, scheduler) via `GET /export` and `POST /import`.
+- **Model Alias Mapping**: Assign friendly aliases to provider/model pairs with `GET /aliases` and `POST /aliases` with interactive UI card.
+
 ## 🚀 Enhancements in v0.3.13
 
 * ⚡ **Zero-Overhead Polling via HTTP ETag / 304 Not Modified**:

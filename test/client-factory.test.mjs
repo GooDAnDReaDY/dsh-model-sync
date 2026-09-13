@@ -17,7 +17,7 @@ test('client factory uses a browser-safe CommonJS shim', () => {
   assert.match(src, /Select at least one model/)
   assert.match(src, /All models/)
   assert.match(src, /Changes preview/)
-  assert.match(src, /Предпросмотр изменений/)
+  assert.match(src, /变更预览/)
   assert.match(src, /filterModelsByCapabilities/)
   assert.match(src, /Synchronization history/)
   assert.match(src, /Rollback catalog/)
@@ -50,15 +50,15 @@ test('client factory uses a browser-safe CommonJS shim', () => {
   assert.match(src, /diff\?\.added/)
   assert.match(src, /selectionProvider === row\.provider/)
   assert.match(src, /Manual model selection/)
-  assert.match(src, /Ручной выбор моделей/)
+  assert.match(src, /手动模型选择/)
   assert.match(src, /grid-template-columns/)
   assert.match(src, /ensureStyles/)
   // Issue #108: noHistory dictionary entries
   assert.match(src, /noHistory:\s*'No synchronization history\.'/)
-  assert.match(src, /noHistory:\s*'Истории синхронизаций нет\.'/)
+  assert.match(src, /noHistory:\s*'暂无同步历史\。'/)
   // Issue #109: model picker localization keys
   assert.match(src, /searchPlaceholder:\s*'Search id\/name\/tag'/)
-  assert.match(src, /searchPlaceholder:\s*'Поиск id\/name\/tag'/)
+  assert.match(src, /searchPlaceholder:\s*'搜索 ID \/ 名称 \/ 标签'/)
   assert.match(src, /sortName:\s*'Name A→Z'/)
   assert.match(src, /sortPrice:\s*'Price ↑'/)
   assert.match(src, /t\.searchPlaceholder/)
@@ -70,6 +70,10 @@ test('client factory uses a browser-safe CommonJS shim', () => {
   assert.match(src, /intervalMinutes:\s*'Interval \(minutes\)'/)
   assert.match(src, /saveScheduler/)
   assert.match(src, /settingsScope\.bind\(\{\s*namespace:\s*NS\s*\}\)/)
+    assert.match(src, /batchTry/)
+  assert.match(src, /exportConfig/)
+  assert.match(src, /modelAliases/)
+  assert.match(src, /enableCostFilter/)
   let captured
   const window = { __ModuleLoader__: { load(entry) { captured = entry } } }
   runInNewContext(src, createContext({ window }))
@@ -96,6 +100,10 @@ test('client factory uses a browser-safe CommonJS shim', () => {
 test('client apply registers settings.plugin.item and supports settingsScope', () => {
   const srcPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '../lib/client.js')
   const src = readFileSync(srcPath, 'utf8')
+    assert.match(src, /batchTry/)
+  assert.match(src, /exportConfig/)
+  assert.match(src, /modelAliases/)
+  assert.match(src, /enableCostFilter/)
   let captured
   const window = { __ModuleLoader__: { load(entry) { captured = entry } } }
   runInNewContext(src, createContext({ window }))

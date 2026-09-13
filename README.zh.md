@@ -95,6 +95,15 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🚀 v0.3.14 新特性与增强
+
+- **语言标准**: 插件原生支持 `en` 与 `zh` 双语，俄语本地化已独立解耦至 `goodandready/dsh-russian-lang` 翻译包 (#191)。
+- **发布隔离**: 通过 `.npmignore` 严格过滤测试、规划和文档文件，保证 npm 发布包体积小于 256 KiB。
+- **模型批量可用性测试**: 支持通过 `POST /dsh-model-sync/batch-try` 并发批量测试所选模型，展示延迟徽标并一键取消选中不可用模型。
+- **价格与上下文窗口过滤**: 支持按每百万 Token 最高价格及最小上下文长度过滤候选模型。
+- **配置导入与导出**: 支持通过 `GET /export` 与 `POST /import` 导出及恢复全部策略、模型选择、别名和定时计划。
+- **自定义模型别名映射**: 支持通过 `GET/POST /aliases` 为特定服务商与模型组合设置便于调用的简短别名。
+
 ## 📄 开源协议
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
