@@ -109,3 +109,17 @@
 - **2026-09-08**: Комплексная оптимизация хранения истории, планировщика и UX (#114): компактизация снимков моделей в `settings.yaml`, мгновенный запуск первого синка планировщика, валидация regex-шаблонов политик в UI.
 - **2026-09-07**: Устранение оверинжиниринга и повышение стабильности (#111): сериализация сохранений `saveConfig`, ужесточение проверок `trusted(req)` от CSRF, выравнивание атрибута `data-dsh-plugin`.
 - **2026-09-06**: Устранение замечаний аудита DSH (#107, #108, #109): добавлен `settingsScope` для управления планировщиком, добавлен ключ `noHistory`, локализован пикер моделей.
+
+### 6.13 Plugin Self-Update Subsystem
+
+To align with DSH ecosystem standard for one-click plugin updates from UI settings:
+- **Module**: `lib/updater.js`.
+- **Endpoints**: `GET /api/dsh-model-sync/update`, `HEAD /api/dsh-model-sync/update`, `POST /api/dsh-model-sync/update` (also mirrored at `/dsh-model-sync/update`).
+- **Security**: Strict loopback verification via `isTrustedUpdateRequest`:
+  - Enforces `x-dsh-plugin-update: 1` header.
+  - Enforces socket remote address is loopback (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`, `localhost`).
+  - Enforces origin is valid loopback and matches host header.
+  - Enforces `sec-fetch-site` is not cross-site.
+- **SemVer Comparison**: Supports SemVer 2.0.0 including core numbers and prerelease transitions (e.g. `0.4.0-beta.1` -> `0.4.0`).
+- **Concurrency**: Prevents concurrent updates via 409 conflict.
+- **UI**: Embedded `UpdaterSection` in settings card with current version, latest version badge, and one-click update button.
