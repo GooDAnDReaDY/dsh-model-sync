@@ -147,7 +147,7 @@ test('registerPluginUpdater registers GET, HEAD, POST routes and handles update 
   }
 
   const manifestUrl = new URL('../package.json', import.meta.url)
-  let simulatedLatest = '0.4.0'
+  let simulatedLatest = '9.9.9'
   const unregister = registerPluginUpdater(ctx, {
     packageName: '@goodandready/dsh-model-sync',
     manifestUrl,
@@ -205,8 +205,8 @@ test('registerPluginUpdater registers GET, HEAD, POST routes and handles update 
   assert.equal(postRes.status, 200)
   const postBody = JSON.parse(postRes.body)
   assert.equal(postBody.restartRequired, true)
-  assert.equal(postBody.updatedVersion, '0.4.0')
-  assert.equal(installedSpec, '@goodandready/dsh-model-sync@0.4.0')
+  assert.equal(postBody.updatedVersion, '9.9.9')
+  assert.equal(installedSpec, '@goodandready/dsh-model-sync@9.9.9')
 
   // 6. Same version (no update available) returns 200 without installing
   simulatedLatest = getBody.currentVersion

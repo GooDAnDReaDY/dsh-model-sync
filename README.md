@@ -117,6 +117,14 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🚀 Enhancements in v0.4.0
+
+- **One-Click In-App Updater**: Check npm registry for updates and trigger one-click upgrades directly within the DSH Settings Card, complete with version diff badges and server restart alerts.
+- **Strict Loopback Security**: All mutating HTTP endpoints (`/apply`, `/policy`, `/clear-cache`, `/updater/update`) now require verified loopback origin and remote socket IP to prevent CSRF / unauthorized network access.
+- **100% Theme Token Compliance**: Eliminated all hardcoded colors and `rgba()` values in client UI in favor of official DSH theme tokens (`--dsw-alias-*`), ensuring perfect dark/light mode rendering.
+- **Modular Architecture**: Decomposed core synchronization logic into specialized modules (`synchronizer-helpers.js`, `synchronizer-transfer.js`, `synchronizer-prober.js`), significantly enhancing code readability and maintainability.
+- **Clean Packaging**: Excluded development and internal planning artifacts from git and npm distribution, maintaining an ultra-lightweight release bundle (< 70 KiB).
+
 ## 🚀 Enhancements in v0.3.14
 
 - **Language Standard**: Canonical plugin in `en` and `zh`. Runtime Russian translations decoupled into `goodandready/dsh-russian-lang` (#191).

@@ -148,3 +148,12 @@ In accordance with DSH authoring guidelines (< 600 lines per module):
   - `lib/synchronizer.js` retained as coordinator (~575 lines, well below the 600 line threshold).
 - **`lib/client.js` architectural single-bundle requirement**:
   - `lib/client.js` is the single self-contained browser bundle required by the DSH `window.__ModuleLoader__` web runtime. DSH browser plugin loader does not support relative CommonJS/ESM module resolution at runtime for browser assets without an external bundle pipeline, and per DSH standard (and preflight check #7), `lib/client.js` must remain the single deliverable artifact.
+
+### 6.17 Версия 0.4.0 и статус релиза
+
+- **Версия пакета**: 0.4.0 (`@goodandready/dsh-model-sync`).
+- **One-click updater**: Реализован в `lib/updater.js` с loopback-защитой, проверкой SemVer 2.0.0 и регистрацией UI в `UpdaterSection`.
+- **Безопасность**: Fail-closed проверка loopback (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`) на всех mutating endpoints.
+- **Оформление UI**: 100% дизайн-токенов темы DSH (0 hex, 0 rgba).
+- **Декомпозиция**: `synchronizer.js` разбит на 3 вспомогательных модуля (`synchronizer-helpers.js`, `synchronizer-transfer.js`, `synchronizer-prober.js`).
+- **Чистота дистрибутива**: Исключены dev- и planning-артефакты, размер npm-пакета < 70 KiB.

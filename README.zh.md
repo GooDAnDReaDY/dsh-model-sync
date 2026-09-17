@@ -95,6 +95,14 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 
 ---
 
+## 🚀 v0.4.0 新特性与增强
+
+- **设置卡片一键更新**: 在 DSH 设置卡片中集成自动版本检查，展示当前与最新版本对比徽标，支持一键安全升级并在更新后提示重启。
+- **严格本地环回 (Loopback) 安全保护**: 所有修改状态的 HTTP 路由 (`/apply`, `/policy`, `/clear-cache`, `/updater/update`) 均强制校验本地环回 IP (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`) 及请求来源，杜绝外部恶意调用。
+- **100% 原生主题变量适配**: 客户端 UI 全面移除硬编码颜色与 `rgba()` 样式，完全切换至 DSH 官方 CSS 设计令牌 (`--dsw-alias-*`)，无缝适配深色与浅色主题。
+- **同步引擎模块化拆分**: 核心同步逻辑已解耦拆分为专项子模块 (`synchronizer-helpers.js`, `synchronizer-transfer.js`, `synchronizer-prober.js`)，大幅提升代码可读性与维护性。
+- **轻量分发包清理**: 彻底排除内部计划与调试文件，精简 npm 发布体积至 70 KiB 以下，所有文件均完全符合 256 KiB 上限规范。
+
 ## 🚀 v0.3.14 新特性与增强
 
 - **语言标准**: 插件原生支持 `en` 与 `zh` 双语，俄语本地化已独立解耦至 `goodandready/dsh-russian-lang` 翻译包 (#191)。

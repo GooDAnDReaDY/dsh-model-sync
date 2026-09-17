@@ -1,3 +1,21 @@
+## 0.4.0 — 2026-09-17
+
+- **One-Click Updater from Settings Card (`lib/updater.js`)**:
+  - Direct update check and one-click npm upgrade directly from the DSH settings card.
+  - SemVer 2.0.0 and prerelease comparison, loopback/same-origin security checks, and explicit restart requirement notice.
+  - Automatic route unregistration on plugin unload via Cordis `ctx.effect`.
+- **Write Route Hardening & Security Audit (`lib/security.js`)**:
+  - Enforced loopback IP verification (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`) and valid host origin on all mutating HTTP endpoints.
+  - Eliminated silent empty catch blocks with structured debug-level diagnostic logging.
+- **Explicit Client Injections**:
+  - Declared required DSH client service modules in `package.json` (`dsh.client.inject`: `@deepseek-ai/dsh-client-locale`, `@deepseek-ai/dsh-client-ui-slots`, `@deepseek-ai/dsh-client-ui-settings`).
+- **100% Design Token Compliance**:
+  - Replaced all hardcoded `rgba()` styling in `lib/client.js` with official CSS design tokens (`--dsw-alias-state-*`, `--dsw-alias-bg-*`, `--dsw-alias-border-*`).
+- **Modular Synchronizer Decomposition**:
+  - Decomposed monolithic synchronizer into dedicated focused modules (`lib/synchronizer-helpers.js`, `lib/synchronizer-transfer.js`, `lib/synchronizer-prober.js`), keeping `synchronizer.js` well below the 600-line guideline.
+- **Clean Distribution Bundle**:
+  - Removed internal planning artifacts and legacy test tarballs; verified package size < 70 KiB packed, with no files exceeding 256 KiB.
+
 ## 0.3.11 — 2026-09-10
 
 - removed top-level sidebar fallback (`settings.section`) to keep UI clean and consistent with DSH standards (Settings → Plugins → Plugin Settings);
