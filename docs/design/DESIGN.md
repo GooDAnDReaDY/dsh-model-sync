@@ -138,4 +138,13 @@ An empty list `inject: []` is forbidden as it relies on ambient build assembly r
 In conformance with DSH UI design guidelines:
 - All CSS styles and components in `lib/client.js` exclusively use DSH design tokens (`--dsw-alias-state-*`, `--dsw-alias-bg-*`, `--dsw-alias-border-*`, `--dsw-alias-label-*`, `--dsw-alias-brand-*`).
 - Hardcoded `#hex` colors and standalone `rgba(...)` color values are strictly prohibited.
-- This ensures full visual fidelity, seamless contrast, and native look-and-feel across both light and dark themes.
+- This ensures full visual fidelity, seamless contrast, and native look-and-feel across both light and dark themes.\n
+### 6.16 Module Decomposition and File Size Policy
+
+In accordance with DSH authoring guidelines (< 600 lines per module):
+- **`lib/synchronizer.js`**: Core synchronization logic decomposed into focused modular components:
+  - `lib/synchronizer-helpers.js`: Runtime context inspection, reliability options calculation, and diagnostic/error formatting (~115 lines).
+  - `lib/synchronizer-transfer.js`: Full configuration export/import backup engine and model alias dictionary management (~120 lines).
+  - `lib/synchronizer.js` retained as coordinator (~575 lines, well below the 600 line threshold).
+- **`lib/client.js` architectural single-bundle requirement**:
+  - `lib/client.js` is the single self-contained browser bundle required by the DSH `window.__ModuleLoader__` web runtime. DSH browser plugin loader does not support relative CommonJS/ESM module resolution at runtime for browser assets without an external bundle pipeline, and per DSH standard (and preflight check #7), `lib/client.js` must remain the single deliverable artifact.
