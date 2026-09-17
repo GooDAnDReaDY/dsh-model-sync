@@ -1,4 +1,4 @@
-# Development and tests
+# Development and test artifacts (primary packaging control is package.json 'files' allowlist)
 test/
 *.test.js
 *.test.mjs
@@ -6,12 +6,8 @@ docs/
 .worktrees/
 scratch/
 
-# Multilingual documentation (canonical README.md is in release)
-README.ru.md
-README.zh.md
-
-# Logs and system
+# Logs and OS files
 *.log
 .DS_Store
 Thumbs.db
-EOF
+
