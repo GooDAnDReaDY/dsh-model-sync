@@ -132,3 +132,10 @@ Per the unified DSH plugin standard, any plugin delivering a web-side client bun
 - `@deepseek-ai/dsh-client-ui-settings`: provides `settingsScope` / settings binding.
 
 An empty list `inject: []` is forbidden as it relies on ambient build assembly rather than declared contracts.
+
+### 6.15 Strict Theme Variable Policy
+
+In conformance with DSH UI design guidelines:
+- All CSS styles and components in `lib/client.js` exclusively use DSH design tokens (`--dsw-alias-state-*`, `--dsw-alias-bg-*`, `--dsw-alias-border-*`, `--dsw-alias-label-*`, `--dsw-alias-brand-*`).
+- Hardcoded `#hex` colors and standalone `rgba(...)` color values are strictly prohibited.
+- This ensures full visual fidelity, seamless contrast, and native look-and-feel across both light and dark themes.
