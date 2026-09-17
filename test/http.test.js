@@ -108,12 +108,12 @@ test('registers separate exact status and run endpoints', () => {
   assert.equal(disposers.length, 18)
 })
 
-test('rejects cross-site and mismatched origin requests', async () => {
+test('rejects cross-site, non-loopback, and mismatched origin requests', async () => {
   const routes = new Map()
   const ctx = { webServer: { register: (route) => { routes.set(route.path, route.handler); return () => {} } } }
-  const sync = { status: () => ({ running: false }), listProviders: () => [] }
-  registerHttpApi(ctx, sync)
+  registerHttpApi(ctx, { status: () => ({ running: false }), listProviders: () => [] })
   const statusHandler = routes.get('/dsh-model-sync/status')
+  const runHandler = routes.get('/dsh-model-sync/run')
 
   const createMockRes = () => ({
     status: 0,
@@ -130,7 +130,7 @@ test('rejects cross-site and mismatched origin requests', async () => {
     headers: { 'sec-fetch-site': 'cross-site', host: 'localhost:3000', origin: 'http://evil.com' },
   }, crossSiteRes)
   assert.equal(crossSiteRes.status, 403)
-  assert.match(crossSiteRes.body, /cross-origin request rejected/)
+  assert.match(crossSiteRes.body, /rejected/)
 
   // 2. Origin mismatch
   const mismatchRes = createMockRes()
@@ -139,7 +139,27 @@ test('rejects cross-site and mismatched origin requests', async () => {
     headers: { host: 'localhost:3000', origin: 'http://another.com' },
   }, mismatchRes)
   assert.equal(mismatchRes.status, 403)
-  assert.match(mismatchRes.body, /cross-origin request rejected/)
+  assert.match(mismatchRes.body, /rejected/)
+
+  // 3. POST request from non-loopback address is rejected
+  const remoteRes = createMockRes()
+  await runHandler({
+    method: 'POST',
+    socket: { remoteAddress: '192.168.1.50' },
+    headers: { host: 'localhost:3000', origin: 'http://localhost:3000' },
+  }, remoteRes)
+  assert.equal(remoteRes.status, 403)
+  assert.match(remoteRes.body, /rejected/)
+
+  // 4. POST request without headers and non-loopback IP is rejected
+  const noHeadersRes = createMockRes()
+  await runHandler({
+    method: 'POST',
+    socket: { remoteAddress: '10.0.0.1' },
+    headers: {},
+  }, noHeadersRes)
+  assert.equal(noHeadersRes.status, 403)
+  assert.match(noHeadersRes.body, /rejected/)
 })
 
 test('normalizes try requests and validates model and provider', () => {
@@ -187,10 +207,11 @@ test('handles try, batch-try, export, import, aliases, history, credentials, rep
     end(b) { this.body = b },
   })
 
-  const makeReq = (method, path, body = null) => {
+  const makeReq = (method, path, body = null, remoteAddress = '127.0.0.1') => {
     const req = new EventEmitter()
     req.method = method
     req.url = path
+    req.socket = { remoteAddress }
     req.headers = { host: 'localhost:3000', origin: 'http://localhost:3000' }
     if (body !== null) {
       process.nextTick(() => {
