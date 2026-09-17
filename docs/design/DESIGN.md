@@ -123,3 +123,12 @@ To align with DSH ecosystem standard for one-click plugin updates from UI settin
 - **SemVer Comparison**: Supports SemVer 2.0.0 including core numbers and prerelease transitions (e.g. `0.4.0-beta.1` -> `0.4.0`).
 - **Concurrency**: Prevents concurrent updates via 409 conflict.
 - **UI**: Embedded `UpdaterSection` in settings card with current version, latest version badge, and one-click update button.
+
+### 6.14 Client Injected Services Contract
+
+Per the unified DSH plugin standard, any plugin delivering a web-side client bundle (`lib/client.js`) MUST explicitly declare the client-side packages providing injected services in `package.json` under `dsh.client.inject`:
+- `@deepseek-ai/dsh-client-locale`: provides `locale` and translation registration.
+- `@deepseek-ai/dsh-client-ui-slots`: provides `slots` for UI extension points (`settings.plugin.item`).
+- `@deepseek-ai/dsh-client-ui-settings`: provides `settingsScope` / settings binding.
+
+An empty list `inject: []` is forbidden as it relies on ambient build assembly rather than declared contracts.
