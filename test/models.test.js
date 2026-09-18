@@ -98,3 +98,64 @@ test('detects code and reasoning capabilities from modern model ids and tokens',
   assert.equal(explicitCode.capabilities?.code, true)
   assert.equal(explicitCode.capabilities?.reasoning, true)
 })
+
+
+test('normalizes Groq open-source minijinja models with supported_features and input_modalities', () => {
+  const groqQwen = normalizeModel('groq', {
+    id: 'qwen/qwen3.8-27b',
+    name: 'Qwen/Qwen3.8-27B',
+    context_window: 131042,
+    input_modalities: ['text', 'image'],
+    supported_features: ['tools', 'json_mode', 'reasoning'],
+  })
+
+  assert.equal(groqQwen.id, 'qwen/qwen3.8-27b')
+  assert.equal(groqQwen.provider, 'groq')
+  assert.equal(groqQwen.contextWindow, 131042)
+  assert.deepEqual(groqQwen.input, ['text', 'image'])
+  assert.deepEqual(groqQwen.capabilities, {
+    tools: true,
+    reasoning: true,
+    vision: true,
+  })
+  assert.deepEqual(groqQwen.compat, {
+    supportsDeveloperRole: false,
+  })
+})
+
+test('sets compat.supportsDeveloperRole: false for Groq open-source families and DeepSeek provider', () => {
+  // Llama on Groq
+  const groqLlama = normalizeModel('groq', { id: 'meta-llama/llama-3.3-70b-instruct' })
+  assert.equal(groqLlama.compat?.supportsDeveloperRole, false)
+
+  const groqLlamaInstant = normalizeModel('groq', { id: 'llama-3.1-8b-instant' })
+  assert.equal(groqLlamaInstant.compat?.supportsDeveloperRole, false)
+
+  // DeepSeek on Groq
+  const groqDeepSeek = normalizeModel('groq', { id: 'deepseek-r1-distill-llama-70b' })
+  assert.equal(groqDeepSeek.compat?.supportsDeveloperRole, false)
+
+  // Mistral on Groq
+  const groqMistral = normalizeModel('groq', { id: 'mistral-saba-24b' })
+  assert.equal(groqMistral.compat?.supportsDeveloperRole, false)
+
+  // Gemma on Groq
+  const groqGemma = normalizeModel('groq', { id: 'gemma2-9b-it' })
+  assert.equal(groqGemma.compat?.supportsDeveloperRole, false)
+
+  // DeepSeek provider
+  const dsModel = normalizeModel('deepseek', { id: 'deepseek-chat' })
+  assert.equal(dsModel.compat?.supportsDeveloperRole, false)
+
+  // Proprietary OpenAI Harmony model on Groq does not get developer role disabled
+  const groqOpenAI = normalizeModel('groq', { id: 'openai/gpt-oss-20b' })
+  assert.equal(groqOpenAI.compat, undefined)
+
+  // Preserves explicit user override
+  const userOverride = normalizeModel('groq', {
+    id: 'qwen/qwen3.8-27b',
+    compat: { supportsDeveloperRole: true, customArg: 123 },
+  })
+  assert.equal(userOverride.compat?.supportsDeveloperRole, true)
+  assert.equal(userOverride.compat?.customArg, 123)
+})
