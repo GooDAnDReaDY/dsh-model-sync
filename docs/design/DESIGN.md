@@ -163,3 +163,13 @@ In accordance with DSH authoring guidelines (< 600 lines per module):
 - **Назначение**: Внутренние файлы планирования (`.planning/`), планы задач (`docs/plans/`), архитектурные заметки (`docs/architecture/`), инструкции агентов (`AGENTS.md`, `index.md`) и вспомогательные скрипты (`deploy.sh`) сохраняются локально на диске разработчика в рабочей копии проекта.
 - **Исключение из git и npm**: Данные файлы строго не попадают в систему контроля версий (git) и не включаются в публикуемый npm-пакет. Это обеспечивается правилами в `.gitignore` и `.npmignore`.
 - **Непрерывность контекста**: При рефакторинге и очистке релизного дерева файлы исключаются из отслеживания (`git rm --cached`), но сохраняются физически на диске для обеспечения преемственности истории планирования, заметок `findings.md`, `progress.md` и `task_plan.md`.
+
+### 6.19 Совместимость open-source моделей Groq и нормализация supported_features (#145)
+- **Цель**: предотвратить ошибку 400 `failed to template request: minijinja: rendering failed: Unexpected message role` при обращении к reasoning-моделям с minijinja-шаблонами на Groq (например, `qwen/qwen3.8-27b`, `meta-llama/*`), а также обеспечить корректный импорт возможностей и модальностей.
+- **Маппинг capabilities**: массив `supported_features` провайдера (`tools`, `reasoning`) парсится в `capabilities.tools: true` и `capabilities.reasoning: true`.
+- **Маппинг input**: `input_modalities` провайдера (например, `["text", "image"]`) мапится в `input: ['text', 'image']`.
+- **Правило compat**:
+  - Для моделей на провайдере `groq`, относящихся к семействам open-source моделей (`qwen`, `meta-llama`, `llama`, `mistral`, `mixtral`, `gemma`, `deepseek`), по умолчанию выставляется `compat.supportsDeveloperRole: false`.
+  - Для провайдера `deepseek` по умолчанию выставляется `compat.supportsDeveloperRole: false`.
+  - Явные пользовательские переопределения в `settings.yaml` (включая `supportsDeveloperRole: true` и кастомные `chatTemplateKwargs`/`chatTemplateArgs`) всегда имеют приоритет.
+- **Глубокое слияние в reconcile**: `reconcileModels` выполняет слияние (`deep merge`) существующих настроек модели и свежих данных провайдера, предотвращая стирание пользовательских настроек при повторной синхронизации.
