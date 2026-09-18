@@ -1,3 +1,15 @@
+## 0.4.1 — 2026-09-18
+
+- **Groq & Minijinja Template Compatibility**:
+  - Automatically configured `compat.supportsDeveloperRole: false` for open-source model families on Groq (`qwen/*`, `meta-llama/*`, `llama/*`, `mistral/*`, `mixtral/*`, `gemma/*`, `deepseek/*`) as well as the native `deepseek` provider.
+  - Resolves upstream HTTP 400 `failed to template request: minijinja: rendering failed: raise_exception: Unexpected message role` when `@earendil-works/pi-ai` invokes reasoning-capable models.
+  - Preserves explicit user overrides in `settings.yaml` (e.g. custom `chatTemplateKwargs` or manual role preferences).
+- **Catalog Feature & Modality Mapping**:
+  - Parsed `supported_features` (`tools`, `reasoning`) from Groq `/openai/v1/models` catalog into `capabilities.tools: true` and `capabilities.reasoning: true`.
+  - Mapped `input_modalities: ["text", "image"]` into model `input: ['text', 'image']`.
+- **Non-Destructive Reconcile Merging**:
+  - Enhanced `reconcileModels` with deep merging for `capabilities`, `compat`, and `input`, ensuring existing manual model settings and customizations are never overwritten during catalog sync.
+
 ## 0.4.0 — 2026-09-17
 
 - **One-Click Updater from Settings Card (`lib/updater.js`)**:

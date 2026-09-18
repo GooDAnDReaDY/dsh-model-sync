@@ -75,6 +75,7 @@ graph LR
 ## ✨ Key Features
 
 * 🔄 **Automated Catalog Discovery**: Syncs model lists, aliases, context windows, and capability flags (`vision`, `tools`, `reasoning`, `embeddings`) across 25+ providers.
+* 🛡️ **Minijinja Chat Template & Role Compatibility**: Automatically sets `compat.supportsDeveloperRole: false` for Groq open-source models (Qwen, Llama, Mistral, Gemma, DeepSeek) and DeepSeek API, preventing 400 `Unexpected message role` errors with reasoning models while preserving user overrides. Syncs model lists, aliases, context windows, and capability flags (`vision`, `tools`, `reasoning`, `embeddings`) across 25+ providers.
 * 🌐 **25+ Built-in Provider Adapters**: Pre-configured discovery for OpenAI, Anthropic, Google, DeepSeek, xAI, OpenRouter, Groq, Mistral, Cerebras, Fireworks, HuggingFace, Moonshot, NVIDIA, Qwen, Together, Xiaomi MiMo, SiliconFlow, and local Ollama.
 * 🔌 **Generic / Custom Adapter Support**: Connect arbitrary OpenAI-compatible `/v1/models` endpoints with configurable auth (`bearer`, `x-api-key`, `query-key`, `none`).
 * 📊 **Balance & Quota Monitoring**: Queries upstream billing endpoints (where supported) to report account credit balances and prevent unexpected exhaustion.
@@ -96,7 +97,7 @@ graph LR
 | `deepseek` | Bearer Token | `tools`, `reasoning` |
 | `xai` | Bearer Token | `vision`, `tools`, `reasoning` |
 | `openrouter` | Bearer Token | Multi-vendor model catalog with pricing & context limits |
-| `groq` | Bearer Token | Ultra-fast inference catalog |
+| `groq` | Bearer Token | `tools`, `reasoning`, `vision`, `supportsDeveloperRole: false` |
 | `mistral` | Bearer Token | `tools`, `reasoning`, `vision` |
 | `fireworks` | Bearer Token | Open-weights inference endpoints |
 | `huggingface` | Bearer Token | Serverless Inference API catalog |
@@ -116,151 +117,3 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 > Restart DSH Web UI after installation (`systemctl --user restart dsh-web`) to activate background catalog synchronization.
 
 ---
-
-## 🚀 Enhancements in v0.4.0
-
-- **One-Click In-App Updater**: Check npm registry for updates and trigger one-click upgrades directly within the DSH Settings Card, complete with version diff badges and server restart alerts.
-- **Strict Loopback Security**: All mutating HTTP endpoints (`/apply`, `/policy`, `/clear-cache`, `/updater/update`) now require verified loopback origin and remote socket IP to prevent CSRF / unauthorized network access.
-- **100% Theme Token Compliance**: Eliminated all hardcoded colors and `rgba()` values in client UI in favor of official DSH theme tokens (`--dsw-alias-*`), ensuring perfect dark/light mode rendering.
-- **Modular Architecture**: Decomposed core synchronization logic into specialized modules (`synchronizer-helpers.js`, `synchronizer-transfer.js`, `synchronizer-prober.js`), significantly enhancing code readability and maintainability.
-- **Clean Packaging**: Excluded development and internal planning artifacts from git and npm distribution, maintaining an ultra-lightweight release bundle (< 70 KiB).
-
-## 🚀 Enhancements in v0.3.14
-
-- **Language Standard**: Canonical plugin in `en` and `zh`. Runtime Russian translations decoupled into `goodandready/dsh-russian-lang` (#191).
-- **Packaging Isolation**: Dedicated `.npmignore` excludes tests, plans, and documentation to maintain a minimal < 256 KiB npm release bundle.
-- **Batch Health Check**: Probe multiple selected models in parallel via `POST /dsh-model-sync/batch-try` with latency badges and one-click removal of unreachable models.
-- **Cost & Context Policies**: Set maximum price per million tokens and minimum context window thresholds in provider policies.
-- **Catalog Export & Import**: Backup and restore full plugin configuration (policies, selections, aliases, scheduler) via `GET /export` and `POST /import`.
-- **Model Alias Mapping**: Assign friendly aliases to provider/model pairs with `GET /aliases` and `POST /aliases` with interactive UI card.
-
-## 🚀 Enhancements in v0.3.13
-
-* ⚡ **Zero-Overhead Polling via HTTP ETag / 304 Not Modified**:
-  * Implemented weak ETag generation for `GET /dsh-model-sync/status`. When the Web UI polls every 15 seconds, unchanged catalogs receive an empty `304 Not Modified` response, eliminating redundant JSON serialization and network traffic.
-* 🌐 **Upstream Conditional HTTP Requests**:
-  * Added `If-None-Match` and `If-Modified-Since` headers to upstream provider discovery. Catalogs that return `304 Not Modified` resolve instantly from memory cache without re-parsing or diff re-computation.
-* 🎯 **Debounced Search & Memoized Sorting in UI**:
-  * Introduced 150ms input debouncing and `React.useMemo` for model filtering/sorting in the model picker, ensuring fluid search responsiveness on catalogs with hundreds of models.
-* 🧠 **Expanded Capability Detection**:
-  * Added detection for modern reasoning models (`DeepSeek-R1`, `o1`, `o3-mini`, `thinking`) and specialized code generation models (`code`), plus support for the `code` capability filter in policy matching and UI picker.
-* 🛡️ **Exponential Retry Jitter**:
-  * Enhanced `retryWithBackoff` with randomized jitter (`0.5 - 1.0` multiplier) to prevent thundering-herd effects on provider APIs during network hiccups or rate limits.
-
----
-
-## 🛠️ Enhancements & Fixes in v0.3.11
-
-* 🗂️ **Streamlined Settings UI Surface**:
-  * Removed the redundant top-level settings sidebar section fallback (`settings.section`), keeping configuration strictly inside the standard DSH plugin settings card (`settings.plugin.item`).
-* 🛡️ **Hardened Cordis Service Access**:
-  * Service access for `settings` and `llm` is now performed via `ctx.get(...)` with safe fallback to direct property inspection, preventing silent resolution failures on Cordis proxy implementations.
-
----
-
-## 🛠️ Enhancements & Fixes in v0.3.8
-
-* ⚙️ **Reactive Settings Card Binding (`settingsScope`)**:
-  * Integrated modern DSH kernel `settingsScope` service (`ctx.settingsScope.bind({ namespace: 'dsh-model-sync' })`) with `useSyncExternalStore`.
-  * Added direct configuration controls for the background scheduler in the Web UI: enable/disable background sync (`scheduleEnabled`), customize interval (`intervalMinutes`), and toggle automatic application of new models (`autoApply`).
-  * Gracefully handles all snapshot lifecycle states (`ready`, `loading`, `unavailable`) and collects field validation errors without dropping form drafts.
-* 🌐 **Full Model Picker Localization**:
-  * Translated all previously hardcoded strings in the model selector, including search input placeholder and sorting options (`Name A→Z`, `Price ↑`, `Context ↓`, `Newest ↓`), dynamically reacting to DSH locale switching (`en` / `ru`).
-* 📜 **Synchronization History Localization**:
-  * Added the missing `noHistory` key to English and Russian localization dictionaries, ensuring informative feedback when sync history is empty.
-* 📋 **Project Design Contract**:
-  * Added authoritative `docs/design/DESIGN.md` defining UI surfaces, styling foundations, token conventions, and state contracts.
-
----
-
-## 🛠️ Enhancements & Fixes in v0.3.6
-
-* 🔑 **Universal Credential Resolution (`credentialRef` & `apiKeyRef`)**:
-  * Added full support for modern DSH `credentialRef` and `apiKeyRef` references across inventory detection, provider adapters, and OpenAI-compatible generic routes.
-  * Providers configured via DSH Credentials Service are now accurately discovered and authenticated without requiring legacy `apiKeyEnv`.
-* ♻️ **Lifecycle Cleanup for Deprecated Models**:
-  * Fixed an issue where models previously marked as `deprecated` would remain indefinitely in settings when removed by the upstream provider. When `removeMissing: true` is enabled, missing deprecated models now cleanly transition to `removed` status once the grace period expires.
-* ⏰ **Accurate Scheduler Inactive Status**:
-  * Corrected `scheduler.status()` to return `nextRunAt: null` when background synchronization is disabled, avoiding misleading run times in the Web UI.
-* 🛡️ **Web UI Resilience & Big Catalog Scalability**:
-  * Eliminated potential UI crashes during model sorting by safely handling missing model display names.
-  * Replaced spread operations on model arrays with iterative aggregations, preventing call stack overflow (`RangeError`) on massive catalogs (10,000+ models).
-  * Surfaced detailed probe error messages in the UI when testing individual models via the `▶` button.
-  * Localized cache expiration and offline status strings in Russian and English.
-* ⚡ **Deterministic Model Diffing & HTTP Stream Safety**:
-  * Implemented stable key-sorted serialization in `diffModels` and `sameModel` to eliminate false-positive diffs caused by non-deterministic JSON key order.
-  * Added early stream destruction on oversized HTTP request bodies to prevent memory bloat.
-
----
-
-## 🚀 Enhancements in v0.3.10
-
-* 📦 **Compacted History Storage**:
-  * Stripped non-essential metadata (`description`, `tags`, `aliases`) from catalog snapshots (`before`/`after`) in `settings.yaml`, retaining only essential properties (`id`, `name`, `capabilities`, `pricing`, `contextWindow`, `maxTokens`).
-  * Optimized default snapshot retention (`DEFAULT_SNAPSHOT_RETENTION = 3`) to keep configuration files lean while preserving full rollback functionality.
-* ⚡ **Immediate Scheduler First Tick**:
-  * Scheduler now triggers an initial discovery run immediately upon startup when enabled without requiring an initial 60-minute wait.
-* 🛡️ **Client-side Policy Regex Validation**:
-  * Added instant regex pattern verification in the Web UI before submitting `/policy` requests with localized error feedback.
-
----
-
-## 🚀 Enhancements in v0.3.9
-
-* 🔒 **Serialized Settings Mutations (`saveConfig`)**:
-  * Chained internal settings persistence via an async promise mutex (`saveQueue`).
-  * Eliminates race conditions between simultaneous sync runs and user UI interactions, ensuring clean atomic writes to `settings.yaml`.
-* 🛡️ **Hardened Cross-Origin & CSRF Protections**:
-  * Enhanced `trusted(req)` checking to evaluate `sec-fetch-site`, `origin`, and `referer` against the HTTP `Host`.
-  * Blocks unauthorized cross-origin mutations while preserving legitimate local and reverse-proxy requests.
-* 🎨 **Standardized Plugin Style Discovery**:
-  * Added `data-dsh-plugin="dsh-model-sync"` attribute to injected UI style tags in compliance with the DeepSeek Harness plugin authoring standard.
-
----
-
-## 🚀 Enhancements in v0.3.5
-
-* ⏱️ **Adaptive Rate Limit & Retry-After Handling**:
-  * Automatically parses HTTP headers `Retry-After` (in seconds or RFC dates) and `x-ratelimit-reset`.
-  * Exponential backoff prioritizes the exact delay requested by upstream providers, eliminating unnecessary throttling.
-  * Re-classified HTTP 429 errors under a dedicated `rate-limit` diagnostic label.
-* 🔄 **Optimistic Concurrency & Conflict Auto-Recovery**:
-  * Added automated retry loop for `SETTINGS_CONFLICT` (HTTP 409). When concurrent settings updates occur in DSH, the plugin seamlessly re-fetches the latest revision and reapplies the catalog mutations.
-* 🎯 **Advanced Web UI Picker & Filtering**:
-  * **Tokenized Smart Search**: Multi-word queries (`claude 3.5 sonnet`) match across model IDs, display names, tags, and descriptions simultaneously.
-  * **Quick Filter Chips**: One-click toggles for `Context ≥ 100k` and `Cheap ≤ $1/1M` in addition to capability toggles (`Vision`, `Tools`, `Reasoning`, `Embeddings`).
-  * **Batch Selection Controls**: One-click buttons to *Select all shown*, *Deselect all shown*, and *Invert selection*.
-  * **Chunked Rendering / Pagination**: Renders models in batches of 50 to maintain smooth 60fps UI performance even with catalogs containing 1,000+ models.
-  * **Deprecation Badges**: Models with scheduled retirement dates display an explicit countdown badge (`Deprecates in Nd`).
-* 💾 **Storage & Metadata Optimizations**:
-  * Robust context limit parser supporting suffix multipliers (`128k`, `1M`, `128,000`).
-  * Automatic history compaction: historical snapshots older than the 5 latest sync runs have heavy before/after dumps pruned while retaining summary diffs, keeping `settings.yaml` ultra-compact.
-
----
-
-## ⚙️ Configuration Reference (`settings.yaml`)
-
-```yaml
-dsh-model-sync:
-  enabled: true
-  syncIntervalMinutes: 60
-  autoReconcile: true
-  providers:
-    openrouter:
-      enabled: true
-      keyEnv: OPENROUTER_API_KEY
-    deepseek:
-      enabled: true
-      keyEnv: DEEPSEEK_API_KEY
-    custom:
-      enabled: false
-      baseURL: http://127.0.0.1:8000/v1
-      authType: bearer
-      keyEnv: CUSTOM_API_KEY
-```
-
----
-
-## 📄 License
-
-MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)

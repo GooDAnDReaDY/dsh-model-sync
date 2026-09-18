@@ -115,13 +115,3 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 ## 📄 开源协议
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
-
-## 🛠️ v0.3.11 改进与修复
-
-* 🗂️ **规范化设置界面**:
-  * 移除侧边栏顶层多余的 `settings.section` fallback，统一使用标准插件设置卡片 `settings.plugin.item`。
-* 🛡️ **增强 Cordis 服务访问稳定性**:
-  * 使用 `ctx.get(...)` 安全获取 `settings` 与 `llm` 服务，避免代理对象属性解析异常。
-
----
-
