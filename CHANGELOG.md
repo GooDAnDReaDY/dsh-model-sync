@@ -1,3 +1,13 @@
+## 0.4.3 — 2026-09-19
+
+- **Settings reachable again on the plugin's own page**: the current core
+  (0.1.6-alpha.2) renders a plugin's configuration page only for entries registered
+  in the plugin-list seat `plugins.item` — that is how `dsh-agentrouter` and
+  `dsh-agent-orchestrator` show their settings, while the row seat and the legacy card
+  alone leave the page without the form. The view-aware card is now registered there
+  too (`id: 'dsh-model-sync'`, order 60, static label); both older seats stay as
+  fallbacks.
+
 ## 0.4.2 — 2026-09-19
 
 - **Settings reachable again**: the card registered into `settings.plugin.item`, a
