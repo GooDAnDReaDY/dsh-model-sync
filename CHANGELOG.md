@@ -1,3 +1,8 @@
+## 0.4.4 — 2026-09-20
+
+- **Command Code Model Management (#151)**: Added `commandcode` provider support with live catalog discovery from `https://api.commandcode.ai/provider/v1/models` (71 models), model allowlist management (`modelSelections.commandcode`), and automatic synchronization to `llm-commandcode.visibleModels`.
+- **ClineBot Subscription Plan Adapter (#151)**: Added dedicated `clinebot` provider adapter in `PROVIDER_ADAPTERS` querying `/users/me/plan` with bearer key and parsing `features.included` to expose only the 11 active ClinePass subscription models, preventing generic discovery from querying `/models` which leaked 446 OpenRouter models.
+
 ## 0.4.3 — 2026-09-19
 
 - **Settings reachable again on the plugin's own page**: the current core
