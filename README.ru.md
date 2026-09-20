@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<h3>Динамическая синхронизация каталогов моделей и автоматический мониторинг баланса для DeepSeek Harness</h3>
+<h3>Динамическая синхронизация каталогов LLM-моделей и автоматический мониторинг баланса для DeepSeek Harness</h3>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@goodandready/dsh-model-sync"><img src="https://img.shields.io/npm/v/@goodandready/dsh-model-sync.svg?style=for-the-badge&color=6366f1&labelColor=1e1b4b" alt="npm version"></a>
@@ -24,9 +24,9 @@
 <table align="center">
   <tr>
     <td align="center">
-      ⭐ <strong>Если вам нравится этот плагин, поставьте ему звезду на GitHub</strong> — это покажет мне, что плагин вам полезен, и будет мотивировать меня развивать его дальше.
+      ⭐ <strong>Если вам нравится этот плагин, поставьте ему Star на GitHub</strong> — это покажет мне, что плагин полезен, и добавит мотивации продолжать его развитие.
       <br><br>
-      🐛 <strong>Если вы нашли баг или хотите предложить новый функционал</strong>, создайте issue на GitHub на любом языке — я рассмотрю ваше предложение и реализую полезные идеи в одной из следующих версий плагина.
+      🐛 <strong>Если вы нашли баг или хотите предложить новую функцию</strong>, создайте Issue на GitHub на любом языке — я рассмотрю предложение и реализую полезные улучшения в одной из следующих версий плагина.
     </td>
   </tr>
 </table>
@@ -37,32 +37,36 @@
 
 ## ⚡ Обзор
 
-**`dsh-model-sync`** обеспечивает автоматическую актуализацию каталога моделей **DeepSeek Harness** напрямую от подключенных провайдеров.
+**`dsh-model-sync`** поддерживает каталог моделей **DeepSeek Harness** в актуальном состоянии с апстрим AI-провайдерами.
 
-Вместо ручного редактирования YAML-файлов при выходе новых моделей, смене лимитов контекста или цен, плагин автоматически обнаруживает релизы, обновляет флаги возможностей (`vision`, `tools`, `reasoning`, `embeddings`), отслеживает остатки баланса и обновляет каталог на лету без перезапуска сервера.
+Вместо ручного редактирования YAML-файлов при выпуске провайдером новой модели, изменении размера контекста или цен, `dsh-model-sync` автоматически обнаруживает новые релизы, обновляет метаданные возможностей (`vision`, `tools`, `reasoning`, `embeddings`), отслеживает баланс аккаунтов, управляет видимостью моделей в интерфейсе и синхронизирует модели на лету без перезапуска сервера.
 
 ```mermaid
 graph LR
-    subgraph Trigger [Планировщик и ручной запуск]
+    subgraph Trigger [Расписание и ручной запуск]
         Cron[⏰ Фоновый планировщик опроса] --> Engine[Ядро dsh-model-sync]
-        WebUI[🖥️ Кнопка «Синхронизировать сейчас»] --> Engine
+        WebUI[🖥️ Настройки: Кнопка Sync Now] --> Engine
     end
 
-    subgraph Providers [25+ Внешних провайдеров]
+    subgraph Providers [25+ Апстрим-провайдеров]
         Engine --> Registry{Реестр адаптеров}
-        Registry -->|Авторизация Bearer| P1[OpenAI / DeepSeek / OpenRouter / Groq]
-        Registry -->|Заголовок x-api-key| P2[Anthropic Claude / Кастомные шлюзы]
-        Registry -->|Ключ query-key| P3[Google Gemini]
-        Registry -->|Локальный опрос| P4[Локальная Ollama / vLLM / SGLang]
+        Registry -->|Bearer Auth| P1[OpenAI / DeepSeek / OpenRouter / Groq]
+        Registry -->|x-api-key Auth| P2[Anthropic Claude / Пользовательские шлюзы]
+        Registry -->|query-key Auth| P3[Google Gemini]
+        Registry -->|Локальный опрос| P4[Локальные Ollama / vLLM / SGLang]
+        Registry -->|CommandCode API| P5[Command Code / visibleModels]
+        Registry -->|Опрос подписки| P6[План подписки ClineBot]
     end
 
     subgraph Reconcile [Сверка каталога и аудит]
-        P1 --> Normalizer[Нормализация и разметка возможностей]
+        P1 --> Normalizer[Нормализатор моделей и тегирование возможностей]
         P2 --> Normalizer
         P3 --> Normalizer
         P4 --> Normalizer
-        Normalizer --> Diff[Журнал изменений: Добавлено / Устарело]
-        Diff --> Catalog[Активный каталог моделей DSH]
+        P5 --> Normalizer
+        P6 --> Normalizer
+        Normalizer --> Diff[Трекер изменений: Добавлено / Устарело]
+        Diff --> Catalog[Активный каталог моделей DSH и visibleModels]
     end
 
     style Trigger fill:#1e1e2e,stroke:#89b4fa,stroke-width:2px,color:#cdd6f4
@@ -74,15 +78,41 @@ graph LR
 
 ## ✨ Ключевые возможности
 
-* 🔄 **Автоматическое обнаружение моделей**: синхронизация списков моделей, контекстных окон и возможностей (`vision`, `tools`, `reasoning`, `embeddings`) для 25+ провайдеров.
-* 🌐 **25+ встроенных адаптеров**: готовая поддержка OpenAI, Anthropic, Google, DeepSeek, xAI, OpenRouter, Groq, Mistral, Cerebras, Fireworks, HuggingFace, Moonshot, NVIDIA, Qwen, Together, Xiaomi MiMo, SiliconFlow и локальной Ollama.
-* 🔌 **Универсальные кастомные адаптеры**: подключение любых сторонних OpenAI-совместимых эндпоинтов `/v1/models` (`bearer`, `x-api-key`, `query-key`, `none`).
-* 📊 **Мониторинг баланса и квот**: опрос биллинга провайдеров (где доступно) для контроля остатка кредитов.
-* 📜 **Журнал изменений (Diff Log)**: фиксация добавленных, удаленных и обновленных моделей с отметками времени.
-* 🖥️ **Панель управления в Web GUI (**Настройки → Синхронизация моделей**)**:
-  * Статус-карточки со счетчиками активных моделей по каждому провайдеру;
-  * Кнопка «Синхронизировать сейчас» для мгновенного обновления;
-  * Переключатели провайдеров и ввод пользовательских адресов.
+* 🔄 **Автоматическое обнаружение каталога**: синхронизация списков моделей, алиасов, контекстных окон и флагов возможностей (`vision`, `tools`, `reasoning`, `embeddings`) для 25+ провайдеров.
+* 🛡️ **Совместимость шаблонов чата и ролей Minijinja**: автоматическая установка `compat.supportsDeveloperRole: false` для открытых моделей Groq (Qwen, Llama, Mistral, Gemma, DeepSeek) и DeepSeek API, предотвращая ошибки 400 `Unexpected message role` для reasoning-моделей с сохранением пользовательских настроек.
+* 🌐 **25+ встроенных адаптеров провайдеров**: готовая поддержка OpenAI, Anthropic, Google, DeepSeek, xAI, OpenRouter, Groq, Mistral, Cerebras, Fireworks, HuggingFace, Moonshot, NVIDIA, Qwen, Together, Xiaomi MiMo, SiliconFlow, Command Code, ClineBot и локальной Ollama.
+* 🎛️ **Управление моделями Command Code**: полное обнаружение моделей Command Code с возможностью выбора чекбоксами в UI и автоматической синхронизацией `visibleModels` в настройках `llm-commandcode`.
+* 🎯 **Синхронизация тарифного плана ClineBot**: выделенный адаптер, опрашивающий `GET /users/me/plan`, который получает исключительно модели, входящие в активную подписку, исключая появление сотен недоступных моделей.
+* 🔌 **Поддержка универсальных и кастомных адаптеров**: подключение произвольных OpenAI-совместимых эндпоинтов `/v1/models` с настраиваемой авторизацией (`bearer`, `x-api-key`, `query-key`, `none`).
+* 📊 **Мониторинг баланса и квот**: опрос биллинговых эндпоинтов провайдеров (где поддерживается) для предотвращения неожиданного исчерпания средств.
+* 📜 **История синхронизации и аудит диффов**: отслеживание всех добавленных моделей, устаревших ID и изменённых возможностей с журналом изменений во времени.
+* 🖥️ **Полноценная панель Web UI (**Настройки → Синхронизация моделей**)**:
+  * Карточки статуса по каждому провайдеру со счётчиками активных моделей;
+  * Кнопка мгновенной синхронизации «Sync Now»;
+  * Выбор и скрытие моделей чекбоксами;
+  * Переключатели включения/отключения провайдеров и ввод кастомных эндпоинтов.
+
+---
+
+## 🛠️ Поддерживаемые провайдеры
+
+| Идентификатор провайдера | Формат авторизации | Автоопределение возможностей и примечания |
+|---|---|---|
+| `openai` | Bearer Token | `vision`, `tools`, `reasoning`, `embeddings` |
+| `anthropic` | Заголовок `x-api-key` | `vision`, `tools`, `reasoning` |
+| `google` | Query-параметр / Ключ | `vision`, `tools`, `reasoning`, `embeddings` |
+| `deepseek` | Bearer Token | `tools`, `reasoning` |
+| `xai` | Bearer Token | `vision`, `tools`, `reasoning` |
+| `openrouter` | Bearer Token | Мультипровайдерный каталог с ценами и контекстными лимитами |
+| `groq` | Bearer Token | `tools`, `reasoning`, `vision`, `supportsDeveloperRole: false` |
+| `mistral` | Bearer Token | `tools`, `reasoning`, `vision` |
+| `commandcode` | Bearer Token | Каталог `https://api.commandcode.ai/provider/v1/models` с сохранением выбора в `visibleModels` для `llm-commandcode` |
+| `clinebot` | Bearer Token | Опрос активного тарифного плана (`/users/me/plan`), синхронизация строго включённых в подписку моделей |
+| `fireworks` | Bearer Token | Эндпоинты открытых весов |
+| `huggingface` | Bearer Token | Каталог Serverless Inference API |
+| `together` | Bearer Token | Каталог моделей Open-Source |
+| `ollama` | Локальный HTTP (`none`) | Локальное обнаружение офлайн-моделей (`/api/tags`) |
+| `custom` | Настраиваемый | Любой кастомный шлюз, совместимый с OpenAI или Google |
 
 ---
 
@@ -92,27 +122,36 @@ graph LR
 dsh plugin --profile web add @goodandready/dsh-model-sync
 ```
 
----
-
-## 🚀 Улучшения в версии 0.4.0
-
-- **One-Click обновление плагина из настроек**: В карточку настроек плагина добавлен блок обновления с проверкой актуальной версии в npm, цветовым бейджем статуса и кнопкой обновления в один клик.
-- **Защита write-эндпоинтов по Loopback**: Все мутирующие HTTP-маршруты (`/apply`, `/policy`, `/clear-cache`, `/updater/update`) строго проверяют адрес источника (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`) и заголовок Origin/Host для предотвращения несанкционированного доступа.
-- **Полная поддержка темы DSH (0 rgba / 0 hex)**: Все стили интерфейса переведены на официальные токены дизайн-системы DSH (`--dsw-alias-*`), обеспечивая нативную интеграцию со светлой и тёмной темами оформления.
-- **Модульная архитектура синхронизатора**: Монолитная логика синхронизации разделена на специализированные модули (`synchronizer-helpers.js`, `synchronizer-transfer.js`, `synchronizer-prober.js`), что упрощает поддержку и снижает размер основного файла ниже 600 строк.
-- **Чистый дистрибутив пакета**: Исключены внутренние файлы планирования и отладки; размер сжатого npm-пакета составляет менее 70 KiB, все файлы укладываются в лимит 256 KiB.
-
-## 🚀 Улучшения в v0.3.13
-
-* ⚡ **ETag / 304 Not Modified для фонового опроса UI**:
-  * Реализована генерация слабого ETag для маршрута `GET /dsh-model-sync/status`. При 15-секундном опросе UI возвращается пустой ответ `304 Not Modified`, исключающий холостую сериализацию JSON и сетевой оверхед.
-* 🌐 **Условные запросы к API провайдеров (Upstream Conditional Requests)**:
-  * Передача заголовков `If-None-Match` и `If-Modified-Since` в generic и declarative адаптерах. При ответе `304` от апстрим-провайдера мгновенно возвращается кэш без повторного парсинга моделей.
-* 🎯 **Debounce поиска и useMemo в веб-интерфейсе**:
-  * Добавлен debounce (150 мс) на ввод в строку поиска и мемоизация `React.useMemo` для фильтрации и сортировки моделей в пикере, обеспечивая плавный отклик без микрофризов.
-* 🧠 **Расширенное распознавание возможностей моделей**:
-  * Распознавание современных reasoning/thinking моделей (`DeepSeek-R1`, `o1`, `o3-mini`, CoT) и моделей для кода (`code`), поддержка тега `code` в политиках фильтрации.
-* 🛡️ **Экспоненциальный джиттер при повторах**:
-  * Защита от thundering herd с помощью случайного коэффициента джиттера (`0.5 - 1.0`) при повторных запросах к API провайдеров.
+> [!IMPORTANT]
+> Перезапустите Web UI DSH после установки (`systemctl --user restart dsh-web`), чтобы активировать фоновую синхронизацию каталогов.
 
 ---
+
+## ⚙️ Конфигурация (`settings.yaml`)
+
+```yaml
+dsh-model-sync:
+  enabled: true
+  syncIntervalMinutes: 60
+  autoReconcile: true
+  enableBalanceChecks: true
+  providers:
+    commandcode:
+      enabled: true
+    clinebot:
+      enabled: true
+```
+
+| Параметр | Тип | По умолчанию | Описание |
+|---|---|---|---|
+| `enabled` | `boolean` | `true` | Главный переключатель фоновой синхронизации |
+| `syncIntervalMinutes` | `number` | `60` | Периодичность опроса провайдеров (в минутах) |
+| `autoReconcile` | `boolean` | `true` | Автоматически применять обнаруженные модели к активному каталогу |
+| `enableBalanceChecks` | `boolean` | `true` | Опрашивать биллинговые эндпоинты при наличии поддержки |
+| `providers.<id>.enabled`| `boolean` | `true` | Включение или отключение обнаружения для конкретного провайдера |
+
+---
+
+## 📄 Лицензия
+
+MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)
