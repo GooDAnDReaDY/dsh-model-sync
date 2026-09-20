@@ -85,3 +85,12 @@ test('supports an explicit runtime adapter escape hatch', async () => {
   assert.equal(adapter.id, 'explicit:fixture')
   assert.deepEqual(await adapter.discover({ provider: 'custom' }), [{ id: 'fixture', name: 'Fixture' }])
 })
+
+test('prioritizes built-in provider adapters over generic adapter even if baseURL is present', () => {
+  const registry = createProviderAdapterRegistry({ resolveCredential: async () => 'key' })
+  const adapter = registry.select({
+    provider: 'commandcode',
+    baseURL: 'https://api.commandcode.ai',
+  })
+  assert.equal(adapter.id, 'provider:commandcode')
+})
