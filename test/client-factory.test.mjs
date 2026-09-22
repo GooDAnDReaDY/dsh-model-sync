@@ -64,12 +64,12 @@ test('client factory uses a browser-safe CommonJS shim', () => {
   assert.match(src, /t\.searchPlaceholder/)
   assert.match(src, /t\.sortName/)
   assert.match(src, /t\.sortPrice/)
-  // Issue #107: scheduler UI and settingsScope binding
+  // Issue #107: scheduler UI and configForms binding
   assert.match(src, /schedulerSettings:\s*'Scheduler configuration'/)
   assert.match(src, /scheduleEnabled:\s*'Enable background schedule'/)
   assert.match(src, /intervalMinutes:\s*'Interval \(minutes\)'/)
   assert.match(src, /saveScheduler/)
-  assert.match(src, /settingsScope\.bind\(\{\s*namespace:\s*NS\s*\}\)/)
+  assert.match(src, /configForms\.get\(\s*NS\s*\)/)
     assert.match(src, /batchTry/)
   assert.match(src, /exportConfig/)
   assert.match(src, /modelAliases/)
@@ -91,13 +91,13 @@ test('client factory uses a browser-safe CommonJS shim', () => {
     throw new Error('unexpected require ' + name)
   })
   assert.equal(typeof exported.apply, 'function')
-  assert.deepEqual(Array.from(exported.inject), ['slots', 'locale', 'settingsScope'])
+  assert.deepEqual(Array.from(exported.inject), ['slots', 'locale', 'configForms'])
   const models = [{ id: 'vision-tools', capabilities: { vision: true, tools: true } }, { id: 'vision-only', capabilities: { vision: true } }, { id: 'plain' }]
   assert.deepEqual(exported.filterModelsByCapabilities(models, ['vision', 'tools']).map((model) => model.id), ['vision-tools'])
   assert.deepEqual(exported.filterModelsByCapabilities(models, []).map((model) => model.id), ['vision-tools', 'vision-only', 'plain'])
 })
 
-test('client apply registers settings.plugin.item and supports settingsScope', () => {
+test('client apply registers settings.plugin.item and supports configForms', () => {
   const srcPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '../lib/client.js')
   const src = readFileSync(srcPath, 'utf8')
     assert.match(src, /batchTry/)
@@ -125,8 +125,7 @@ test('client apply registers settings.plugin.item and supports settingsScope', (
       subscribe(cb) { return () => {} },
       getSnapshot() { return { active: 'ru' } }
     },
-    settingsScope: {
-      bind(opts) {
+    configForms: { get(opts) {
         boundScope = opts
         return fakeScope
       }
