@@ -2,6 +2,11 @@
 
 - **Adapter Selection Precedence**: Fixed adapter selection in registry so built-in provider adapters take precedence over generic OpenAI-compatible adapter when a default `baseURL` is present in the profile, ensuring Command Code uses its dedicated catalog endpoint rather than falling back to 404.
 
+## 0.4.6
+
+### Fixed
+- Settings no longer wait on the removed settingsScope service. The client uses configForms (#155).
+
 ## 0.4.4 — 2026-09-20
 
 - **Command Code Model Management (#151)**: Added `commandcode` provider support with live catalog discovery from `https://api.commandcode.ai/provider/v1/models` (71 models), model allowlist management (`modelSelections.commandcode`), and automatic synchronization to `llm-commandcode.visibleModels`.

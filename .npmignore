@@ -1,0 +1,13 @@
+# Development and test artifacts (primary packaging control is package.json 'files' allowlist)
+test/
+*.test.js
+*.test.mjs
+docs/
+.worktrees/
+scratch/
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db
+
