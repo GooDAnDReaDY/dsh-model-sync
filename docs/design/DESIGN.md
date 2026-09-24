@@ -178,3 +178,8 @@ In accordance with DSH authoring guidelines (< 600 lines per module):
 - **Суть**: функция `hasPolicy(policy)` в `lib/policy.js` проверяет наличие хотя бы одного активного фильтра (паттерны `include`/`exclude`, требования или запреты `capabilities`, лимиты цен `enableCostFilter` или контекстного окна `enableContextFilter`).
 - **Быстрый путь (`fast-path`)**: в `filterModels(models, policy)` добавлен ранний выход `if (!hasPolicy(policy)) return models`, исключающий компиляцию регулярных выражений и прогон `Array.prototype.filter` по сотням моделей каталога, когда правила фильтрации провайдера не настроены (дефолтное состояние).
 
+### 6.21 Сброс кэша версий при принудительной проверке обновлений (#154)
+- **Суть**: функция `resetLatestCache()` в `lib/updater.js` сбрасывает закэшированную в памяти версию пакета из npm (`latestCache`), предотвращая отдачу устаревшего номера версии в течение TTL кэша (10 минут).
+- **Связка с маршрутом и клиентом**:
+  - В роутере `registerPluginUpdater` при обработке GET/HEAD-запроса проверяется наличие параметра `fresh=1` в URL (`request.url?.includes('fresh=1')`) либо заголовка `cache-control: no-cache`. При их наличии вызывается `resetLatestCache()`.
+  - В UI-клиенте (`lib/client.js`) пользовательский клик по кнопке «Проверить обновления» инициирует запрос к `${api}/update?fresh=1`, что гарантирует получение актуальной информации об обновлении напрямую из npm registry.
