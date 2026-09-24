@@ -78,6 +78,8 @@ graph LR
 
 ## ✨ Ключевые возможности
 
+* ⚡ **Высокопроизводительная фильтрация моделей**: Быстрый путь (`fast-path`) в `filterModels` мгновенно возвращает каталог при отсутствии активных правил политики, исключая лишнюю компиляцию regex и прогоны массивов.
+* 🔄 **Обновление плагина в один клик**: Встроенный механизм проверки обновлений в Настройках со сбросом кэша npm при ручном запросе (`?fresh=1` / `Cache-Control: no-cache`), гарантирующий получение актуальной версии.
 * 🔄 **Автоматическое обнаружение каталога**: синхронизация списков моделей, алиасов, контекстных окон и флагов возможностей (`vision`, `tools`, `reasoning`, `embeddings`) для 25+ провайдеров.
 * 🛡️ **Совместимость шаблонов чата и ролей Minijinja**: автоматическая установка `compat.supportsDeveloperRole: false` для открытых моделей Groq (Qwen, Llama, Mistral, Gemma, DeepSeek) и DeepSeek API, предотвращая ошибки 400 `Unexpected message role` для reasoning-моделей с сохранением пользовательских настроек.
 * 🌐 **25+ встроенных адаптеров провайдеров**: готовая поддержка OpenAI, Anthropic, Google, DeepSeek, xAI, OpenRouter, Groq, Mistral, Cerebras, Fireworks, HuggingFace, Moonshot, NVIDIA, Qwen, Together, Xiaomi MiMo, SiliconFlow, Command Code, ClineBot и локальной Ollama.

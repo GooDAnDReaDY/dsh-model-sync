@@ -78,6 +78,8 @@ graph LR
 
 ## ✨ Key Features
 
+* ⚡ **High-Performance Policy Filtering**: Fast-path evaluation in `filterModels` bypasses regular expressions and array filtering when no filtering policy is configured, guaranteeing zero-overhead discovery runs.
+* 🔄 **One-Click In-App Updates**: Built-in update checker in Settings with automatic npm cache bypass on demand (`?fresh=1` / `Cache-Control: no-cache`), ensuring instantaneous discovery of new package releases.
 * 🔄 **Automated Catalog Discovery**: Syncs model lists, aliases, context windows, and capability flags (`vision`, `tools`, `reasoning`, `embeddings`) across 25+ providers.
 * 🛡️ **Minijinja Chat Template & Role Compatibility**: Automatically sets `compat.supportsDeveloperRole: false` for Groq open-source models (Qwen, Llama, Mistral, Gemma, DeepSeek) and DeepSeek API, preventing 400 `Unexpected message role` errors with reasoning models while preserving user overrides.
 * 🌐 **25+ Built-in Provider Adapters**: Pre-configured discovery for OpenAI, Anthropic, Google, DeepSeek, xAI, OpenRouter, Groq, Mistral, Cerebras, Fireworks, HuggingFace, Moonshot, NVIDIA, Qwen, Together, Xiaomi MiMo, SiliconFlow, Command Code, ClineBot, and local Ollama.
