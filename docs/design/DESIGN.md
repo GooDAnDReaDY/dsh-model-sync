@@ -173,3 +173,8 @@ In accordance with DSH authoring guidelines (< 600 lines per module):
   - Для провайдера `deepseek` по умолчанию выставляется `compat.supportsDeveloperRole: false`.
   - Явные пользовательские переопределения в `settings.yaml` (включая `supportsDeveloperRole: true` и кастомные `chatTemplateKwargs`/`chatTemplateArgs`) всегда имеют приоритет.
 - **Глубокое слияние в reconcile**: `reconcileModels` выполняет слияние (`deep merge`) существующих настроек модели и свежих данных провайдера, предотвращая стирание пользовательских настроек при повторной синхронизации.
+ 
+### 6.20 Оптимизация фильтрации моделей через hasPolicy (#153)
+- **Суть**: функция `hasPolicy(policy)` в `lib/policy.js` проверяет наличие хотя бы одного активного фильтра (паттерны `include`/`exclude`, требования или запреты `capabilities`, лимиты цен `enableCostFilter` или контекстного окна `enableContextFilter`).
+- **Быстрый путь (`fast-path`)**: в `filterModels(models, policy)` добавлен ранний выход `if (!hasPolicy(policy)) return models`, исключающий компиляцию регулярных выражений и прогон `Array.prototype.filter` по сотням моделей каталога, когда правила фильтрации провайдера не настроены (дефолтное состояние).
+
