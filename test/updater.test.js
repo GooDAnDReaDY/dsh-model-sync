@@ -10,6 +10,7 @@ import {
   installExact,
   registerPluginUpdater,
   resetLatestCache,
+  latestVersion,
   runtime,
 } from '../lib/updater.js'
 
@@ -124,6 +125,38 @@ test('status checks local package.json version and latest npm version', async ()
   assert.equal(res.canAutoUpdate, true)
 })
 
+test('latestVersion caches result and resetLatestCache clears it', async () => {
+  const originalFetch = globalThis.fetch
+  let fetchCount = 0
+  globalThis.fetch = async () => {
+    fetchCount++
+    return {
+      ok: true,
+      json: async () => ({ version: '1.2.3' }),
+    }
+  }
+  try {
+    resetLatestCache()
+    const v1 = await latestVersion('test-pkg', 'https://mock.registry')
+    assert.equal(v1, '1.2.3')
+    assert.equal(fetchCount, 1)
+
+    // Cached hit
+    const v2 = await latestVersion('test-pkg', 'https://mock.registry')
+    assert.equal(v2, '1.2.3')
+    assert.equal(fetchCount, 1)
+
+    // Reset cache
+    resetLatestCache()
+    const v3 = await latestVersion('test-pkg', 'https://mock.registry')
+    assert.equal(v3, '1.2.3')
+    assert.equal(fetchCount, 2)
+  } finally {
+    globalThis.fetch = originalFetch
+    resetLatestCache()
+  }
+})
+
 test('registerPluginUpdater registers GET, HEAD, POST routes and handles update flow', async () => {
   resetLatestCache()
   const routes = new Map()
@@ -168,6 +201,15 @@ test('registerPluginUpdater registers GET, HEAD, POST routes and handles update 
   assert.equal(getRes.status, 200)
   const getBody = JSON.parse(getRes.body)
   assert.equal(getBody.packageName, '@goodandready/dsh-model-sync')
+
+  // 1b. GET with fresh=1 or cache-control: no-cache resets latest cache
+  const freshRes = makeMockRes()
+  await handler({ method: 'GET', url: '/api/dsh-model-sync/update?fresh=1' }, freshRes)
+  assert.equal(freshRes.status, 200)
+
+  const noCacheRes = makeMockRes()
+  await handler({ method: 'GET', headers: { 'cache-control': 'no-cache' } }, noCacheRes)
+  assert.equal(noCacheRes.status, 200)
 
   // 2. HEAD returns headers without body
   const headRes = makeMockRes()
