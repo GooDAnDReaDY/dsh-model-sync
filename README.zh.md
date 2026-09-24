@@ -78,6 +78,8 @@ graph LR
 
 ## ✨ 核心特性
 
+* ⚡ **高性能模型策略过滤**：在未配置过滤策略时，`filterModels` 采用快速路径直接返回模型目录，避免不必要的正则表达式编译和数组遍历。
+* 🔄 **一键检查与更新**：内置设置面板更新检查，在手动刷新时通过 `?fresh=1` 或 `Cache-Control: no-cache` 绕过 npm 缓存，即时获取最新版本。
 * 🔄 **自动化目录同步**：自动对齐 25+ 服务商的模型清单、别名、上下文窗口及能力标签（`vision`、`tools`、`reasoning`、`embeddings`）。
 * 🛡️ **Minijinja 聊天模板与角色兼容性保障**：自动为 Groq 开源模型（Qwen、Llama、Mistral、Gemma、DeepSeek）及 DeepSeek API 注入 `compat.supportsDeveloperRole: false`，避免推理模型报 400 `Unexpected message role` 错误，同时保留用户自定义配置。
 * 🌐 **内置 25+ 服务商适配器**：预置支持 OpenAI、Anthropic、Google、DeepSeek、xAI、OpenRouter、Groq、Mistral、Cerebras、Fireworks、HuggingFace、Moonshot、NVIDIA、Qwen、Together、Xiaomi MiMo、SiliconFlow、Command Code、ClineBot 以及本地 Ollama。

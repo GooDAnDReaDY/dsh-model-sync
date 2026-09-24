@@ -1,3 +1,10 @@
+## 0.4.7 — 2026-09-24
+
+### Performance & Reliability
+- **Policy Filter Fast-Path (#153)**: Added early return in `filterModels` when no active policy rules (include/exclude patterns, capability constraints, pricing or context limits) are defined, eliminating regex compilation and array iteration during default discovery runs.
+- **Updater Cache Bypass on Fresh Check (#154)**: Integrated `resetLatestCache()` into `registerPluginUpdater` GET/HEAD routes triggered by `fresh=1` query parameter or `Cache-Control: no-cache` header. UI update checks now reliably fetch the latest npm registry version without waiting for the 10-minute cache TTL.
+- **Package Assets Completeness**: Explicitly included localized `README.zh.md` and `README.ru.md` in npm package manifest.
+
 ## 0.4.5 — 2026-09-20
 
 - **Adapter Selection Precedence**: Fixed adapter selection in registry so built-in provider adapters take precedence over generic OpenAI-compatible adapter when a default `baseURL` is present in the profile, ensuring Command Code uses its dedicated catalog endpoint rather than falling back to 404.
