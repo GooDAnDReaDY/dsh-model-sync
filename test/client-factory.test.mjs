@@ -160,3 +160,100 @@ test('client apply registers settings.plugin.item and supports configForms', () 
   assert.equal(registeredSlot.key, 'dsh-model-sync')
   assert.equal(registeredSlot.locale, 'dsh-model-sync')
 })
+
+test('client apply registers locale dictionaries and returns effect disposer for lifecycle unload/reapply (#160)', () => {
+  const srcPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '../lib/client.js')
+  const src = readFileSync(srcPath, 'utf8')
+  let captured
+  const window = { __ModuleLoader__: { load(entry) { captured = entry } } }
+  runInNewContext(src, createContext({ window }))
+
+  const fakeReact = {
+    createElement(type, props, ...children) { return { type, props, children } },
+    useSyncExternalStore(sub, getSnap) { return getSnap() },
+    useMemo(fn) { return fn() },
+    useCallback(fn) { return fn },
+    useState(value) { return [value, () => {}] },
+    useEffect(fn) { fn() },
+    Fragment: 'Fragment'
+  }
+
+  const exported = captured.factory((name) => {
+    if (name === 'react') return fakeReact
+    throw new Error('unexpected require ' + name)
+  })
+
+  // Simulated LocaleRegistry tracking registered namespaces
+  const registeredNamespaces = new Map()
+  let registerCallCount = 0
+  let disposeCallCount = 0
+
+  const mockLocale = {
+    register(ns, dicts) {
+      registerCallCount++
+      if (registeredNamespaces.has(ns)) {
+        throw new Error(`Collision: namespace "${ns}" already registered in LocaleRegistry`)
+      }
+      registeredNamespaces.set(ns, dicts)
+      let disposed = false
+      return () => {
+        if (disposed) return
+        disposed = true
+        disposeCallCount++
+        registeredNamespaces.delete(ns)
+      }
+    },
+    getSnapshot() { return { active: 'en' } },
+    subscribe() { return () => {} },
+  }
+
+  const effects = []
+  const mockCtx = {
+    effect(fn, label) {
+      const cleanup = fn()
+      effects.push({ fn, label, cleanup })
+      return cleanup
+    },
+    locale: mockLocale,
+    configForms: { get() { return { subscribe() { return () => {} }, getSnapshot() { return {} }, set() {} } } },
+    slots: { inject() {}, register() {} },
+  }
+
+  // 1. Initial apply registers dictionaries
+  exported.apply(mockCtx)
+  assert.equal(registerCallCount, 1)
+  assert.ok(registeredNamespaces.has('dsh-model-sync'))
+  const dict1 = registeredNamespaces.get('dsh-model-sync')
+  assert.ok(dict1.en && dict1.zh)
+  assert.equal(typeof dict1.en.refreshAll, 'string')
+
+  // Find the locale effect
+  const localeEffect = effects.find((e) => e.label === 'dsh-model-sync: dictionaries')
+  assert.ok(localeEffect, 'locale effect must be registered')
+  assert.equal(typeof localeEffect.cleanup, 'function', 'effect must return a disposer function')
+
+  // 2. Dispose effect (simulating plugin unload or HMR re-apply)
+  assert.equal(disposeCallCount, 0)
+  localeEffect.cleanup()
+  assert.equal(disposeCallCount, 1, 'disposer must be called once')
+  assert.equal(registeredNamespaces.has('dsh-model-sync'), false, 'namespace must be removed on unload')
+
+  // Idempotent dispose check
+  localeEffect.cleanup()
+  assert.equal(disposeCallCount, 1, 'disposer must be idempotent')
+
+  // 3. Re-apply (apply -> dispose -> apply)
+  // Second apply with updated mock dictionaries should succeed without collision
+  effects.length = 0
+  exported.apply(mockCtx)
+  assert.equal(registerCallCount, 2, 'second apply must call register')
+  assert.ok(registeredNamespaces.has('dsh-model-sync'), 'namespace must be registered again')
+  assert.equal(disposeCallCount, 1)
+
+  // Clean up second run
+  const localeEffect2 = effects.find((e) => e.label === 'dsh-model-sync: dictionaries')
+  assert.ok(localeEffect2)
+  localeEffect2.cleanup()
+  assert.equal(disposeCallCount, 2)
+  assert.equal(registeredNamespaces.has('dsh-model-sync'), false)
+})
