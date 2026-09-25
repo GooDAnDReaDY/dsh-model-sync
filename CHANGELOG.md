@@ -1,3 +1,8 @@
+## 0.4.8 — 2026-09-25
+
+### Fixed
+- **Locale Registration Disposer (#160)**: `apply()` in `lib/client.js` now returns the idempotent disposer returned by `ctx.locale.register()`, properly unregistering dictionary namespaces during plugin unload/HMR and preventing stale dictionary reuse or name collisions on subsequent `apply()`.
+
 ## 0.4.7 — 2026-09-24
 
 ### Performance & Reliability
