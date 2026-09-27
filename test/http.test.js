@@ -434,4 +434,10 @@ test('handles GET /dsh-model-sync/aliases/resolve query', async () => {
   const missingRes = createMockRes()
   await handler({ method: 'GET', url: '/dsh-model-sync/aliases/resolve', headers: { host: '127.0.0.1:3000', origin: 'http://127.0.0.1:3000' } }, missingRes)
   assert.equal(missingRes.status, 400)
+
+  // Non-GET method rejected with 405
+  const postRes = createMockRes()
+  await handler({ method: 'POST', url: '/dsh-model-sync/aliases/resolve?alias=@fast', headers: { host: '127.0.0.1:3000', origin: 'http://127.0.0.1:3000' }, socket: { remoteAddress: '127.0.0.1' } }, postRes)
+  assert.equal(postRes.status, 405)
+  assert.equal(JSON.parse(postRes.body).error.code, 'method')
 })
