@@ -1,3 +1,22 @@
+## 0.5.0 — 2026-09-27
+
+### Added
+- **External Diff Webhooks & Event Dispatch (#166, PR #167)**:
+  - Added outbound HTTP POST webhook dispatch and Cordis event dispatch for model lifecycle updates (`model.added`, `model.deprecated`, `model.removed`, `price.changed`).
+  - Added optional HMAC-SHA256 signature verification headers (`x-hub-signature-256`, `x-signature`).
+  - Integrated with `dsh-plugin-notify` service when available for in-system notifications.
+  - Added webhook test route `POST /api/dsh-model-sync/webhook/test` and interactive test trigger in Settings UI.
+- **Smart Virtual Aliases & Auto-Fallback Chains (#168, PR #169)**:
+  - Added dynamic model aliases with `@` prefix (`@fast`, `@cheap`, `@best-code`) and target fallback chains (`targets: string[]`).
+  - Implemented health and circuit breaker awareness: automatically skips unhealthy models and providers with open circuits during fallback resolution.
+  - Added strategies for lowest latency (`fastest`), lowest token cost (`cheapest`), and code/reasoning capability ranking (`best-code`).
+  - Exposed resolution endpoint `GET /api/dsh-model-sync/aliases/resolve` and programmatic API `synchronizer.resolveAlias()`.
+  - Added live alias resolution preview and tester in Settings card.
+- **Reference Pricing Database Enrichment (#170, PR #171)**:
+  - Added canonical per-token rate reference database for providers without pricing metadata in `/models` (OpenAI, Anthropic, Groq, Mistral, xAI, DeepSeek, Google).
+  - Automatically enriches model catalog during normalization with `pricing.source = 'reference'`.
+  - Enables cost filtering (`maxPricePerMillion`) and `@cheap` alias resolution across major API-key providers.
+
 ## 0.4.9 — 2026-09-27
 
 ### Fixed
