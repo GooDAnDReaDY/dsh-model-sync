@@ -112,3 +112,13 @@ test('resolveAlias resolves @best-code prioritizing coding and reasoning models'
   assert.equal(res.provider, 'anthropic')
   assert.equal(res.model, 'claude-3-5-sonnet-20241022')
 })
+
+test('resolveAlias rejects unsupported custom strategy with INVALID_STRATEGY', () => {
+  const aliases = {
+    broken: { strategy: 'magic' },
+  }
+  assert.throws(
+    () => resolveAlias('broken', { aliases }),
+    (err) => err.code === 'INVALID_STRATEGY'
+  )
+})
