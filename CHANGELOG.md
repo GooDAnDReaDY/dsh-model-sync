@@ -1,3 +1,12 @@
+## 0.4.9 — 2026-09-27
+
+### Fixed
+- **Command Code Catalog Restoration (#162)**: `setModelSelection` for `commandcode` now correctly restores all available catalog models into `visibleModels` when the selection is cleared (`selectedModels: []`), avoiding unintended hiding of all models.
+- **Resilient Slot Registration (#163)**: Wrapped UI slot registrations in `lib/client.js` with a fallback to `ctx.slots.register` when `ctx.slots.inject` is unavailable, ensuring cards render across all DSH core builds.
+
+### Documentation
+- **Design Contract Tracking (#164)**: Updated `docs/design/DESIGN.md` release status to track current features and added contract sections 6.23 and 6.24.
+
 ## 0.4.8 — 2026-09-25
 
 ### Fixed
