@@ -78,6 +78,7 @@ graph LR
 
 ## ✨ 核心特性
 
+* 🔔 **外部差异通知 Webhook 与事件分发**：支持 HMAC-SHA256 签名验证的实时 Webhook 通知与 Cordis `model-sync/diff` 事件，可在新模型上线、模型废弃或价格变更时即时推送。
 * ⚡ **高性能模型策略过滤**：在未配置过滤策略时，`filterModels` 采用快速路径直接返回模型目录，避免不必要的正则表达式编译和数组遍历。
 * 🔄 **一键检查与更新**：内置设置面板更新检查，在手动刷新时通过 `?fresh=1` 或 `Cache-Control: no-cache` 绕过 npm 缓存，即时获取最新版本。
 * 🔄 **自动化目录同步**：自动对齐 25+ 服务商的模型清单、别名、上下文窗口及能力标签（`vision`、`tools`、`reasoning`、`embeddings`）。

@@ -84,7 +84,7 @@ test('registers separate exact status and run endpoints', () => {
   const ctx = { webServer: { register: (route) => { routes.push(route); return () => {} } } }
   const sync = { status: () => ({ running: false }), listProviders: () => [], run: async () => ({}), health: async () => ({ results: [] }), setModelSelection: async () => ({}), setModelPolicy: async () => ({}) }
   const disposers = registerHttpApi(ctx, sync)
-  assert.equal(routes.length, 18)
+  assert.equal(routes.length, 19)
   assert.deepEqual(routes.map((route) => [route.kind, route.path]), [
     ['exact', '/dsh-model-sync/status'],
     ['exact', '/dsh-model-sync/run'],
@@ -104,8 +104,9 @@ test('registers separate exact status and run endpoints', () => {
     ['exact', '/dsh-model-sync/notifications'],
     ['exact', '/dsh-model-sync/notifications/read'],
     ['exact', '/dsh-model-sync/notifications/acknowledge'],
+    ['exact', '/dsh-model-sync/webhook/test'],
   ])
-  assert.equal(disposers.length, 18)
+  assert.equal(disposers.length, 19)
 })
 
 test('rejects cross-site, non-loopback, and mismatched origin requests', async () => {
@@ -343,4 +344,54 @@ test('returns ETag header on GET /status and responds with 304 when If-None-Matc
   }, mismatchRes)
   assert.equal(mismatchRes.status, 200)
   assert.equal(mismatchRes.body, firstRes.body)
+})
+
+test('handles POST /dsh-model-sync/webhook/test and validates payload', async () => {
+  const routes = new Map()
+  const ctx = { webServer: { register: (route) => { routes.set(route.path, route.handler); return () => {} } } }
+  let webhookParams = null
+  const sync = {
+    status: () => ({ running: false }),
+    listProviders: () => [],
+    testWebhook: async (params) => {
+      webhookParams = params
+      return { ok: true, status: 200 }
+    },
+  }
+  registerHttpApi(ctx, sync)
+  const handler = routes.get('/dsh-model-sync/webhook/test')
+  assert.ok(handler, 'webhook test handler is registered')
+
+  const createMockRes = () => ({
+    status: 0,
+    headers: {},
+    body: '',
+    writeHead(s, h) { this.status = s; this.headers = h },
+    end(b) { this.body = b ?? '' },
+  })
+
+  const makeReq = (method, body) => {
+    const emitter = new EventEmitter()
+    emitter.method = method
+    emitter.headers = { host: '127.0.0.1:3000', origin: 'http://127.0.0.1:3000' }
+    emitter.socket = { remoteAddress: '127.0.0.1' }
+    process.nextTick(() => {
+      if (body !== undefined) emitter.emit('data', Buffer.from(JSON.stringify(body)))
+      emitter.emit('end')
+    })
+    return emitter
+  }
+
+  // 1. Success test
+  const res = createMockRes()
+  await handler(makeReq('POST', { url: 'https://example.com/hook', secret: 'abc' }), res)
+  assert.equal(res.status, 200)
+  assert.deepEqual(webhookParams, { url: 'https://example.com/hook', secret: 'abc' })
+  const parsedBody = JSON.parse(res.body)
+  assert.equal(parsedBody.ok, true)
+
+  // 2. Missing url test
+  const invalidRes = createMockRes()
+  await handler(makeReq('POST', {}), invalidRes)
+  assert.equal(invalidRes.status, 400)
 })
