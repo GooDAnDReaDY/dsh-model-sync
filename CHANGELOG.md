@@ -1,3 +1,23 @@
+## 0.5.1 — 2026-09-27
+
+### Fixed
+- **Virtual Aliases Validation & Strategy Enforcement (#174, #176)**:
+  - Enforced strict strategy validation against supported `VIRTUAL_STRATEGIES` (`fastest`, `cheapest`, `best-code`), rejecting unsupported values with `INVALID_STRATEGY`.
+  - Wired `isVirtualAlias()` into alias routing and normalization, eliminating dead exports and runtime ambiguity.
+  - Added support for virtual alias names, fallback targets (`targets: string[]`), and strategies in HTTP `POST /aliases` request normalization.
+- **HTTP Aliases Route Method Guard (#175)**:
+  - Added strict method guard returning 405 Method Not Allowed on non-GET requests to `/aliases/resolve`, preventing unintended pass-through to synchronization runs.
+
+### Refactored
+- **Core Synchronizer Modularity (#177)**:
+  - Streamlined `lib/synchronizer.js` to 559 lines (below the 600-line modularity threshold) by delegating `refsFor` and `performHistoryRollback` to `synchronizer-helpers.js`.
+  - Consolidated sub-facade exports for prober and config transfer.
+  - Fixed unquoted webhook test event name in synchronizer facade.
+
+### Style & UI
+- **Native DSH Chevron Icon Integration (#178)**:
+  - Integrated DSH core `IconChevronDownOutline14` from `@deepseek-ai/dsh-client-ui-primitives` for settings card accordion with seamless SVG fallback.
+
 ## 0.5.0 — 2026-09-27
 
 ### Added
