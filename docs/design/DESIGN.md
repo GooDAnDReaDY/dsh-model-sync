@@ -216,3 +216,9 @@ In accordance with DSH authoring guidelines (< 600 lines per module):
   - `@best-code`: автоматический выбор лучшей модели для кодинга с поддержкой `capabilities.code`, `reasoning` и приоритетом проверенных семейств (Claude 3.5/3.7 Sonnet, GPT-4o/o1/o3, DeepSeek R1/Coder, Qwen 2.5 Coder).
 - **Отказоустойчивость (Circuit Breaker & Health Fallback)**: При размыкании цепи провайдера (`circuit-open`) или сбое health-пробы движок автоматически переключается на следующую резервную модель в цепочке с выставлением флага `fallbackUsed: true`.
 - **API и UI**: Добавлен эндпоинт `GET /api/dsh-model-sync/aliases/resolve?alias=<name>`, метод `synchronizer.resolveAlias()` и интерактивный блок тестирования разрешения в Web UI.
+
+### 6.27 Обогащение моделей эталонной базой цен токенов (#170)
+- **Суть**: Провайдеры OpenAI, Anthropic, Groq, Mistral, xAI и DeepSeek не возвращают метаданные стоимости токенов в стандартном эндпоинте `/v1/models`.
+- **Эталонная база**: Реализован модуль `lib/pricing-database.js` с каноническими тарифами (пересчитанными в $/токен) для семейств моделей GPT-4o, Claude 3.5/3.7, Llama 3.3, Codestral, Grok-2, DeepSeek Chat/Reasoner и Gemini.
+- **Интеграция**: В `normalizeModel` при отсутствии цен от провайдера выполняется сопоставление (`lookupReferencePricing`) с автоматической нормализацией префиксов, суффиксов дат (`-20241022`, `-2411`, `-1212`) и тегов `:latest`. Обогащенные данные помечаются `source: 'reference'`.
+- **Преимущество**: Включение фильтрации по предельной стоимости `maxPricePerMillion` и работа смарт-псевдонимов `@cheap` становятся доступными «из коробки» для всех ключевых провайдеров.

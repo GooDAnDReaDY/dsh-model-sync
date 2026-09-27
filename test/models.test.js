@@ -159,3 +159,18 @@ test('sets compat.supportsDeveloperRole: false for Groq open-source families and
   assert.equal(userOverride.compat?.supportsDeveloperRole, true)
   assert.equal(userOverride.compat?.customArg, 123)
 })
+
+test('enriches models without pricing metadata using reference pricing database', () => {
+  const gpt = normalizeModel('openai', { id: 'gpt-4o', display_name: 'GPT-4o' })
+  assert.ok(gpt.pricing)
+  assert.equal(gpt.pricing.inputPerToken, 0.0000025)
+  assert.equal(gpt.pricing.outputPerToken, 0.000010)
+  assert.equal(gpt.pricing.source, 'reference')
+
+  // Upstream pricing is preserved if provided
+  const custom = normalizeModel('openai', {
+    id: 'gpt-4o',
+    pricing: { inputPerToken: 0.000001, outputPerToken: 0.000002 },
+  })
+  assert.equal(custom.pricing.inputPerToken, 0.000001)
+})

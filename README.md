@@ -78,6 +78,7 @@ graph LR
 
 ## ✨ Key Features
 
+* 💰 **Built-in Reference Pricing Database**: Canonical token pricing database automatically enriches models for OpenAI, Anthropic, Groq, Mistral, xAI, and DeepSeek, enabling cost-limit filtering and `@cheap` auto-resolution even when upstream APIs omit pricing metadata.
 * 🎯 **Dynamic Smart Virtual Aliases & Auto-Fallback**: Route requests to virtual aliases like `@fast`, `@cheap`, and `@best-code`, with automatic fallback chains when circuit breakers open or health probes fail.
 * 🔔 **External Diff Webhooks & Event Dispatching**: Real-time webhook notifications with HMAC-SHA256 signature verification and Cordis `model-sync/diff` events when models are added, deprecated, or prices change.
 * ⚡ **High-Performance Policy Filtering**: Fast-path evaluation in `filterModels` bypasses regular expressions and array filtering when no filtering policy is configured, guaranteeing zero-overhead discovery runs.
