@@ -134,3 +134,65 @@ test('commandcode: setModelSelection persists in config and mutates llm-commandc
   assert.equal(mutatedSection, 'llm-commandcode')
   assert.deepEqual(mutatedOps, [{ op: 'set', path: ['visibleModels'], value: ['deepseek/deepseek-v4.1-flash'] }])
 })
+
+test('commandcode: setModelSelection with empty array restores all catalog models to visibleModels (#162)', async () => {
+  let storedConfig = {
+    modelSelections: { commandcode: ['deepseek/deepseek-v4.1-flash'] },
+    modelCatalogs: {
+      commandcode: [
+        { id: 'deepseek/deepseek-v4.1-flash', name: 'DeepSeek V4.1 Flash' },
+        { id: 'google/gemini-3.8-flash', name: 'Gemini 3.8 Flash' },
+      ],
+    },
+  }
+  let mutatedSection = null
+  let mutatedOps = null
+
+  const mockCtx = {
+    llm: {
+      listConfigurableProviders: () => [
+        { provider: 'commandcode', displayName: 'Command Code', settingsNs: 'llm-commandcode', declared: false },
+      ],
+      listProviders: () => [],
+    },
+    get: (ns) => {
+      if (ns === 'llm-commandcode') return { apiKeyEnv: 'COMMANDCODE_API_KEY', visibleModels: ['deepseek/deepseek-v4.1-flash'] }
+      if (ns === 'settings') {
+        return {
+          get: (s) => (s === 'llm-commandcode' ? { apiKeyEnv: 'COMMANDCODE_API_KEY', visibleModels: ['deepseek/deepseek-v4.1-flash'] } : {}),
+          mutate: async (s, ops) => {
+            mutatedSection = s
+            mutatedOps = ops
+          },
+        }
+      }
+      return undefined
+    },
+  }
+
+  const synchronizer = createModelSynchronizer(mockCtx, {
+    getConfig: () => storedConfig,
+    saveConfig: async (patch) => {
+      storedConfig = { ...storedConfig, ...patch }
+    },
+    adapterImplementations: {
+      commandcode: {
+        discover: async () => [
+          { id: 'deepseek/deepseek-v4.1-flash', name: 'DeepSeek V4.1 Flash' },
+          { id: 'google/gemini-3.8-flash', name: 'Gemini 3.8 Flash' },
+        ],
+      },
+    },
+  })
+
+  // Clearing selection
+  const res = await synchronizer.setModelSelection('commandcode', [])
+  assert.equal(res.applied, true)
+  assert.deepEqual(storedConfig.modelSelections.commandcode, [])
+  assert.equal(mutatedSection, 'llm-commandcode')
+  assert.deepEqual(mutatedOps, [{
+    op: 'set',
+    path: ['visibleModels'],
+    value: ['deepseek/deepseek-v4.1-flash', 'google/gemini-3.8-flash'],
+  }])
+})

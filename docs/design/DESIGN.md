@@ -149,13 +149,15 @@ In accordance with DSH authoring guidelines (< 600 lines per module):
 - **`lib/client.js` architectural single-bundle requirement**:
   - `lib/client.js` is the single self-contained browser bundle required by the DSH `window.__ModuleLoader__` web runtime. DSH browser plugin loader does not support relative CommonJS/ESM module resolution at runtime for browser assets without an external bundle pipeline, and per DSH standard (and preflight check #7), `lib/client.js` must remain the single deliverable artifact.
 
-### 6.17 Версия 0.4.0 и статус релиза
+### 6.17 Статус релизов и версии пакета (#164)
 
-- **Версия пакета**: 0.4.0 (`@goodandready/dsh-model-sync`).
-- **One-click updater**: Реализован в `lib/updater.js` с loopback-защитой, проверкой SemVer 2.0.0 и регистрацией UI в `UpdaterSection`.
-- **Безопасность**: Fail-closed проверка loopback (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`) на всех mutating endpoints.
-- **Оформление UI**: 100% дизайн-токенов темы DSH (0 hex, 0 rgba).
-- **Декомпозиция**: `synchronizer.js` разбит на 3 вспомогательных модуля (`synchronizer-helpers.js`, `synchronizer-transfer.js`, `synchronizer-prober.js`).
+- **Версия пакета**: 0.4.8 (текущий релиз `@goodandready/dsh-model-sync`).
+- **One-click updater**: Реализован в `lib/updater.js` с loopback-защитой, проверкой SemVer 2.0.0, регистрацией UI в `UpdaterSection` и принудительным сбросом кэша через `resetLatestCache()` по параметру `fresh=1`.
+- **Безопасность**: Fail-closed проверка loopback (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`) на всех mutating endpoints, лимит чтения JSON 64 KiB.
+- **Оформление UI**: 100% дизайн-токенов темы DSH (0 hex, 0 rgba), поддержка `configForms` и раздельная визуализация снимков (`loading`, `unavailable`, `ready`).
+- **Провайдеры**: Встроены выделенные адаптеры для 25+ провайдеров, включая тарифный план `clinebot` (`GET /users/me/plan`) и `commandcode` (`/provider/v1/models` с автосинхронизацией `visibleModels`).
+- **Оптимизация**: Fast-path фильтрации моделей через `hasPolicy`, исключающий лишние вычисления при пустых правилах политики.
+- **Жизненный цикл**: Эффект словарей возвращает диспозер `ctx.locale.register()`, слоты имеют двухуровневую регистрацию `inject` / `register`.
 - **Чистота дистрибутива**: Исключены dev- и planning-артефакты, размер npm-пакета < 70 KiB.
 
 ### 6.18 Регламент хранения локальной планировочной документации (#143)
@@ -191,3 +193,11 @@ In accordance with DSH authoring guidelines (< 600 lines per module):
   ```
 - **Идемпотентность и выгрузка**: При выгрузке плагина или HMR-перезагрузке вызывается возвращённый диспозер, который удаляет namespace `dsh-model-sync` из долгоживущего `LocaleRuntime`. Это исключает коллизии при повторном вызове `apply` и предотвращает сохранение устаревших переводов в интерфейсе.
 - **Отказ от подавления ошибок**: Ошибки регистрации больше не проглатываются фиктивным блоком `try/catch` с пустым возвратом, гарантируя своевременное выявление нарушений контракта локализации в диагностике.
+
+### 6.23 Восстановление полного каталога Command Code при очистке выбора (#162)
+- **Суть**: В `setModelSelection` для провайдера `commandcode` при передаче пустого массива (`selectedModels: []`) в `visibleModels` настроек `llm-commandcode` сохраняются идентификаторы всех доступных моделей каталога (`nextModels.map((m) => m.id)`), аналогично поведению планового тика `run()`.
+- **Обоснование**: Запись пустого массива `visibleModels: []` приводила к полному скрытию всех моделей провайдера в селекторе DSH, тогда как очистка выбора пользователем означает снятие ограничений и разрешение всех активных моделей.
+
+### 6.24 Устойчивая регистрация слотов UI с fallback на ctx.slots.register (#163)
+- **Суть**: Метод `apply()` в `lib/client.js` использует защищённый хелпер `trySlot(name, register)`: если в текущем рантайме DSH доступен метод `ctx.slots.inject`, регистрация выполняется через него; если доступен только базовый `ctx.slots.register`, слот регистрируется напрямую.
+- **Обоснование**: Предотвращает выпадение интерфейса плагина в сборках DSH, где `ctx.slots.inject` отсутствует или не поддерживается.

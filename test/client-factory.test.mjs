@@ -257,3 +257,50 @@ test('client apply registers locale dictionaries and returns effect disposer for
   assert.equal(disposeCallCount, 2)
   assert.equal(registeredNamespaces.has('dsh-model-sync'), false)
 })
+
+test('client apply falls back to ctx.slots.register when ctx.slots.inject is unavailable (#163)', () => {
+  const srcPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '../lib/client.js')
+  const src = readFileSync(srcPath, 'utf8')
+  let captured
+  const window = { __ModuleLoader__: { load(entry) { captured = entry } } }
+  runInNewContext(src, createContext({ window }))
+
+  const registeredSlots = []
+  const mockCtx = {
+    effect(fn, label) { fn() },
+    locale: {
+      register(ns, dicts) {},
+      subscribe(cb) { return () => {} },
+      getSnapshot() { return { active: 'en' } },
+    },
+    configForms: { get() { return { subscribe() { return () => {} }, getSnapshot() { return {} }, set() {} } } },
+    slots: {
+      // ctx.slots.inject is completely absent
+      register(opts, comp) {
+        registeredSlots.push(opts)
+      },
+    },
+  }
+
+  const fakeReact = {
+    createElement(type, props, ...children) { return { type, props, children } },
+    useSyncExternalStore(sub, getSnap) { return getSnap() },
+    useMemo(fn) { return fn() },
+    useCallback(fn) { return fn },
+    useState(value) { return [value, () => {}] },
+    useEffect(fn) { fn() },
+    Fragment: 'Fragment',
+  }
+
+  const exported = captured.factory((name) => {
+    if (name === 'react') return fakeReact
+    throw new Error('unexpected require ' + name)
+  })
+
+  exported.apply(mockCtx)
+  assert.equal(registeredSlots.length, 3, 'all 3 slots must be registered via fallback')
+  const names = registeredSlots.map((s) => s.name)
+  assert.ok(names.includes('plugins.item'))
+  assert.ok(names.includes('plugins.row.config'))
+  assert.ok(names.includes('settings.plugin.item'))
+})
