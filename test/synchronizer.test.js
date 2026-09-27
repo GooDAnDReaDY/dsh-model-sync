@@ -453,6 +453,17 @@ test('manages model aliases with getAliases, setAlias, and deleteAlias', async (
   assert.equal(setResult.model, 'gpt-4o')
   assert.ok(storedConfig.aliases.gpt4)
 
+  // Strategy validation
+  await assert.rejects(
+    () => synchronizer.setAlias({ alias: 'my-smart', strategy: 'quantum' }),
+    (err) => err.code === 'INVALID_STRATEGY'
+  )
+  const stratResult = await synchronizer.setAlias({ alias: '@best', strategy: 'best-code' })
+  assert.equal(stratResult.alias, '@best')
+  assert.equal(stratResult.strategy, 'best-code')
+  assert.equal(stratResult.isVirtual, true)
+  assert.equal(storedConfig.aliases['@best'].strategy, 'best-code')
+
   // Delete alias validation & success
   await assert.rejects(() => synchronizer.deleteAlias({ alias: '' }), /alias is required/)
   const delResult = await synchronizer.deleteAlias({ alias: 'gpt4' })
