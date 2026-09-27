@@ -207,3 +207,12 @@ In accordance with DSH authoring guidelines (< 600 lines per module):
 - **Webhooks**: Настраиваемый URL вебхука (`diffWebhookUrl`) и секрет (`diffWebhookSecret`). При наличии секрета payload подписывается алгоритмом HMAC-SHA256 в заголовках `x-hub-signature-256` и `x-signature`.
 - **Cordis & Notify интеграция**: Генерируется событие `model-sync/diff` в контексте Cordis; при наличии сервиса `ctx.pluginNotify` отправляется агрегированное системное уведомление.
 - **Безопасность и изоляция сбоев**: Сетевые сбои вебхука изолированы и не прерывают синхронизацию каталога; запрос ограничен таймаутом (5 секунд). Добавлен эндпоинт `POST /api/dsh-model-sync/webhook/test` с проверкой loopback/same-origin для тестирования из UI.
+
+### 6.26 Динамические «умные» виртуальные псевдонимы и авто-фоллбэк (#168)
+- **Суть**: В `lib/alias-resolver.js` реализовано динамическое разрешение псевдонимов (`@fast`, `@cheap`, `@best-code`) и цепочек отказоустойчивости (`targets: [...]`).
+- **Стратегии**:
+  - `@fast`: автоматический выбор модели с наименьшей задержкой ответа на основе активных проб и эвристик провайдеров.
+  - `@cheap`: автоматический выбор модели с наименьшей совокупной стоимостью токенов (`inputPerToken + outputPerToken`).
+  - `@best-code`: автоматический выбор лучшей модели для кодинга с поддержкой `capabilities.code`, `reasoning` и приоритетом проверенных семейств (Claude 3.5/3.7 Sonnet, GPT-4o/o1/o3, DeepSeek R1/Coder, Qwen 2.5 Coder).
+- **Отказоустойчивость (Circuit Breaker & Health Fallback)**: При размыкании цепи провайдера (`circuit-open`) или сбое health-пробы движок автоматически переключается на следующую резервную модель в цепочке с выставлением флага `fallbackUsed: true`.
+- **API и UI**: Добавлен эндпоинт `GET /api/dsh-model-sync/aliases/resolve?alias=<name>`, метод `synchronizer.resolveAlias()` и интерактивный блок тестирования разрешения в Web UI.

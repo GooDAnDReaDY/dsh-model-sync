@@ -84,7 +84,7 @@ test('registers separate exact status and run endpoints', () => {
   const ctx = { webServer: { register: (route) => { routes.push(route); return () => {} } } }
   const sync = { status: () => ({ running: false }), listProviders: () => [], run: async () => ({}), health: async () => ({ results: [] }), setModelSelection: async () => ({}), setModelPolicy: async () => ({}) }
   const disposers = registerHttpApi(ctx, sync)
-  assert.equal(routes.length, 19)
+  assert.equal(routes.length, 20)
   assert.deepEqual(routes.map((route) => [route.kind, route.path]), [
     ['exact', '/dsh-model-sync/status'],
     ['exact', '/dsh-model-sync/run'],
@@ -93,6 +93,7 @@ test('registers separate exact status and run endpoints', () => {
     ['exact', '/dsh-model-sync/export'],
     ['exact', '/dsh-model-sync/import'],
     ['exact', '/dsh-model-sync/aliases'],
+    ['exact', '/dsh-model-sync/aliases/resolve'],
     ['exact', '/dsh-model-sync/health'],
     ['exact', '/dsh-model-sync/selection'],
     ['exact', '/dsh-model-sync/policy'],
@@ -106,7 +107,7 @@ test('registers separate exact status and run endpoints', () => {
     ['exact', '/dsh-model-sync/notifications/acknowledge'],
     ['exact', '/dsh-model-sync/webhook/test'],
   ])
-  assert.equal(disposers.length, 19)
+  assert.equal(disposers.length, 20)
 })
 
 test('rejects cross-site, non-loopback, and mismatched origin requests', async () => {
@@ -394,4 +395,41 @@ test('handles POST /dsh-model-sync/webhook/test and validates payload', async ()
   const invalidRes = createMockRes()
   await handler(makeReq('POST', {}), invalidRes)
   assert.equal(invalidRes.status, 400)
+})
+
+test('handles GET /dsh-model-sync/aliases/resolve query', async () => {
+  const routes = new Map()
+  const ctx = { webServer: { register: (route) => { routes.set(route.path, route.handler); return () => {} } } }
+  const sync = {
+    status: () => ({ running: false }),
+    listProviders: () => [],
+    resolveAlias: (alias) => {
+      if (alias === '@fast') return { alias, provider: 'groq', model: 'llama-3.3-70b-versatile', latencyMs: 120 }
+      throw new Error('unknown')
+    },
+  }
+  registerHttpApi(ctx, sync)
+  const handler = routes.get('/dsh-model-sync/aliases/resolve')
+  assert.ok(handler)
+
+  const createMockRes = () => ({
+    status: 0,
+    headers: {},
+    body: '',
+    writeHead(s, h) { this.status = s; this.headers = h },
+    end(b) { this.body = b ?? '' },
+  })
+
+  // Successful resolution
+  const res = createMockRes()
+  await handler({ method: 'GET', url: '/dsh-model-sync/aliases/resolve?alias=@fast', headers: { host: '127.0.0.1:3000', origin: 'http://127.0.0.1:3000' } }, res)
+  assert.equal(res.status, 200)
+  const data = JSON.parse(res.body)
+  assert.equal(data.alias, '@fast')
+  assert.equal(data.provider, 'groq')
+
+  // Missing alias param
+  const missingRes = createMockRes()
+  await handler({ method: 'GET', url: '/dsh-model-sync/aliases/resolve', headers: { host: '127.0.0.1:3000', origin: 'http://127.0.0.1:3000' } }, missingRes)
+  assert.equal(missingRes.status, 400)
 })
