@@ -201,3 +201,9 @@ In accordance with DSH authoring guidelines (< 600 lines per module):
 ### 6.24 Устойчивая регистрация слотов UI с fallback на ctx.slots.register (#163)
 - **Суть**: Метод `apply()` в `lib/client.js` использует защищённый хелпер `trySlot(name, register)`: если в текущем рантайме DSH доступен метод `ctx.slots.inject`, регистрация выполняется через него; если доступен только базовый `ctx.slots.register`, слот регистрируется напрямую.
 - **Обоснование**: Предотвращает выпадение интерфейса плагина в сборках DSH, где `ctx.slots.inject` отсутствует или не поддерживается.
+
+### 6.25 Внешние уведомления об изменениях каталога (Diff Webhooks & Event Dispatch) (#166)
+- **Суть**: Модуль `lib/diff-notifier.js` выявляет изменения между запусками синхронизации (новые модели `model.added`, выбывшие или устаревшие модели `model.deprecated`, изменения стоимости токенов `price.changed`).
+- **Webhooks**: Настраиваемый URL вебхука (`diffWebhookUrl`) и секрет (`diffWebhookSecret`). При наличии секрета payload подписывается алгоритмом HMAC-SHA256 в заголовках `x-hub-signature-256` и `x-signature`.
+- **Cordis & Notify интеграция**: Генерируется событие `model-sync/diff` в контексте Cordis; при наличии сервиса `ctx.pluginNotify` отправляется агрегированное системное уведомление.
+- **Безопасность и изоляция сбоев**: Сетевые сбои вебхука изолированы и не прерывают синхронизацию каталога; запрос ограничен таймаутом (5 секунд). Добавлен эндпоинт `POST /api/dsh-model-sync/webhook/test` с проверкой loopback/same-origin для тестирования из UI.
