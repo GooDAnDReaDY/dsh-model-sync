@@ -73,9 +73,11 @@ test('normalizes batch-try requests and validates model array', () => {
 
 test('normalizes alias requests and validates alias name and target', () => {
   assert.deepEqual(normalizeAliasRequest({ alias: 'gpt4', provider: 'openai', model: 'gpt-4' }), { alias: 'gpt4', provider: 'openai', model: 'gpt-4', action: 'set' })
+  assert.deepEqual(normalizeAliasRequest({ alias: '@fast', strategy: 'fastest' }), { alias: '@fast', strategy: 'fastest', action: 'set' })
+  assert.deepEqual(normalizeAliasRequest({ alias: '@chain', targets: ['openai:gpt-4o', 'groq:llama'] }), { alias: '@chain', targets: ['openai:gpt-4o', 'groq:llama'], action: 'set' })
   assert.deepEqual(normalizeAliasRequest({ alias: 'gpt4', action: 'delete' }), { alias: 'gpt4', action: 'delete' })
   assert.throws(() => normalizeAliasRequest({ alias: '' }), /alias is required/)
-  assert.throws(() => normalizeAliasRequest({ alias: 'bad alias with spaces' }), /alias must be 1-64 alphanumeric characters or _-\./)
+  assert.throws(() => normalizeAliasRequest({ alias: 'bad alias with spaces' }), /alias must be 1-64 alphanumeric characters/)
   assert.throws(() => normalizeAliasRequest({ alias: 'valid', provider: 123 }), /provider must be a short string/)
 })
 
