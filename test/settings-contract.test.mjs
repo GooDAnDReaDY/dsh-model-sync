@@ -125,3 +125,101 @@ test('peer ranges accept the 0.1.7 and 0.2.0 DSH package lines', async () => {
     assert.ok(semver.satisfies('0.1.7-rc.2', range), name + ' ' + range + ' must accept 0.1.7-rc.2')
   }
 })
+
+test('apply() does not throw DataCloneError with volatile config wrappers', async () => {
+  const { apply } = await import('../lib/index.js')
+  const effects = []
+  const provided = {}
+  const listeners = {}
+  const mockCtx = {
+    effect(fn, desc) {
+      effects.push({ fn, desc })
+      return fn()
+    },
+    provide(key, val) {
+      provided[key] = val
+    },
+    on(event, handler) {
+      listeners[event] = handler
+    },
+    get(key) {
+      return null
+    },
+    logger: {
+      warn() {},
+      debug() {},
+      info() {},
+    }
+  }
+
+  // Simulate DSH 0.2.0-rc.2 Volatile live wrappers with function closures
+  const volatileConfig = {
+    enabled: { get: () => true },
+    intervalMinutes: { get: () => 30 },
+    scheduleEnabled: { get: () => false },
+    modelSelections: { get: () => ({ openai: ['gpt-4o'] }) },
+  }
+
+  // Must not throw DOMException [DataCloneError]
+  assert.doesNotThrow(() => {
+    apply(mockCtx, volatileConfig)
+  })
+
+  // Services provided
+  assert.ok(provided.modelSync, 'modelSync service must be provided')
+  assert.ok(provided.modelSyncRunner, 'modelSyncRunner must be provided')
+
+  // Volatile update listener registered
+  assert.equal(typeof listeners['loader/volatile-update'], 'function')
+
+  // Trigger volatile update with fresh volatile boxes
+  volatileConfig.intervalMinutes = { get: () => 15 }
+  assert.doesNotThrow(() => {
+    listeners['loader/volatile-update']()
+  })
+})
+
+test('saveConfig unwraps volatile values and updates settings service', async () => {
+  const { apply } = await import('../lib/index.js')
+  let updatedNs = null
+  let updatedPatch = null
+  const mockSettings = {
+    update: async (ns, patch) => {
+      updatedNs = ns
+      updatedPatch = patch
+    }
+  }
+  const provided = {}
+  const mockCtx = {
+    effect(fn) { return fn() },
+    provide(key, val) { provided[key] = val },
+    on() {},
+    get(key) {
+      if (key === 'settings') return mockSettings
+      return null
+    },
+    settings: mockSettings,
+    logger: {
+      warn() {},
+      debug() {},
+      info() {},
+    }
+  }
+
+  const volatileConfig = {
+    enabled: { get: () => true },
+  }
+
+  apply(mockCtx, volatileConfig)
+  const runner = provided.modelSyncRunner
+  assert.ok(runner, 'runner must be provided')
+
+  const res = await runner.setAlias({
+    alias: 'fast-gpt',
+    provider: 'openai',
+    model: 'gpt-4o-mini',
+  })
+  assert.equal(updatedNs, 'dsh-model-sync')
+  assert.ok(updatedPatch.aliases['fast-gpt'], 'alias must be saved to settings')
+  assert.equal(runner.status().aliases['fast-gpt'].model, 'gpt-4o-mini')
+})
