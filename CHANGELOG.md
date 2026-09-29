@@ -1,3 +1,23 @@
+## 0.5.4 — 2026-09-30
+
+### Fixed
+- **Unwrap Cordis Volatile Config Wrappers on Activation (#186, PR #189)**:
+  - Fixed `DOMException [DataCloneError]: () => true could not be cloned` when activating on DSH 0.2.0-rc.2.
+  - `apply(ctx, config)` now unwraps live Volatile boxes via `plainConfig(config || {})` before `structuredClone`.
+  - `resolveConfig` unwraps Schemastery return values to ensure `liveConfig` consists exclusively of plain JavaScript primitives, arrays, and objects.
+  - Restored core service, synchronizer, and scheduler instantiations accidentally omitted during earlier refactoring.
+  - Connected `saveConfigImpl` to `ctx.settings.update('dsh-model-sync', plainPatch)` with resilient fallback.
+  - Subscribed to Cordis `loader/volatile-update` event on `ctx` for real-time config updates without restart.
+  - Added defensive guard in `registerHttpApi` when `ctx.webServer` is absent.
+  - Added regression test suite verifying Volatile unwrapping and settings updates.
+
+## 0.5.3 — 2026-09-29
+
+### Fixed
+- **DSH 0.2.0 Settings Form Contract (#186, PR #188)**:
+  - Marked user-facing schema fields as `.volatile()` so DSH registers and serves the configuration form.
+  - Aligned namespace to profile entry id (`dsh-model-sync`).
+
 ## 0.5.1 — 2026-09-27
 
 ### Fixed
