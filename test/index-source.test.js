@@ -5,17 +5,16 @@ import { fileURLToPath } from 'node:url'
 
 const source = readFileSync(fileURLToPath(new URL('../lib/index.js', import.meta.url)), 'utf8')
 
-test('uses the DSH settings injection seam for the writable plugin namespace', () => {
-  assert.match(source, /ctx\.inject\(\['settings'\]/)
-  assert.match(source, /settings\.register\(NS, Config/)
-  assert.match(source, /scope\.update/)
+test('no longer uses the removed settings injection seam', () => {
+  // settings.register and the settings injection seam were removed before
+  // 0.1.7-rc.2; the host passes the profile entry config to apply() instead.
+  assert.doesNotMatch(source, /settings\s*\.\s*register\s*\(/)
+  assert.doesNotMatch(source, /ctx\.inject\(\['settings'\]/)
+  // Config still reaches apply() from the host and is unwrapped by resolveConfig.
   assert.match(source, /saveConfigImpl/)
+  assert.match(source, /const resolveConfig =/)
   assert.match(source, /const baseConfig = structuredClone/)
   assert.match(source, /const resolveConfig =/)
-  assert.match(source, /resolveConfig\(scope\.get\(\)/)
-  assert.match(source, /base: baseConfig/)
-  assert.match(source, /settings = ctx\.get\('settings'\)/)
   assert.match(source, /return saveConfigImpl\(patch\)/)
-  assert.match(source, /saveQueue/)
   assert.doesNotMatch(source, /settings\.settings\.register/)
 })
