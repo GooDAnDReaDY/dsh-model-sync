@@ -222,3 +222,10 @@ In accordance with DSH authoring guidelines (< 600 lines per module):
 - **Эталонная база**: Реализован модуль `lib/pricing-database.js` с каноническими тарифами (пересчитанными в $/токен) для семейств моделей GPT-4o, Claude 3.5/3.7, Llama 3.3, Codestral, Grok-2, DeepSeek Chat/Reasoner и Gemini.
 - **Интеграция**: В `normalizeModel` при отсутствии цен от провайдера выполняется сопоставление (`lookupReferencePricing`) с автоматической нормализацией префиксов, суффиксов дат (`-20241022`, `-2411`, `-1212`) и тегов `:latest`. Обогащенные данные помечаются `source: 'reference'`.
 - **Преимущество**: Включение фильтрации по предельной стоимости `maxPricePerMillion` и работа смарт-псевдонимов `@cheap` становятся доступными «из коробки» для всех ключевых провайдеров.
+
+### 6.28 Интеграция с Volatile-конфигурацией DSH 0.2.0-rc.2 и устранение DataCloneError (#186)
+- **Суть**: На DSH 0.2.0-rc.2 параметры плагина передаются в `apply(ctx, config)` в виде Cordis `Volatile` живых обёрток (`{ get: [Function: get] }`). Прямой вызов `structuredClone` на таком объекте приводил к `DOMException [DataCloneError]: () => true could not be cloned`.
+- **Нормализация через plainConfig**: Входная конфигурация `config` рекурсивно разворачивается через `plainConfig()` до передачи в `structuredClone` и в конвейере валидации `resolveConfig`.
+- **Восстановление инициализации сервисов**: В `apply(ctx, config)` обеспечена корректная инициализация `service`, `synchronizer`, `scheduler` и их регистрация в контексте Cordis.
+- **Подписка на loader/volatile-update**: Изменения настроек через UI или внешние механизмы DSH обрабатываются по событию `loader/volatile-update` с обновлением `liveConfig` и реконфигурацией планировщика.
+- **Интеграция с сервисом Settings**: Метод `saveConfigImpl` направляет изменения в `settings.update(NS, patch)` при наличии сервиса `settings`, поддерживая локальное состояние в тестах и при его отсутствии.
