@@ -1,3 +1,21 @@
+## 0.5.8 — 2026-10-06
+
+### Fixed
+- **Streaming Response Memory Bound (#210, PR #225)**:
+  - Replaced post-buffering size check with `readBoundedText` streaming chunk counter; chunked response bodies exceeding 4 MB are cancelled immediately without materializing excessive payload in memory.
+- **Vision Heuristic Alignment (#211, PR #225)**:
+  - Removed dead outer regex tokens (`multimodal|4v|4o|flash`) in model normalization, ensuring vision capabilities are strictly and reliably assigned for `vision` and `vl` tagged models.
+- **Config Import Model Array Boundary (#212, PR #225)**:
+  - Sanitized, deduplicated, trimmed, and capped `selectedModels` arrays in `importConfig` at 1000 items, matching single-provider selection constraints and preventing unbounded memory growth.
+- **Code Cleanup and Unused Parameters (#213, PR #225)**:
+  - Removed unreachable `throw lastError` and unused variable in `retryWithBackoff`.
+  - Reorganized module imports cleanly at file top in `http.js` and deleted redundant `sec-fetch-mode` condition.
+  - Removed unused `provider` argument from `modelScoreForCode` in `alias-resolver.js`.
+- **Service Peer Dependencies Declaration (#216, PR #225)**:
+  - Declared missing runtime service peer dependencies in `package.json`: `@deepseek-ai/dsh-credentials`, `@deepseek-ai/dsh-host-webserver`, and `@deepseek-ai/dsh-settings` (`^0.1.7-rc.2 || ^0.2.0-rc.1`).
+- **Canonical UI Theme Tokens (#217, PR #225)**:
+  - Replaced 5 non-existent theme token names in client bundle (`border-primary`, `state-brand-primary`, `state-success`, `state-warning-primary`, `state-warning-secondary`) with canonical DSH design tokens (`--dsw-alias-border-l2`, `--dsw-alias-brand-primary`, `--dsw-alias-state-success-primary`, `--dsw-alias-state-warn-primary`, `--dsw-alias-state-warn-secondary`).
+
 ## 0.5.7 — 2026-10-06
 
 ### Fixed
