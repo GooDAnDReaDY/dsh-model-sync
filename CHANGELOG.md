@@ -1,3 +1,19 @@
+## 0.5.5 — 2026-10-06
+
+### Fixed
+- **Host Settings Service Contract (#193, PR #219)**:
+  - Replaced non-existent `settings.get(ns)` calls with `sectionOf(settings, ns)` using host `settings.describe()` across synchronizer-helpers, inventory, and model selection.
+- **ClineBot Dedicated Model Parser Routing (#197, PR #219)**:
+  - Aligned provider descriptor to `parse: 'clinebot-plan'` and enhanced `parseRows` to check both `parse` and `parser`.
+- **Accurate Error Propagation in Fetch (#196, PR #219)**:
+  - Removed catch block error swallowing in `fetchSpecific`; network, authentication, and HTTP failures now propagate rather than returning fabricated `defaultModels` with status ok.
+- **Runtime Plugin Activation (#206, PR #219)**:
+  - Unconditionally registered `modelSync` and `modelSyncRunner` services at plugin start so toggling `enabled` at runtime immediately enables syncing without host restart.
+- **Volatile Config Error Safety & Listener Disposal (#207, PR #219)**:
+  - Added try/catch fallback in `resolveConfig` and wrapped `loader/volatile-update` listener in `ctx.effect` for clean disposal.
+- **Web UI Smart Alias Testing (PR #219)**:
+  - Implemented `resolveSmartAlias` in settings card to eliminate `ReferenceError` when testing preset aliases.
+
 ## 0.5.4 — 2026-09-30
 
 ### Fixed
