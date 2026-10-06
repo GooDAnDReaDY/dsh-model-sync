@@ -1,3 +1,26 @@
+## 0.5.7 — 2026-10-06
+
+### Fixed
+- **Model Probing & Catalog Validation (#195, PR #223)**:
+  - tryModel and batchTryModels now validate models against provider catalogs, returning model_not_found for missing models instead of blindly reporting success.
+  - batchTryModels batches the provider health check into a single check per batch rather than executing redundant checks per model.
+- **Price-Change Detector Comparison Logic (#198, PR #223)**:
+  - Fixed inverted price comparison that checked before-input against after-output; prices now properly compare before-input with after-input, and before-output with after-output.
+- **Accurate Latency in Smart Alias Resolution (#199, PR #223)**:
+  - @fast resolution now uses real measured probe latencies from modelProbes when available, and explicitly marks estimated latency fallbacks without fabricated lowest_latency claims.
+- **Virtual Alias Classification (#200, PR #223)**:
+  - isVirtualAlias restricts virtual status to explicitly configured virtual strategies and built-in aliases (@fast, @cheap, @best-code), avoiding false virtual flags on arbitrary @-prefixed names.
+- **Non-Exclusionary Capability Filtering (#201, PR #223)**:
+  - Capability filters treat expected: false as "do not require", preventing models lacking explicit capability declarations from being purged from the catalog.
+- **ReDoS Protection in Policy Regexes (#202, PR #223)**:
+  - Added complexity detector for catastrophic backtracking patterns (nested quantifiers, repeated wildcards) in user-supplied include/exclude regular expressions.
+- **Anchored Reference Pricing Lookups (#203, PR #223)**:
+  - Replaced unanchored prefix matching with exact and date-cleaned matches, eliminating erroneous price inheritance for derived model names and cross-provider pricing leaks.
+- **Occurrence Counter Saturation (#208, PR #223)**:
+  - Fixed notification occurrence increment order so counters properly cap at 1,000,000 instead of overflowing to 1,000,001.
+- **Side-Effect Free Scheduler Status (#209, PR #223)**:
+  - Removed state mutation (resetStates) from the read-only status() query, ensuring monitoring calls do not prematurely trigger scheduled jobs.
+
 ## 0.5.6 — 2026-10-06
 
 ### Security
