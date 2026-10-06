@@ -13,11 +13,13 @@ test('validateAliasName validates standard and virtual alias names', () => {
   assert.equal(validateAliasName('invalid$char'), false)
 })
 
-test('isVirtualAlias detects @ prefixes', () => {
+test('isVirtualAlias detects virtual aliases', () => {
   assert.equal(isVirtualAlias('@fast'), true)
   assert.equal(isVirtualAlias('@cheap'), true)
-  assert.equal(isVirtualAlias('@custom'), true)
+  assert.equal(isVirtualAlias('@best-code'), true)
+  assert.equal(isVirtualAlias('@custom'), false)
   assert.equal(isVirtualAlias('fast'), false)
+  assert.equal(isVirtualAlias('@custom', 'fastest'), true)
 })
 
 test('resolveAlias with fallback chain auto-fallbacks on circuit-open or health-fail', () => {
