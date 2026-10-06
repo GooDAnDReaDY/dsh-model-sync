@@ -1,3 +1,17 @@
+## 0.5.6 — 2026-10-06
+
+### Security
+- **Built-in Provider Endpoint Host Pinning (#194, PR #221)**:
+  - Guard against API key exfiltration when custom endpoints are configured. Custom endpoint hostnames for standard providers must match official provider domains, resolve to loopback, or be explicitly authorized via allowCustomHost: true.
+- **Credential Storage for Webhook Secrets (#204, PR #221)**:
+  - Added diffWebhookSecretRef marked with .role('credential-ref'). Stored secrets are resolved securely at runtime via ctx.credentials.resolve().
+- **SSRF Hardening for Webhook Test and Dispatch (#205, PR #221)**:
+  - Validated webhook URLs: restricted plain HTTP strictly to loopback addresses, blocked cloud metadata endpoints (169.254.169.254, metadata.google.internal), link-local IPs, and wildcard 0.0.0.0.
+- **Supply-Chain Guard Preservation in Updater (#214, #215, PR #221)**:
+  - Removed --config.minimumReleaseAge=0 argument when invoking pnpm for exact package installations, ensuring package registry release-age guards remain enforced.
+- **LAN Isolation for Sensitive Read Routes (#218, PR #221)**:
+  - Restricted /export, /credentials, /history, and /aliases GET routes to loopback connections (127.0.0.1, ::1). Only unauthenticated read status (/status) remains reachable from the local network.
+
 ## 0.5.5 — 2026-10-06
 
 ### Fixed
