@@ -1,3 +1,30 @@
+## 0.5.11 — 2026-10-08
+
+### Reliability & Transport
+- **Native Fetch Error Classification (#239, PR #254)**:
+  - Traversed error cause chain up to 6 levels to detect transient Undici socket errors (`UND_ERR_SOCKET`, `UND_ERR_HEADERS_TIMEOUT`, `UND_ERR_BODY_TIMEOUT`, `UND_ERR_CLOSED`, `UND_ERR_DESTROYED`, nested `ECONNRESET`, `ETIMEDOUT`, `EHOSTUNREACH`, `ENETUNREACH`, `EPIPE`).
+  - Correctly differentiated user/caller cancellation (`AbortError` without timeout) from genuine timeouts (`TimeoutError`), ensuring caller abort cancels immediately without retrying or opening circuit breakers.
+  - Guaranteed permanent 4xx errors (400, 401, 403, 404, etc.) are never retried.
+- **Server Retry-After Delay Decoupling (#240, PR #254)**:
+  - Decoupled server `Retry-After` delay from the local exponential backoff `maxDelayMs` cap (4 seconds), fully respecting server-mandated rate limit windows per RFC 9110.
+  - Implemented a 5-minute safety ceiling (`maxRetryAfterMs`): server delays exceeding the ceiling fail-closed immediately with `error.retryAt` attached instead of busy-waiting.
+- **HTTP Response Body Cleanup (#241, PR #254)**:
+  - Ensured `response.body?.cancel()` is awaited on all non-2xx and 304 HTTP responses in `generic-adapter` and `adapter-registry`.
+  - In `sendWebhookNotification`, ensured response body is consumed/cancelled within the webhook timeout before clearing the abort timer, preventing socket leakage and slow-body hanging.
+  - Safely closed response body on failed update checks in `lib/updater.js`.
+- **Health-Aware Smart Strategy Aliases (#233, PR #254)**:
+  - Implemented unified provider eligibility filtering across strategy aliases (`@cheap`, `@fast`, `@best-code`, and custom strategies), excluding providers that recently failed health checks (`status === 'error'` / `unhealthy` / `circuit-open`).
+  - Returns explicit `{ error: 'NO_HEALTHY_MODELS', resolved: null }` when all candidate providers fail health checks.
+  - Attached `health_failed` warning to static explicit aliases when target provider health is degraded.
+- **Preservation of Explicit Capability Flags (#234, PR #254)**:
+  - Changed heuristic capability checks in `lib/models.js` to `result[capability] === undefined`, preserving explicit `false` flags (`code: false`, `reasoning: false`, `vision: false`) without being overwritten by model ID name patterns.
+- **Standalone llm-commandcode Provider Detection (#236, PR #254)**:
+  - Fixed inventory provider inspection to recognize standalone `llm-commandcode` sections in DSH settings with credentials, endpoints, or visible models as `configured: true`.
+- **Model Inference Probing & Concurrency (#195, PR #254)**:
+  - Implemented genuine model inference probing in `tryModel` passing the exact target model to inference runtime or adapter probe instead of echoing provider catalog health.
+  - Accurately reports model-level failures when provider catalog returns 200 but inference returns 403 (quota) or 404.
+  - Implemented bounded concurrency in `batchTryModels` measuring true per-model latency.
+
 ## 0.5.10 — 2026-10-08
 
 ### Security
