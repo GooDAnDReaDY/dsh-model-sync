@@ -1,3 +1,21 @@
+## 0.5.10 — 2026-10-08
+
+### Security
+- **ReDoS Protection in Model Policy (#202, PR #252)**:
+  - Extended `isDangerousPattern` regex guard to block overlapping alternations (e.g. `^(a|aa)+$`, `(a|b)+`, `(a|aa){2,}`) and quantified alternation groups, preventing catastrophic backtracking during model filtering.
+- **Fail-Closed Webhook Signing (#204, PR #252)**:
+  - Enhanced `dispatchDiffNotifications` to fail closed if `diffWebhookSecretRef` is configured but fails to resolve via DSH credentials service, preventing unsigned webhook dispatch.
+  - Added support for `diffWebhookSecretRef` with `role('credential-ref')`.
+- **SSRF Hardening for Webhook URL Guard (#205, PR #252)**:
+  - Expanded webhook URL validator to reject IPv4-mapped metadata (`[::ffff:169.254.169.254]`, `[::ffff:a9fe:a9fe]`), cloud metadata DNS names (`instance-data`, `metadata.google.internal`, `metadata`), Alibaba metadata (`100.100.100.200`), and IPv6 link-local addresses (`fe80::/10`).
+  - Restricted insecure HTTP webhook URLs strictly to verified loopback addresses.
+- **Core Authentication Enforcement on Updater and API Routes (#237, PR #252)**:
+  - Integrated `ctx.connection.requestRejection(req)` in plugin updater and HTTP API route handlers, rejecting unauthorized requests before plugin processing.
+  - Implemented strict numeric IPv4 loopback parser in `isLoopback`, rejecting external DNS hostnames matching `127.*` (e.g., `127.attacker.example`).
+- **Authorization Header and Token Sanitization (#238, PR #252)**:
+  - Exported unified `sanitizeSecretString` across credentials resolver, history, reporting, and synchronizer helpers.
+  - Fully redacts `Authorization: Bearer <token>`, `Basic <token>`, standalone Bearer tokens, and URL query parameter keys (`token=...`, `key=...`, `api_key=...`), preventing secret tokens from leaking into error messages, history snapshots, or diagnostic endpoints.
+
 ## 0.5.9 — 2026-10-08
 
 ### Fixed
