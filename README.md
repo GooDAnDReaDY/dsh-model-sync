@@ -137,23 +137,31 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 ```yaml
 dsh-model-sync:
   enabled: true
-  syncIntervalMinutes: 60
-  autoReconcile: true
-  enableBalanceChecks: true
+  scheduleEnabled: false
+  intervalMinutes: 60
+  autoApply: false
+  requestTimeoutMs: 15000
+  retryAttempts: 3
+  concurrency: 4
   providers:
-    commandcode:
+    - provider: commandcode
       enabled: true
-    clinebot:
+      autoApply: false
+    - provider: clinebot
       enabled: true
+      autoApply: false
 ```
 
 | Parameter | Type | Default | Description |
 |---|---|---|---|
 | `enabled` | `boolean` | `true` | Master switch for background synchronization |
-| `syncIntervalMinutes` | `number` | `60` | Polling frequency for catalog refreshes |
-| `autoReconcile` | `boolean` | `true` | Automatically apply discovered models to active catalog |
-| `enableBalanceChecks` | `boolean` | `true` | Query billing endpoints where supported |
-| `providers.<id>.enabled`| `boolean` | `true` | Enable or disable discovery for specific provider |
+| `scheduleEnabled` | `boolean` | `false` | Enable periodic background synchronization schedule |
+| `intervalMinutes` | `number` | `60` | Polling frequency for catalog refreshes in minutes |
+| `autoApply` | `boolean` | `false` | Automatically apply discovered models to active catalog |
+| `requestTimeoutMs`| `number` | `15000` | HTTP request timeout for catalog fetching (ms) |
+| `retryAttempts` | `number` | `3` | Maximum retry attempts for transient network failures |
+| `concurrency` | `number` | `4` | Maximum parallel provider synchronization workers |
+| `providers` | `array` | `[]` | Per-provider configuration list (`provider`, `enabled`, `autoApply`) |
 
 ---
 

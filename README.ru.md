@@ -137,23 +137,31 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 ```yaml
 dsh-model-sync:
   enabled: true
-  syncIntervalMinutes: 60
-  autoReconcile: true
-  enableBalanceChecks: true
+  scheduleEnabled: false
+  intervalMinutes: 60
+  autoApply: false
+  requestTimeoutMs: 15000
+  retryAttempts: 3
+  concurrency: 4
   providers:
-    commandcode:
+    - provider: commandcode
       enabled: true
-    clinebot:
+      autoApply: false
+    - provider: clinebot
       enabled: true
+      autoApply: false
 ```
 
 | Параметр | Тип | По умолчанию | Описание |
 |---|---|---|---|
 | `enabled` | `boolean` | `true` | Главный переключатель фоновой синхронизации |
-| `syncIntervalMinutes` | `number` | `60` | Периодичность опроса провайдеров (в минутах) |
-| `autoReconcile` | `boolean` | `true` | Автоматически применять обнаруженные модели к активному каталогу |
-| `enableBalanceChecks` | `boolean` | `true` | Опрашивать биллинговые эндпоинты при наличии поддержки |
-| `providers.<id>.enabled`| `boolean` | `true` | Включение или отключение обнаружения для конкретного провайдера |
+| `scheduleEnabled` | `boolean` | `false` | Включение периодического фонового расписания синхронизации |
+| `intervalMinutes` | `number` | `60` | Периодичность опроса провайдеров (в минутах) |
+| `autoApply` | `boolean` | `false` | Автоматически применять обнаруженные модели к активному каталогу |
+| `requestTimeoutMs`| `number` | `15000` | Таймаут HTTP-запросов синхронизации каталогов (в миллисекундах) |
+| `retryAttempts` | `number` | `3` | Максимальное число повторных попыток при сетевых сбоях |
+| `concurrency` | `number` | `4` | Максимальное количество параллельных задач синхронизации |
+| `providers` | `array` | `[]` | Список индивидуальных настроек провайдеров (`provider`, `enabled`, `autoApply`) |
 
 ---
 

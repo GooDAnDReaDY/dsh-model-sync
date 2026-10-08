@@ -9,7 +9,7 @@
 - **Web/UI**: Карточка настроек плагина во вкладке «Настройки → Плагины → Настройки плагинов» (`settings.plugin.item`, key: `dsh-model-sync`). Не регистрирует отдельный раздел бокового меню верхнего уровня.
 - **DSH UI / settings / slots**:
   - Слот `settings.plugin.item` с `key: 'dsh-model-sync'`, `locale: 'dsh-model-sync'`, инжектирует `{ ctx }`.
-  - Привязка конфигурации через реактивный `ctx.settingsScope.bind({ namespace: 'dsh-model-sync' })`.
+  - Привязка конфигурации через реактивный `ctx.configForms.get('dsh-model-sync')` с чтением и записью через volatile-поля схемы `Config`.
   - Статусы снимка: `ready`, `loading`, `unavailable`.
 - **API**:
   - `GET /dsh-model-sync/status` — статус провайдеров, моделей, планировщика и отчетов.
@@ -65,7 +65,7 @@
 
 ## User Flows
 - **Просмотр и выбор моделей**: Поиск по `id/name/tag`, фильтрация по capabilities, быстрая сортировка (`Name`, `Price`, `Context`, `Date`), сохранение выбора.
-- **Фоновый планировщик**: Настройка интервала синхронизации и автоприменения, сохранение в `settingsScope`.
+- **Фоновый планировщик**: Настройка интервала синхронизации и автоприменения, сохранение через `configForms` и подписка на `loader/volatile-update`.
 - **Откат и аудит**: Просмотр истории диффов, откат снимка каталога при необходимости.
 
 ## Do / Don't
@@ -108,7 +108,7 @@
 - **2026-09-08**: Внутренняя оптимизация гигиены, опрашивания UI и runtime diff (#117): дедупликация UI polling между картой и секцией при раскрытии, пауза polling при `document.hidden`, шорткат проверки диффа каталогов в `synchronizer.js`, чистка неиспользуемых функций и правил `.gitignore`.
 - **2026-09-08**: Комплексная оптимизация хранения истории, планировщика и UX (#114): компактизация снимков моделей в `settings.yaml`, мгновенный запуск первого синка планировщика, валидация regex-шаблонов политик в UI.
 - **2026-09-07**: Устранение оверинжиниринга и повышение стабильности (#111): сериализация сохранений `saveConfig`, ужесточение проверок `trusted(req)` от CSRF, выравнивание атрибута `data-dsh-plugin`.
-- **2026-09-06**: Устранение замечаний аудита DSH (#107, #108, #109): добавлен `settingsScope` для управления планировщиком, добавлен ключ `noHistory`, локализован пикер моделей.
+- **2026-09-06**: Устранение замечаний аудита DSH (#107, #108, #109): добавлено управление планировщиком через настройки, добавлен ключ `noHistory`, локализован пикер моделей.
 
 ### 6.13 Plugin Self-Update Subsystem
 
@@ -129,7 +129,7 @@ To align with DSH ecosystem standard for one-click plugin updates from UI settin
 Per the unified DSH plugin standard, any plugin delivering a web-side client bundle (`lib/client.js`) MUST explicitly declare the client-side packages providing injected services in `package.json` under `dsh.client.inject`:
 - `@deepseek-ai/dsh-client-locale`: provides `locale` and translation registration.
 - `@deepseek-ai/dsh-client-ui-slots`: provides `slots` for UI extension points (`settings.plugin.item`).
-- `@deepseek-ai/dsh-client-ui-settings`: provides `settingsScope` / settings binding.
+- `@deepseek-ai/dsh-client-ui-settings` / `configForms`: provides `configForms` / volatile settings forms binding.
 
 An empty list `inject: []` is forbidden as it relies on ambient build assembly rather than declared contracts.
 
