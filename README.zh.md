@@ -137,23 +137,31 @@ dsh plugin --profile web add @goodandready/dsh-model-sync
 ```yaml
 dsh-model-sync:
   enabled: true
-  syncIntervalMinutes: 60
-  autoReconcile: true
-  enableBalanceChecks: true
+  scheduleEnabled: false
+  intervalMinutes: 60
+  autoApply: false
+  requestTimeoutMs: 15000
+  retryAttempts: 3
+  concurrency: 4
   providers:
-    commandcode:
+    - provider: commandcode
       enabled: true
-    clinebot:
+      autoApply: false
+    - provider: clinebot
       enabled: true
+      autoApply: false
 ```
 
 | 参数名称 | 类型 | 默认值 | 功能说明 |
 |---|---|---|---|
 | `enabled` | `boolean` | `true` | 后台自动同步主开关 |
-| `syncIntervalMinutes` | `number` | `60` | 目录更新轮询间隔（分钟） |
-| `autoReconcile` | `boolean` | `true` | 是否自动将新发现的模型生效至可用列表 |
-| `enableBalanceChecks` | `boolean` | `true` | 在受支持的服务商处查询余额 |
-| `providers.<id>.enabled`| `boolean` | `true` | 单独开启或关闭指定服务商的同步 |
+| `scheduleEnabled` | `boolean` | `false` | 启用周期性后台定时同步任务 |
+| `intervalMinutes` | `number` | `60` | 目录更新轮询间隔（分钟） |
+| `autoApply` | `boolean` | `false` | 是否自动将新发现的模型生效至可用列表 |
+| `requestTimeoutMs`| `number` | `15000` | 目录拉取 HTTP 请求超时时间（毫秒） |
+| `retryAttempts` | `number` | `3` | 瞬态网络故障的最大重试次数 |
+| `concurrency` | `number` | `4` | 最大并发服务商同步任务数 |
+| `providers` | `array` | `[]` | 服务商独立配置列表（`provider`、`enabled`、`autoApply`） |
 
 ---
 
