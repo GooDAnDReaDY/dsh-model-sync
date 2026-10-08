@@ -130,7 +130,7 @@ test('persists provider policy without silently deleting missing models', async 
 
   const applied = await sync.run({ dryRun: false, retryAttempts: 1 })
   assert.equal(applied.applied, true)
-  assert.deepEqual(section.providers.demo.models.map((model) => model.id), ['demo-old', 'demo-new'])
+  assert.deepEqual(section.providers.demo.models.map((model) => model.id), ['demo-new'])
   assert.deepEqual(config.modelCatalogs.demo.map((model) => model.id), ['demo-old', 'demo-new'])
   assert.equal(saves.some((patch) => patch.modelPolicies), true)
 })

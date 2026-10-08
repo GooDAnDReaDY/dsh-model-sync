@@ -36,7 +36,8 @@ function probeFor(key) {
   if (typeof d === 'boolean') return { input: !d, expect: !d }
   if (typeof d === 'number') return { input: d + 7, expect: d + 7 }
   if (typeof d === 'string') return { input: d + '-probe', expect: d + '-probe' }
-  if (Array.isArray(d)) return { input: [], expect: null }
+  if (Array.isArray(d)) return { input: [], expect: [] }
+  if (d && typeof d === 'object') return { input: {}, expect: {} }
   return { input: undefined, expect: null }
 }
 
@@ -71,12 +72,12 @@ test('volatile boxes unwrap to the plain values the host reads', () => {
     }
     assert.equal(typeof raw[key].get, 'function', key + ' must hold a Volatile box')
     const plain = plainConfig(raw)
-    // An array unwraps to an array, which is still an object, so the shape check is
-    // limited to scalars where "still a box" is unambiguous.
-    if (typeof want !== 'object' || want === null) {
+    if (want !== null && typeof want !== 'object') {
       assert.notEqual(typeof plain[key], 'object', key + ' must not stay a box')
+      assert.equal(plain[key], want, key + ' must unwrap to the value it was given')
+    } else {
+      assert.deepEqual(plain[key], want, key + ' must unwrap to the value it was given')
     }
-    assert.equal(plain[key], want, key + ' must unwrap to the value it was given')
     checked++
   }
   assert.ok(checked > 0, 'at least one field must be checked end to end')

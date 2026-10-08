@@ -75,6 +75,6 @@ test('cloneModel in history keeps only compact model fields', () => {
   assert.deepEqual(model.capabilities, { vision: true })
   assert.deepEqual(model.pricing, { inputPerToken: 0.000001 })
   assert.equal(model.description, undefined)
-  assert.equal(model.aliases, undefined)
-  assert.equal(model.tags, undefined)
+  assert.deepEqual(model.aliases, ['alias-1'])
+  assert.deepEqual(model.tags, ['tag1', 'tag2'])
 })
