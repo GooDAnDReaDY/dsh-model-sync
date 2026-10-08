@@ -3,7 +3,7 @@
 ## Product / Purpose
 - **Назначение**: Автоматическая синхронизация, обнаружение и управление каталогами LLM-моделей для провайдеров DeepSeek Harness (DSH).
 - **Аудитория**: Пользователи и администраторы DSH, использующие API-key провайдеры (OpenAI, Anthropic, Google, Ollama, OpenRouter, Groq, DeepSeek, Mistral и др.).
-- **Статус**: Активный production-плагин (@goodandready/dsh-model-sync v0.5.8).
+- **Статус**: Активный production-плагин (@goodandready/dsh-model-sync v0.5.9).
 
 ## User Surfaces
 - **Web/UI**: Карточка настроек плагина во вкладке «Настройки → Плагины → Настройки плагинов» (`settings.plugin.item`, key: `dsh-model-sync`). Не регистрирует отдельный раздел бокового меню верхнего уровня.

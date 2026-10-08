@@ -1,3 +1,23 @@
+## 0.5.9 — 2026-10-08
+
+### Fixed
+- **Volatile Schema Fields for DSH Settings (#186, PR #250)**:
+  - Added `.volatile()` declaration to `notifications`, `modelLifecycle`, `history`, `providers`, `aliases`, `adapterRegistry`, `modelPolicies`, and `modelCatalogs` in `Config` schema, allowing DSH 0.2.0-rc.2 `SettingsForms` to persist all plugin configuration sections without rejection.
+- **Persistence Error Propagation (#227, PR #250)**:
+  - `saveConfig` now checks `settings` service availability and rethrows underlying write errors instead of catching them silently, preventing unsaved state from masquerading as saved in `liveConfig`.
+- **Temporal Dead Zone on Startup Config (#228, PR #250)**:
+  - Initialized `liveConfig` declaration before `resolveConfig` execution in `apply()`, eliminating `ReferenceError: Cannot access 'liveConfig' before initialization` when initial config validation fails.
+- **Active Model Policy & Selection Exclusion (#229, PR #250)**:
+  - Filtered models excluded by user policy or model selections are now explicitly included in removal targets during reconciliation, ensuring denied models are removed from active DSH provider catalogs upon Apply.
+- **Runtime Body Cache for HTTP 304 (#230, PR #250)**:
+  - Cached discovered models alongside HTTP metadata in runtime memory, allowing subsequent 304 Not Modified responses during dry-runs to retain full model definitions before catalog disk persistence.
+- **HTTP 200 Error Payload Detection (#231, PR #250)**:
+  - Both `generic-adapter` and `adapter-registry` now detect error payloads (`error` or `errors` fields) and malformed non-array payloads in HTTP 200 responses and throw schema errors instead of treating them as empty model catalogs, preventing accidental catalog purging.
+- **Full Model Contract Preservation on Rollback (#232, PR #250)**:
+  - `cloneModel` in history now preserves `input`, `compat`, `tags`, `aliases`, and `lifecycle` metadata, preventing rollback snapshots from dropping multimodal and developer role settings.
+- **Reference Pricing Source Preservation (#235, PR #250)**:
+  - `normalizePricing` now preserves `source: row.pricing.source` across repeated model normalizations.
+
 ## 0.5.8 — 2026-10-06
 
 ### Fixed
