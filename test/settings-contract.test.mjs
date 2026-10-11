@@ -109,7 +109,7 @@ test('the card reads the form through the contract both releases share', () => {
   }
 })
 
-test('peer ranges accept the 0.1.7 and 0.2.0 DSH package lines', async () => {
+test('peer ranges accept the 0.1.7, 0.2.0, and 0.2.1-alpha DSH package lines (#257)', async () => {
   const pkg = JSON.parse(read('package.json'))
   const semver = await import('semver')
   for (const [name, range] of Object.entries(pkg.peerDependencies || {})) {
@@ -122,6 +122,8 @@ test('peer ranges accept the 0.1.7 and 0.2.0 DSH package lines', async () => {
       assert.ok(!semver.satisfies('3.18.1', range), '3.18.1 lacks .volatile() and must be rejected')
       continue
     }
+    assert.ok(semver.satisfies('0.2.1-alpha.2', range), name + ' ' + range + ' must accept 0.2.1-alpha.2')
+    assert.ok(semver.satisfies('0.2.1-alpha.1', range), name + ' ' + range + ' must accept 0.2.1-alpha.1')
     assert.ok(semver.satisfies('0.2.0-rc.1', range), name + ' ' + range + ' must accept 0.2.0-rc.1')
     assert.ok(semver.satisfies('0.1.7-rc.2', range), name + ' ' + range + ' must accept 0.1.7-rc.2')
   }

@@ -3,7 +3,7 @@
 ## Product / Purpose
 - **Назначение**: Автоматическая синхронизация, обнаружение и управление каталогами LLM-моделей для провайдеров DeepSeek Harness (DSH).
 - **Аудитория**: Пользователи и администраторы DSH, использующие API-key провайдеры (OpenAI, Anthropic, Google, Ollama, OpenRouter, Groq, DeepSeek, Mistral и др.).
-- **Статус**: Активный production-плагин (@goodandready/dsh-model-sync v0.5.11).
+- **Статус**: Активный production-плагин (@goodandready/dsh-model-sync v0.5.12).
 
 ## User Surfaces
 - **Web/UI**: Карточка настроек плагина во вкладке «Настройки → Плагины → Настройки плагинов» (`settings.plugin.item`, key: `dsh-model-sync`). Не регистрирует отдельный раздел бокового меню верхнего уровня.
@@ -32,6 +32,12 @@
   - **Read-маршруты** (`GET /status`, `GET /export`, `GET /aliases`, `GET /history`, `GET /credentials`, `GET /report`, `GET /notifications`): защищены от cross-site браузерных атак (`sec-fetch-site !== 'cross-site'`, проверка совпадения `Origin` / `Referer` с `Host`).
   - **Write-маршруты** (`POST /run`, `POST /try`, `POST /batch-try`, `POST /import`, `POST /aliases`, `POST /selection`, `POST /policy`, `POST /health`, `POST /history/rollback`, `POST /notifications/*`): строго требуют подтвержденный `isLoopbackAddress` клиента (`127.0.0.1`, `::1`, `::ffff:127.0.0.1`, `localhost`). Любые запросы от внешних сетевых адресов или запросы без браузерных заголовков с внешних узлов немедленно отклоняются со статусом `403 Forbidden`.
 
+
+
+## Core & Desktop Compatibility
+- **Поддерживаемые версии DSH**: DSH `v0.1.7-rc.2`, `v0.2.0-rc.1`, `v0.2.0-rc.2`, `v0.2.0`, `v0.2.1-alpha.x` и DSH Desktop (Electron).
+- **peerDependencies**: `^0.1.7-rc.2 || ^0.2.0-rc.1 || >=0.2.1-alpha.1` для `@deepseek-ai/dsh-settings`, `@deepseek-ai/dsh-credentials`, `@deepseek-ai/dsh-llm`, `@deepseek-ai/dsh-host-webserver`.
+- **Релизный чек-лист**: Обязательная сверка compatibility checks плагина с версией DSH Desktop / актуальной альфа-линией ядра DSH перед выпуском.
 
 ## Visual Direction
 - **Атмосфера**: Строгий нативный интерфейс DSH, дизайн-токены `--dsw-*`, высокая плотность данных без визуального шума.
