@@ -149,7 +149,7 @@ test("#213: trusted HTTP check correctly permits loopback and blocks untrusted",
 test("#216: package.json declares credentials, host-webserver, and settings peerDependencies", () => {
   const pkg = JSON.parse(fs.readFileSync(path.resolve("package.json"), "utf8"))
   const peers = pkg.peerDependencies || {}
-  const expectedRange = "^0.1.7-rc.2 || ^0.2.0-rc.1"
+  const expectedRange = "^0.1.7-rc.2 || ^0.2.0-rc.1 || >=0.2.1-alpha.1"
   assert.equal(peers["@deepseek-ai/dsh-credentials"], expectedRange)
   assert.equal(peers["@deepseek-ai/dsh-host-webserver"], expectedRange)
   assert.equal(peers["@deepseek-ai/dsh-settings"], expectedRange)
