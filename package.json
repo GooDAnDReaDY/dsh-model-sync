@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-model-sync",
-  "version": "0.5.12",
+  "version": "0.5.13",
   "description": "Automatic model catalog synchronization for API-key DeepSeek Harness providers.",
   "keywords": [
     "deepseek-harness",
@@ -53,10 +53,10 @@
   "license": "MIT",
   "peerDependencies": {
     "@deepseek-ai/cordis": "^4.0.1",
-    "@deepseek-ai/dsh-credentials": "^0.1.7-rc.2 || ^0.2.0-rc.1",
-    "@deepseek-ai/dsh-host-webserver": "^0.1.7-rc.2 || ^0.2.0-rc.1",
-    "@deepseek-ai/dsh-llm": "^0.1.7-rc.2 || ^0.2.0-rc.1",
-    "@deepseek-ai/dsh-settings": "^0.1.7-rc.2 || ^0.2.0-rc.1",
+    "@deepseek-ai/dsh-credentials": "^0.1.7-rc.2 || ^0.2.0-rc.1 || >=0.2.1-alpha.1",
+    "@deepseek-ai/dsh-host-webserver": "^0.1.7-rc.2 || ^0.2.0-rc.1 || >=0.2.1-alpha.1",
+    "@deepseek-ai/dsh-llm": "^0.1.7-rc.2 || ^0.2.0-rc.1 || >=0.2.1-alpha.1",
+    "@deepseek-ai/dsh-settings": "^0.1.7-rc.2 || ^0.2.0-rc.1 || >=0.2.1-alpha.1",
     "@deepseek-ai/schemastery": "^3.18.4"
   }
 }
