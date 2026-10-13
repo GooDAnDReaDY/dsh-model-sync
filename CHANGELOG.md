@@ -1,3 +1,10 @@
+## 0.5.15 — 2026-10-13
+
+### Core & Runtime Hardening
+- **Safe Optional Service Access in Cordis (#259, PR #261)**:
+  - Guarded connection and pluginNotify service property access across lib/http.js, lib/updater.js, and lib/diff-notifier.js using getOptionalService(ctx, name).
+  - Avoids Cordis v4 unhandled getter exceptions (cannot get property "<service>" without inject) when optional services are queried outside plugin inject declarations.
+
 ## 0.5.11 — 2026-10-08
 
 ### Reliability & Transport
