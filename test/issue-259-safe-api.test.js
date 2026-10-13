@@ -107,3 +107,44 @@ test('issue #259: makeHandler catches unexpected synchronizer exceptions and ret
   assert.match(parsed.error.message, /unexpected database or internal crash/)
   assert.ok(loggedError, 'error must be logged to ctx.logger.error')
 })
+
+test('issue #259: HTTP API handles throwing connection getter without returning 500 or crashing', async () => {
+  const synchronizer = {
+    status() { return { running: false } },
+    listProviders() { return [] }
+  }
+  const mockCtx = {
+    webServer: { register: (r) => r },
+    get connection() {
+      throw new Error('cannot get property "connection" without inject')
+    },
+    logger: { error: () => {}, warn: () => {} }
+  }
+  const routes = registerHttpApi(mockCtx, synchronizer, { getSchedulerStatus: () => null })
+  const statusRoute = routes.find((r) => r.path === '/dsh-model-sync/status')
+  assert.ok(statusRoute, 'status route must be registered')
+
+  const req = {
+    method: 'GET',
+    url: '/dsh-model-sync/status',
+    headers: { host: '127.0.0.1:3080' },
+    socket: { remoteAddress: '127.0.0.1' }
+  }
+  let statusCode = null
+  let headers = null
+  let responseBody = ''
+  const res = {
+    writeHead(status, hdrs) {
+      statusCode = status
+      headers = hdrs
+    },
+    end(body) {
+      responseBody = body
+    }
+  }
+
+  await statusRoute.handler(req, res)
+  assert.equal(statusCode, 200)
+  const parsed = JSON.parse(responseBody)
+  assert.equal(parsed.running, false)
+})
