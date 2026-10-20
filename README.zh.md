@@ -170,6 +170,24 @@ dsh-model-sync:
 
 ---
 
+### 🔍 主动硬件能力探测 (Capability Probing)
+- **微探针测试**：真实验证模型能力，杜绝虚标：
+  - `JSON Schema`：测试结构化 JSON 生成。
+  - `Tools / Functions`：测试函数与工具调用能力。
+  - `Vision`：测试多模态图像理解。
+  - `Developer Role`：测试推理模型的 `developer` 角色支持。
+- **Web UI 操作**：服务商卡片专属“🔍 验证能力”按钮，全局工具栏支持“🔍 验证所有模型”与“⚡ 仅验证新模型”。
+- **能力认证徽章**：绿色认证标识（`✔ Tools`, `✔ Vision`, `✔ JSON`, `✔ DevRole`）持久化存储。
+
+### 🦙 Ollama 本地模型管理中心
+- **Web 端直接管理**：无需登录终端即可在 DSH 界面直接拉取、查看与删除 Ollama 本地模型。
+- **实时下载进度条**：流式展示层下载百分比与传输大小。
+- **显存调度 (VRAM)**：监控显存中活跃模型（`/api/ps`），支持一键“⏏ 释放显存” (`keep_alive: 0`)。
+- **量化与架构信息**：清晰展示量化格式（`Q4_K_M`, `Q8_0`）、模型系列及真实上下文窗口。
+
+
+---
+
 ## 📄 开源协议
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)

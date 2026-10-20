@@ -170,6 +170,24 @@ dsh-model-sync:
 
 ---
 
+### 🔍 Active Capability Probing & Verification
+- **Micro-Probes**: Accurately test actual model capabilities rather than relying on declared flags:
+  - `JSON Schema`: Tests structured output generation (`response_format: { type: "json_schema" }`).
+  - `Tools / Functions`: Tests function call generation and parameter handling.
+  - `Vision`: Tests multimodal processing with lightweight image payloads.
+  - `Developer Role`: Validates `developer` role prompt acceptance for advanced reasoning models.
+- **UI Actions**: One-click "🔍 Verify Capabilities" on any provider card, plus global "🔍 Verify All Models" and "⚡ Verify New Only" buttons in catalog toolbar.
+- **Verified Badges**: Highlights confirmed features with green indicators (`✔ Tools`, `✔ Vision`, `✔ JSON`, `✔ DevRole`) persisted across restarts.
+
+### 🦙 Ollama & Local Engine Hub
+- **Direct Web Management**: Pull, monitor, and manage local Ollama models directly from DSH Web UI without SSH.
+- **Streaming Pull Progress**: Real-time layer download progress bar with speed and transferred byte metrics.
+- **GPU VRAM Management**: Displays active models in VRAM (`/api/ps`) and provides instant "⏏ Unload from VRAM" (`keep_alive: 0`) to free GPU resources.
+- **Architecture & Quantization**: Displays quantization levels (`Q4_K_M`, `Q8_0`), family, context windows, and offers direct deletion.
+
+
+---
+
 ## 📄 License
 
 MIT © [GooDAnDReaDY](https://github.com/GooDAnDReaDY)

@@ -1,3 +1,24 @@
+## 0.5.18 — 2026-10-20
+
+### Active Capability Probing & Ollama Local Engine Hub (#263, #268, PR #272)
+- **Active Hardware Capability Probing (#263)**:
+  - Added micro-probes engine (`lib/capability-prober.js`) testing real runtime execution:
+    - Structured output JSON Schema verification (`response_format: { type: "json_schema" }`).
+    - Tool call & function calling execution (`ping_tool`).
+    - Multimodal visual understanding with 1x1 data URI payload.
+    - System / developer prompt role verification for advanced reasoning models.
+  - Per-provider probing with concurrency control and global catalog verification ("Verify All" & "Verify New Only").
+  - Persistent verified capabilities ledger (`.verified-capabilities.json`).
+  - Web UI verification badges (`✔ Tools`, `✔ Vision`, `✔ JSON`, `✔ DevRole`) in model selection cards.
+  - HTTP endpoints: `POST /dsh-model-sync/probe/provider`, `POST /dsh-model-sync/probe/all`, `GET /dsh-model-sync/probe/status`, `GET /dsh-model-sync/probe/verified`.
+- **Ollama & Local Engine Hub (#268)**:
+  - Integrated local model manager (`lib/ollama-manager.js`) querying `/api/ps`, `/api/tags`, `/api/show`, `/api/generate`, `/api/delete`, `/api/pull`.
+  - Added Web UI model pulling with streaming download layer progress bar.
+  - Added GPU VRAM management with live active model inspection and instant "⏏ Unload from VRAM" (`keep_alive: 0`).
+  - Added model quantization inspection (`Q4_K_M`, `Q8_0`), architecture parameters, and model deletion.
+  - Added `ollama` provider to `PROVIDER_ADAPTERS` and `API_KEY_PROVIDER_IDS`.
+  - HTTP endpoints: `GET /dsh-model-sync/ollama/ps`, `GET /dsh-model-sync/ollama/tags`, `GET /dsh-model-sync/ollama/info`, `POST /dsh-model-sync/ollama/pull`, `GET /dsh-model-sync/ollama/pull/status`, `POST /dsh-model-sync/ollama/unload`, `POST /dsh-model-sync/ollama/delete`.
+
 ## 0.5.17 — 2026-10-20
 
 ### Curation, Latency Radar & Dynamic Pricing (#264, #265, #266, PR #271)
