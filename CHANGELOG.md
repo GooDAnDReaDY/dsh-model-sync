@@ -1,4 +1,4 @@
-## 0.5.19 — 2026-10-20
+## 0.5.20 — 2026-10-20
 
 ### Runtime Hardening & Safe Storage
 - **Safe Capability Ledger Storage**:
