@@ -80,6 +80,8 @@ graph LR
 
 * 💰 **内置基准价格数据库**：自动为 OpenAI、Anthropic、Groq、Mistral、xAI 和 DeepSeek 模型补充 Token 价格数据，即使服务商接口未返回价格，也可无缝支持成本上限过滤与 `@cheap` 别名解析。
 * 🎯 **动态智能虚拟别名与故障转移**：支持 `@fast`、`@cheap`、`@best-code` 等虚拟别名及故障转移链，在熔断器打开或健康检查失败时自动切换至备用模型。
+* 📏 **真实上下文限制与边界安全 (`contextWindow` / `maxOutputTokens`)**：精确区分输入与输出令牌限制，通过自动限制防止 400 `max_tokens` 错误，并在 Web UI 中显示 `输入: 128k | 输出: 8k` 徽章。
+* 🧠 **统一的深度思考与推理配置 (Reasoning & Thinking)**：自动检测参数格式 (`effort`, `budget_tokens`, `boolean`) 并转换推理预算，自动屏蔽不兼容参数（如 o1/o3 的 `temperature`）。
 * 🔔 **外部差异通知 Webhook 与事件分发**：支持 HMAC-SHA256 签名验证的实时 Webhook 通知与 Cordis `model-sync/diff` 事件，可在新模型上线、模型废弃或价格变更时即时推送。
 * ⚡ **高性能模型策略过滤**：在未配置过滤策略时，`filterModels` 采用快速路径直接返回模型目录，避免不必要的正则表达式编译和数组遍历。
 * 🔄 **一键检查与更新**：内置设置面板更新检查，在手动刷新时通过 `?fresh=1` 或 `Cache-Control: no-cache` 绕过 npm 缓存，即时获取最新版本。

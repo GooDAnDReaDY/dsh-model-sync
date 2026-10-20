@@ -1,3 +1,18 @@
+## 0.5.16 — 2026-10-20
+
+### Context Limits & Reasoning Normalization (#267, #269, PR #270)
+- **Dynamic Context Limits Discovery & Safety Clamping (#269)**:
+  - Extracted real `contextWindow` and `maxOutputTokens` from upstream providers (OpenRouter `top_provider.max_completion_tokens`, Google Gemini `outputTokenLimit`, CommandCode `max_tokens`).
+  - Added `lib/specs-database.js` containing reference limits fallback catalog (`REFERENCE_SPECS`) and `clampOutputTokens` utility.
+  - Prevents 400 Bad Request completion errors by automatically detecting hardware limits and clamping token bounds.
+- **Unified Reasoning & Thinking Configuration (#267)**:
+  - Added `reasoningConfig` specification mapping `effort` (OpenAI o1/o3-mini), `budget_tokens` (Claude 3.7 Sonnet, Gemini thinking), and `boolean` (DeepSeek-R1).
+  - Enforced compat rules for reasoning models (suppressing unsupported `temperature` for OpenAI o1/o3-mini).
+  - Added `adaptReasoningPayload` helper to normalize user options into provider-specific payloads.
+- **Web UI & Service Methods**:
+  - Added `In: 128k | Out: 8k` and `🧠 reasoning` badges in model selection UI.
+  - Exposed `getLimits`, `clampCompletionTokens`, `getReasoningConfig`, and `adaptReasoningPayload` on `modelSync` Cordis service.
+
 ## 0.5.15 — 2026-10-13
 
 ### Core & Runtime Hardening

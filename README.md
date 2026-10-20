@@ -80,6 +80,8 @@ graph LR
 
 * 💰 **Built-in Reference Pricing Database**: Canonical token pricing database automatically enriches models for OpenAI, Anthropic, Groq, Mistral, xAI, and DeepSeek, enabling cost-limit filtering and `@cheap` auto-resolution even when upstream APIs omit pricing metadata.
 * 🎯 **Dynamic Smart Virtual Aliases & Auto-Fallback**: Route requests to virtual aliases like `@fast`, `@cheap`, and `@best-code`, with automatic fallback chains when circuit breakers open or health probes fail.
+* 📏 **Real Context Limits & Boundary Safety (`contextWindow` / `maxOutputTokens`)**: precise separation of input and generation limits, prevention of 400 `max_tokens` errors via auto-clamping, and clear `In: 128k | Out: 8k` badges in Web UI.
+* 🧠 **Unified Reasoning & Thinking Configuration**: automatic format detection (`effort`, `budget_tokens`, `boolean`) and parameter translation with suppression of incompatible options (such as `temperature` on o1/o3).
 * 🔔 **External Diff Webhooks & Event Dispatching**: Real-time webhook notifications with HMAC-SHA256 signature verification and Cordis `model-sync/diff` events when models are added, deprecated, or prices change.
 * ⚡ **High-Performance Policy Filtering**: Fast-path evaluation in `filterModels` bypasses regular expressions and array filtering when no filtering policy is configured, guaranteeing zero-overhead discovery runs.
 * 🔄 **One-Click In-App Updates**: Built-in update checker in Settings with automatic npm cache bypass on demand (`?fresh=1` / `Cache-Control: no-cache`), ensuring instantaneous discovery of new package releases.
