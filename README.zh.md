@@ -78,6 +78,9 @@ graph LR
 
 ## ✨ 核心特性
 
+* 🏷️ **智能集合与模型自动标签**：同步时自动识别并标记模型分类标签（`coding` 编程、`reasoning` 思考推理、`fast` 极速轻量、`vision` 多模态、`long-context` 128k+ 长上下文），支持 UI 药丸胶囊快速筛选与一键精选顶级旗舰预设（"⭐ 精选最佳"）。
+* ⚡ **延迟雷达 (TTFT) 与火花线可视化**：实时测量模型响应时间与首字延迟 (TTFT)，提供火花线走势（` ▂▃▂ `）及 4 档速度徽章（⚡ `< 300ms`、🟢 `< 1.2s`、🟡 `1.5 - 3.0s`、🔴 `> 3.0s`），并开放 `GET /dsh-model-sync/health/latency` 路由接口。
+* 💸 **实时价格动态后台同步与提示词缓存**：定期从 OpenRouter 和 LiteLLM 获取最新模型单价，支持本地磁盘降级缓存，支持提示词缓存读写定价（`cacheReadPerToken`、`cacheWritePerToken`），并提供 `GET /dsh-model-sync/pricing` 和 `POST /dsh-model-sync/pricing/sync` 端点。
 * 💰 **内置基准价格数据库**：自动为 OpenAI、Anthropic、Groq、Mistral、xAI 和 DeepSeek 模型补充 Token 价格数据，即使服务商接口未返回价格，也可无缝支持成本上限过滤与 `@cheap` 别名解析。
 * 🎯 **动态智能虚拟别名与故障转移**：支持 `@fast`、`@cheap`、`@best-code` 等虚拟别名及故障转移链，在熔断器打开或健康检查失败时自动切换至备用模型。
 * 📏 **真实上下文限制与边界安全 (`contextWindow` / `maxOutputTokens`)**：精确区分输入与输出令牌限制，通过自动限制防止 400 `max_tokens` 错误，并在 Web UI 中显示 `输入: 128k | 输出: 8k` 徽章。

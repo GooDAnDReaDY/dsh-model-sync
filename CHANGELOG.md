@@ -1,3 +1,20 @@
+## 0.5.17 — 2026-10-20
+
+### Curation, Latency Radar & Dynamic Pricing (#264, #265, #266, PR #271)
+- **Smart Model Collections & Auto-Tagging (#265)**:
+  - Added semantic model categorization (`coding`, `reasoning`, `fast`, `vision`, `long-context`) via `deriveModelTags`.
+  - Added `isCuratedModel` filter to highlight flagship recommendations and eliminate obsolete snapshot clutter.
+  - Interactive UI tag pills (`All`, `⭐ Curated`, `🧠 Reasoning`, `💻 Coding`, `⚡ Fast`, `👁️ Vision`, `📜 128k+`) with instant search and one-click "⭐ Curated Best" selection.
+- **Latency TTFT Radar & Sparklines (#264)**:
+  - Added latency history tracking (ring buffer of last 10 TTFT probes per model).
+  - Generated live 8-level Unicode sparklines (` ▂▃▄▅▆▇█`) for ping trends.
+  - Added speed tier badges (`⚡ lightning` <300ms, `🟢 fast` <1.2s, `🟡 moderate`, `🔴 slow`) with interactive tooltip showing min/avg/max TTFT and sample count.
+  - Exposed HTTP endpoint `GET /dsh-model-sync/health/latency` and attached radar summary to plugin status.
+- **Dynamic Live Pricing & Prompt Caching (#266)**:
+  - Integrated dynamic pricing sync from OpenRouter models API with fallback to disk cache and reference database.
+  - Added prompt caching cost tracking (`cacheReadPerToken`, `cacheWritePerToken`).
+  - Added periodic 24-hour background sync scheduler and HTTP endpoints `GET /dsh-model-sync/pricing` & `POST /dsh-model-sync/pricing/sync`.
+
 ## 0.5.16 — 2026-10-20
 
 ### Context Limits & Reasoning Normalization (#267, #269, PR #270)
