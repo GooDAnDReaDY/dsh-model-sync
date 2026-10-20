@@ -1,3 +1,11 @@
+## 0.5.19 — 2026-10-20
+
+### Runtime Hardening & Safe Storage
+- **Safe Capability Ledger Storage**:
+  - Replaced un-injected Cordis context getter `ctx.dsh` with `path.join(process.cwd(), 'verified-capabilities.json')`, preventing `cannot get property "dsh" without inject` during profile startup in Cordis v4.
+- **Test Environment Isolation**:
+  - Isolated test disk cache in `os.tmpdir()` to prevent workspace directory permission boundary issues during multi-user runs.
+
 ## 0.5.18 — 2026-10-20
 
 ### Active Capability Probing & Ollama Local Engine Hub (#263, #268, PR #272)
