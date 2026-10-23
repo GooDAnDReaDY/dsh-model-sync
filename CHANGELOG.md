@@ -1,3 +1,28 @@
+## 0.5.21 — 2026-10-23
+
+### Security Hardening & Network Boundary Protection (#218)
+- **Reverse Proxy Bridge Client Authentication**:
+  - Implemented standalone `lib/access.js` following the canonical `dsh-moa` security pattern.
+  - Inspects `X-Forwarded-For` on reverse-proxy traffic (`dsh-lanmode`): callers forwarded from non-loopback addresses must provide authentic client credentials (`dsh_token`, `dsh_lan_pin`, `dsh_auth_session`, or client authority cookies) to access sensitive endpoints (`/history`, `/export`, `/credentials`, `/aliases`) and all POST routes. Returns HTTP 401 if credentials are missing; direct socket non-loopback requests fail closed with HTTP 403.
+  - Genuine loopback connections without proxy headers are admitted without browser cookies.
+  - Public monitoring endpoint `GET /status` remains accessible from LAN without credentials, guarded by strict anti-CSRF (`sec-fetch-site`, Origin & Referer) and core connection service approval.
+
+### Build & CI Hardening (#273)
+- **Explicit devDependencies**:
+  - Added aligned devDependencies (`@deepseek-ai/*@0.2.1-rc.2`, `yaml@^2.7.0`, `semver@^7.7.1`, `@deepseek-ai/schemastery@^3.18.4`).
+  - Ensures clean clone `npm install` completes reliably without `ERESOLVE`.
+
+### UI Theme Conformance & Architecture Modularization (#274)
+- **CSS Theme Conformance**:
+  - Replaced all 18 hardcoded hex and rgba color values in `lib/client.js` with semantic CSS variables (`var(--dsw-alias-brand-*)`, `var(--dsw-alias-state-*)`).
+  - Added `.dms-badge-verified` class for capability badges conforming to dark and light themes.
+- **Export Cleanup**:
+  - Integrated `setDynamicPricing` into live pricing parsing and disk cache restore.
+  - Integrated `clearDynamicPricing` into synchronizer cache invalidation, leaving 0 unreferenced dead exports in production codebase.
+- **HTTP API Modularization**:
+  - Extracted 14 request body and query normalizers plus `readJson` into `lib/http-normalizers.js`.
+  - Reduced `lib/http.js` from 633 to 373 lines (< 600 lines threshold).
+
 ## 0.5.20 — 2026-10-20
 
 ### Runtime Hardening & Safe Storage
