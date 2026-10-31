@@ -1,3 +1,15 @@
+## 0.5.24 — 2026-10-31
+
+### Provider Parser Modularization (#277)
+- **Modular Protocol Parsers (`lib/parsers/*`)**:
+  - Extracted field/capability/pricing/reasoning normalizers into `lib/parsers/normalizers.js`, smart curation and tagging into `lib/parsers/curation.js`, and ClinePass/ClineBot subscription parser into `lib/parsers/clinepass.js`.
+  - Reduced `lib/models.js` from 756 to 144 lines while preserving all public exports.
+
+### Synchronizer Domain Service Decomposition (#280)
+- **Domain Services (`lib/services/*`)**:
+  - Extracted `createPricingService` (`lib/services/pricing-service.js`), `createOllamaService` (`lib/services/ollama-service.js`), `createProbingService` (`lib/services/probing-service.js`), and `createPolicyService` (`lib/services/policy-service.js`).
+  - Reduced `lib/synchronizer.js` from 734 to 556 lines and exposed the domain service container `synchronizer.services`.
+
 ## 0.5.23 — 2026-10-31
 
 ### Domain Route Modularization (#276)
