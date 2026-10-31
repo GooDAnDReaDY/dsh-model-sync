@@ -1,3 +1,9 @@
+## [0.5.26] - 2026-11-01
+
+### Changed
+- **Client Localization Module & `ctx.locale` Translator (`#284`)**: Extracted `lib/client/locales.js` (`en`, `zh`, `LOCALE_DICTIONARIES`, `CAPABILITY_LABELS`, `normalizeLocaleCode`, `resolveLocaleDictionary`, `createTranslator`, `registerClientLocales`) with 100% key parity and native resolution of external locales (`ru`) via `ctx.locale.bind('dsh-model-sync')`.
+- **Modular Client Architecture (`#279`)**: Decomposed the monolithic `lib/client.js` into modular client units (`lib/client/locales.js`, `lib/client/styles.js`, `lib/client/helpers.js`, `lib/client/api.js`) and `src/client/index.js` built deterministically via `scripts/build-client.mjs` (`npm run build`).
+
 ## [0.5.25] - 2026-10-31
 
 ### Changed
