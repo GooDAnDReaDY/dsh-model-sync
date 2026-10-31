@@ -1,3 +1,9 @@
+## [0.5.25] - 2026-10-31
+
+### Changed
+- **Runtime State Store (`#278`)**: Extracted `lib/state-store.js` (`createRuntimeStateStore`, `splitConfigAndRuntimePatch`, `RUNTIME_STATE_KEYS`) so operational runtime telemetry (`notifications`, `history`, `modelLifecycle`, `lifecycleRevision`, `modelCatalogs`) is persisted to `stateStore` without invoking `settings.update('dsh-model-sync', ...)` during background synchronization runs.
+- **TypeScript Declarations & Dual-Target `tsdown` Config (`#283`)**: Added `lib/index.d.ts` (including Cordis `Context` service augmentation for `modelSync` and `modelSyncRunner`), `lib/client.d.ts`, `tsconfig.json`, and dual-target `tsdown.config.ts` (Node ESM + Browser CJS), and updated `package.json` `types` and `exports`.
+
 ## 0.5.24 — 2026-10-31
 
 ### Provider Parser Modularization (#277)

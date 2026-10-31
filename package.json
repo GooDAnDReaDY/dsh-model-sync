@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-model-sync",
-  "version": "0.5.24",
+  "version": "0.5.25",
   "description": "Automatic model catalog synchronization for API-key DeepSeek Harness providers.",
   "keywords": [
     "deepseek-harness",
@@ -19,10 +19,16 @@
     "url": "https://github.com/GooDAnDReaDY/dsh-model-sync/issues"
   },
   "type": "module",
-  "main": "lib/index.js",
+  "main": "./lib/index.js",
   "exports": {
-    ".": "./lib/index.js",
-    "./client": "./lib/client.js",
+    ".": {
+      "types": "./lib/index.d.ts",
+      "default": "./lib/index.js"
+    },
+    "./client": {
+      "types": "./lib/client.d.ts",
+      "default": "./lib/client.js"
+    },
     "./package.json": "./package.json",
     "./cordis.patch.yml": "./cordis.patch.yml"
   },
@@ -57,7 +63,9 @@
     }
   },
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "typecheck": "node --test test/state-store-tsdown.test.js",
+    "check": "npm run typecheck && npm test"
   },
   "license": "MIT",
   "peerDependencies": {
@@ -77,5 +85,6 @@
     "@deepseek-ai/schemastery": "^3.18.4",
     "yaml": "^2.7.0",
     "semver": "^7.7.1"
-  }
+  },
+  "types": "./lib/index.d.ts"
 }
