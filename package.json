@@ -1,6 +1,6 @@
 {
   "name": "@goodandready/dsh-model-sync",
-  "version": "0.5.21",
+  "version": "0.5.22",
   "description": "Automatic model catalog synchronization for API-key DeepSeek Harness providers.",
   "keywords": [
     "deepseek-harness",
@@ -45,6 +45,15 @@
         "@deepseek-ai/dsh-client-ui-slots",
         "@deepseek-ai/dsh-client-ui-settings"
       ]
+    },
+    "compatibility": {
+      "dshReleases": {
+        "0.2.0-rc.2": "compatible",
+        "0.2.1-rc.2": "compatible",
+        "0.2.1-rc.3": "compatible",
+        "0.2.1-rc.4": "compatible"
+      },
+      "dsh": "0.2.0-rc.2 || >=0.2.1-rc.2 <0.2.2-0"
     }
   },
   "scripts": {

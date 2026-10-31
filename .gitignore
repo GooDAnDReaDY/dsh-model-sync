@@ -20,3 +20,5 @@ docs/architecture/
 docs/deployment/
 docs/research/
 docs/testing/
+
+release_notes_*.md

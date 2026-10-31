@@ -1,3 +1,15 @@
+## 0.5.22 — 2026-10-31
+
+### Cordis Lifecycle Isolation & DSH Compatibility Matrix (#285)
+- **Compatibility Matrix (`dsh.compatibility`)**:
+  - Declared explicit compatibility matrix in `package.json` (`0.2.0-rc.2`, `0.2.1-rc.2`, `0.2.1-rc.3`, `0.2.1-rc.4` -> `compatible`, range `0.2.0-rc.2 || >=0.2.1-rc.2 <0.2.2-0`) for automated DSH profile verification.
+- **Scoped Scheduler Lifecycle**:
+  - Wrapped `scheduler.start()` and `scheduler.stop()` inside a unified Cordis effect (`dsh-model-sync: scheduler lifecycle`), preventing orphan timers on hot reload or fiber disposal.
+
+### Repository Sanitation & Release Notes Structure (#282)
+- **Structured Release Documentation**:
+  - Consolidated historical release notes (`v0.5.11` through `v0.5.22`) into `docs/releases/` and added `release_notes_*.md` to `.gitignore` to keep the repository root clean.
+
 ## 0.5.21 — 2026-10-23
 
 ### Security Hardening & Network Boundary Protection (#218)
