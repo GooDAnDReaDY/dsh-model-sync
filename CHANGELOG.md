@@ -1,3 +1,15 @@
+## 0.5.23 — 2026-10-31
+
+### Domain Route Modularization (#276)
+- **Modular HTTP Controllers (`lib/routes/*`)**:
+  - Decomposed 33 HTTP endpoints from `lib/http.js` into 5 domain modules: `lib/routes/catalog.js`, `lib/routes/probing.js`, `lib/routes/ollama.js`, `lib/routes/diagnostics.js`, and `lib/routes/config.js`.
+  - Reduced `lib/http.js` from 415 to 109 lines, acting as a declarative route mounter while preserving exact route registration order and security guards.
+
+### Unified API Response & Error Envelope (#281)
+- **Transport Envelope (`lib/routes/envelope.js`)**:
+  - Added `sendJson`, `sendEnvelope`, `sendError`, `sendMethodNotAllowed`, `statusForErrorCode`, and `sendCaughtError`.
+  - Standardized all error responses across routes and `lib/access.js` to `{ ok: false, error: { code, message, details } }` with deterministic HTTP status mapping (`400`, `405`, `409`, `503`, `500`).
+
 ## 0.5.22 — 2026-10-31
 
 ### Cordis Lifecycle Isolation & DSH Compatibility Matrix (#285)
