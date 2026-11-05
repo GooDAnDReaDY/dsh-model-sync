@@ -112,6 +112,11 @@ export interface ModelSyncConfig {
   notifications?: NotificationItem[];
   excludeUtilityModels?: boolean;
   collapseDateSnapshots?: boolean;
+  displayNameBadges?: {
+    enabled?: boolean;
+    showContext?: boolean;
+    showCapabilities?: boolean;
+  };
   staleGraceRuns?: number;
   lifecycleRetentionRuns?: number;
   lifecycleRevision?: number;

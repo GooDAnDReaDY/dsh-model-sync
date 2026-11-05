@@ -1,3 +1,10 @@
+## [0.5.28] - 2026-11-05
+
+### Added
+- **Display Name Badges (#295)**: Formats model names in the DSH model selector with compact context window and capability indicators (`Claude 3.7 Sonnet [200k, 🧠, 👁️, 💻]`) via `displayNameBadges: { enabled, showContext, showCapabilities }`. Cleanly strips badges upon disable to preserve exact model names.
+- **1-Click Model Presets (#296)**: Quick selection buttons in the settings UI (🌟 Flagships, 💻 Coding & Logic, 📜 Long Context, 👁️ Vision) with multi-preset stacking and smart capability scoring.
+- **Bulk Selection & Price Threshold Filter (#297)**: Mass select, deselect, invert selection, and price ceiling filter (`filterSelectionByMaxPrice`) to immediately exclude models exceeding a specified $/M token price.
+
 ## [0.5.27] - 2026-11-05
 
 ### Added
