@@ -70,6 +70,8 @@ export interface DeclarativeAdapterConfig {
 export interface ModelPolicyConfig {
   include?: string[];
   exclude?: string[];
+  includeUtilityModels?: boolean;
+  excludeUtilityModels?: boolean;
   requireCapabilities?: Record<string, boolean>;
   denyCapabilities?: Record<string, boolean>;
   enableCostFilter?: boolean;
@@ -108,6 +110,8 @@ export interface ModelSyncConfig {
   notifyOnModelDeprecated?: boolean;
   notifyOnPriceChanged?: boolean;
   notifications?: NotificationItem[];
+  excludeUtilityModels?: boolean;
+  collapseDateSnapshots?: boolean;
   staleGraceRuns?: number;
   lifecycleRetentionRuns?: number;
   lifecycleRevision?: number;

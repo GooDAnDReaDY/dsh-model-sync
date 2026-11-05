@@ -1,3 +1,11 @@
+## [0.5.27] - 2026-11-05
+
+### Added
+- **Chat-First Filter ()**: Automatic classification () of provider models (, , , , , ) and default exclusion of non-chat utility models via . Supported granular opt-in via  and .
+- **Date Snapshots Collapse ()**: Automatic detection () and collapsing () of dated snapshot revisions (, , , , etc.) into their canonical base model () when canonical alias is available in catalog.
+- **Deep Metadata Extraction ()**: Expanded  to extract context and completion token limits from non-standard provider APIs (Groq, OpenRouter, Mistral, vLLM, LM Studio). Supported string token limits with multipliers (, , ), and automatic reasoning capability detection from  and .
+- **Auto-Stale & Deprecation Management ()**: Automatic soft-hiding of models marked as  or missing across  (default: 2), preventing selector errors in DSH while guaranteeing seamless auto-recovery if the model reappears.
+
 ## [0.5.26] - 2026-11-01
 
 ### Changed
