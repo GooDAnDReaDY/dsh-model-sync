@@ -1,3 +1,10 @@
+## [0.5.29] - 2026-11-14
+
+### Changed
+- **Tracked Documentation & Deploy (#300)**: Returned `AGENTS.md`, `index.md`, and `deploy.sh` to Git tracking while guarding archive distributions with `.gitattributes` (`export-ignore`). Updated status to active production plugin.
+- **Dead Export & Catch Cleanup (#301)**: Removed dead `isLoopbackAddress` from `lib/http.js` and unused `sendEnvelope` from `lib/routes/envelope.js`. Eliminated empty `.catch(() => {})` in the client.
+- **Automated Dead-Export Check (#301)**: Added `scripts/check-dead-exports.mjs` to `npm run check` to mechanically block unused exports from entering production code.
+
 ## [0.5.28] - 2026-11-05
 
 ### Added

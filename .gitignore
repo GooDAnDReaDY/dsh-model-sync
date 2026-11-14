@@ -13,9 +13,6 @@ dist/
 # Internal planning and agent workflow
 .planning/
 docs/plans/
-AGENTS.md
-index.md
-deploy.sh
 docs/architecture/
 docs/deployment/
 docs/research/
