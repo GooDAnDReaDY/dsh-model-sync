@@ -2,7 +2,7 @@
 
 <div align="center">
 
-<h3>面向 DeepSeek Harness 的动态大模型目录同步与自动化余额监控插件</h3>
+<h3>面向 DeepSeek Harness 的动态大模型目录同步插件</h3>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/@goodandready/dsh-model-sync"><img src="https://img.shields.io/npm/v/@goodandready/dsh-model-sync.svg?style=for-the-badge&color=6366f1&labelColor=1e1b4b" alt="npm version"></a>
@@ -39,7 +39,7 @@
 
 **`dsh-model-sync`** 保持您的 **DeepSeek Harness** 模型目录与上游各大 AI 服务商最新发布完全同步。
 
-每当服务商推出新模型、调整上下文窗口上限或变更费率时，不再需要手动逐项编辑 YAML 配置文件。`dsh-model-sync` 能够自动发现新版本、更新模型能力元数据（`vision`、`tools`、`reasoning`、`embeddings`）、监控账户余额并在无需重启服务的情况下即时对齐模型目录。
+每当服务商推出新模型、调整上下文窗口上限或变更费率时，不再需要手动逐项编辑 YAML 配置文件。`dsh-model-sync` 能够自动发现新版本、更新模型能力元数据（`vision`、`tools`、`reasoning`、`embeddings`）并在无需重启服务的情况下即时对齐模型目录。
 
 ```mermaid
 graph LR
@@ -79,8 +79,8 @@ graph LR
 ## ✨ 核心特性
 
 * 🏷️ **智能集合与模型自动标签**：同步时自动识别并标记模型分类标签（`coding` 编程、`reasoning` 思考推理、`fast` 极速轻量、`vision` 多模态、`long-context` 128k+ 长上下文），支持 UI 药丸胶囊快速筛选与一键精选顶级旗舰预设（"⭐ 精选最佳"）。
-* ⚡ **延迟雷达 (TTFT) 与火花线可视化**：实时测量模型响应时间与首字延迟 (TTFT)，提供火花线走势（` ▂▃▂ `）及 4 档速度徽章（⚡ `< 300ms`、🟢 `< 1.2s`、🟡 `1.5 - 3.0s`、🔴 `> 3.0s`），并开放 `GET /dsh-model-sync/health/latency` 路由接口。
-* 💸 **实时价格动态后台同步与提示词缓存**：定期从 OpenRouter 和 LiteLLM 获取最新模型单价，支持本地磁盘降级缓存，支持提示词缓存读写定价（`cacheReadPerToken`、`cacheWritePerToken`），并提供 `GET /dsh-model-sync/pricing` 和 `POST /dsh-model-sync/pricing/sync` 端点。
+* ⚡ **延迟雷达与火花线可视化**：实时测量模型响应时间，提供火花线走势（` ▂▃▂ `）及 4 档速度徽章（⚡ `< 300ms`、🟢 `< 1.2s`、🟡 `1.5 - 3.0s`、🔴 `> 3.0s`），并开放 `GET /dsh-model-sync/health/latency` 路由接口。仅在探测实际测到首字延迟 (TTFT) 时才返回该字段。
+* 💸 **实时价格动态后台同步与提示词缓存**：定期从 OpenRouter 获取最新模型单价，支持本地磁盘降级缓存，支持提示词缓存读写定价（`cacheReadPerToken`、`cacheWritePerToken`），并提供 `GET /dsh-model-sync/pricing` 和 `POST /dsh-model-sync/pricing/sync` 端点。
 * 💰 **内置基准价格数据库**：自动为 OpenAI、Anthropic、Groq、Mistral、xAI 和 DeepSeek 模型补充 Token 价格数据，即使服务商接口未返回价格，也可无缝支持成本上限过滤与 `@cheap` 别名解析。
 * 🎯 **动态智能虚拟别名与故障转移**：支持 `@fast`、`@cheap`、`@best-code` 等虚拟别名及故障转移链，在熔断器打开或健康检查失败时自动切换至备用模型。
 * 📏 **真实上下文限制与边界安全 (`contextWindow` / `maxOutputTokens`)**：精确区分输入与输出令牌限制，通过自动限制防止 400 `max_tokens` 错误，并在 Web UI 中显示 `输入: 128k | 输出: 8k` 徽章。
@@ -94,7 +94,6 @@ graph LR
 * 🎛️ **Command Code 模型精细管理**：完整发现 Command Code 模型目录，在 Web 界面提供勾选过滤，自动同步 `visibleModels` 至 `llm-commandcode` 设置中。
 * 🎯 **ClineBot 订阅套餐精准匹配**：专属适配器直接调用 `GET /users/me/plan`，只拉取当前有效订阅套餐包含的模型，彻底解决全量拉取 400+ 外部模型导致的混淆。
 * 🔌 **通用与自定义适配器扩展**：支持接入任意兼容 OpenAI `/v1/models` 规范的网关，支持多种认证方式（`bearer`、`x-api-key`、`query-key`、`none`）。
-* 📊 **余额与用量监控**：实时查询上游计费端点，精准反馈账户额度并防止因欠费导致任务中断。
 * 📜 **同步历史与变更审计**：完整记录新模型上线、旧模型废弃及能力变更的时间线与详细差异。
 * 🖥️ **全功能 Web 管理面板 (**设置 → 模型同步**)**：
   * 每个服务商的卡片化状态展示与模型计数；
@@ -125,6 +124,11 @@ graph LR
 | `custom` | 自定义配置 | 任意兼容 OpenAI 或 Google 规范的 API 网关 |
 
 ---
+
+## 📋 环境要求
+
+- DeepSeek Harness `0.2.0-rc.2 || >=0.2.1-rc.2 <0.3.0-0`（已在 `0.2.2-rc.5` 验证）
+- Node.js 20 或更高版本
 
 ## 📦 快速安装
 

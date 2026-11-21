@@ -1,3 +1,46 @@
+## [0.5.33] - 2026-11-21
+
+### Fixed
+- **Doctor-readable host range (#337)**: The Requirements section in all three READMEs now contains the literal `engines.dsh` range (`0.2.0-rc.2 || >=0.2.1-rc.2 <0.3.0-0`). `dsh-plugin doctor` reports 0 problems on the installed candidate. The manifest contract test now also asserts that every README states the exact range.
+
+## [0.5.32] - 2026-11-21
+
+### Fixed
+- **Doctor-readable requirements heading (#337)**: `README.md` now uses the exact `## Requirements` heading the toolkit expects (`/^#{1,3}\s*Requirements/im`); the emoji moved out of the heading. `dsh-plugin doctor` reports 0 problems on the installed candidate.
+
+### Notes
+- **v0.5.31 errata**: the npm upload of 0.5.31 returned metadata, but its tarball never became available (persistent 404). Do not install 0.5.31; 0.5.32 supersedes it with identical code plus the heading fix.
+
+## [0.5.31] - 2026-11-21
+
+### Added
+- **Declared Host Requirements (#334)**: Added `engines.node` (20+) and `engines.dsh` (`0.2.0-rc.2 || >=0.2.1-rc.2 <0.3.0-0`) plus a Requirements section in all three READMEs. A manifest contract test keeps `engines.dsh` equal to `dsh.compatibility.dsh` and verifies the tested `0.2.2-rc.5` entry.
+
+### Changed
+- **Honest Pricing Sources (#335)**: README no longer claims LiteLLM snapshots; the pricing bullet names the OpenRouter catalog, the persistent disk cache and the reference database, matching `fetchPricingUpdates`.
+
+## [0.5.30] - 2026-11-21
+
+### Fixed
+- **Dry-run Is Read-Only Again (#305)**: `POST /run` with `{dryRun:true}` no longer applies the catalog when `autoApply` is enabled. Apply and persist decisions depend only on `dryRun`; the scheduler computes the mode per provider from its `autoApply` override.
+- **Webhook Secret Only via Credentials (#204)**: Removed `diffWebhookSecret` from `Config`, the UI and dispatch. The secret is resolved exclusively through `diffWebhookSecretRef`; a legacy literal is reported once and never copied into settings.
+- **Empty Provider Catalogs Stay Empty (#311)**: Removed the hardcoded `defaultModels` fallback and the `CLINEPASS_MODELS` fallback for empty plans; an empty 200 response now yields zero models.
+- **Fail-Closed Cookie Check (#310)**: A `dsh-auth-*` cookie authenticates a forwarded client only when its name matches the current Host authority; the hardcoded port list is gone.
+- **Honest TTFT (#322)**: `ttftMs` is emitted only when a probe measures it; error and health-fallback paths no longer synthesize 45% of latency.
+- **Visible Probe Failures (#323)**: A missing `llm.stream` raises `llm-unavailable` instead of returning a canned success that marked capabilities verified.
+- **State in the DSH Data Directory (#320)**: Default state path is `~/.dsh/data/dsh-model-sync/state.json`; legacy `~/.deepseek-agent/data` state migrates once.
+- **Verified Capabilities Location (#321)**: Probe results use the same data directory, write atomically and report persistence failures.
+- **Scheduler Logging (#325)**: Scheduled-run warnings go through `ctx.logger`, not the process console.
+
+### Changed
+- **Real Declarations Gate (#283)**: `npm run typecheck` is replaced by `npm run dts-check`: runtime exports must be declared, declarations must not be stale, and package types/exports must resolve. The unused `tsdown.config.ts` is removed.
+- **Reproducible Client Bundle (#309)**: The builder keeps `//` inside strings, normalizes output to LF and supports `--check`; `npm run check` fails on a stale bundle.
+- **AST Dead-Export Gate (#308)**: `scripts/check-dead-exports.mjs` parses `lib/` with acorn; comments and strings no longer count as references. The stricter gate removed the unused `trusted` export.
+- **Documentation (#307, #312, #326)**: README no longer advertises unimplemented balance monitoring; `index.md`/`DESIGN.md` follow the package version via `npm run docs-check`; the update-cache TTL matches the code.
+- **Anonymized Fixtures (#324)**: Tests use RFC 5737 ranges instead of real LAN addresses.
+- **DSH Compatibility (#332)**: Declared compatibility now covers DSH `0.2.2-rc.5` and the `<0.3.0-0` line.
+- **Dependencies (#327)**: Removed the unused `semver` dev dependency.
+
 ## [0.5.29] - 2026-11-14
 
 ### Changed

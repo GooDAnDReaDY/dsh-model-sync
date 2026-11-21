@@ -105,7 +105,6 @@ export interface ModelSyncConfig {
   notificationLimit?: number;
   diffWebhookUrl?: string;
   diffWebhookSecretRef?: string;
-  diffWebhookSecret?: string;
   notifyOnModelAdded?: boolean;
   notifyOnModelDeprecated?: boolean;
   notifyOnPriceChanged?: boolean;

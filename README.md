@@ -79,8 +79,8 @@ graph LR
 ## ✨ Key Features
 
 * 🏷️ **Smart Collections & Catalog Auto-Tagging**: Automatically categorizes models into standardized tags (`coding`, `reasoning`, `fast`, `vision`, `long-context`) during discovery, provides fast pill-button filtering in the Web UI, and introduces a one-click "⭐ Curated Best" selection preset for top flagship models.
-* ⚡ **Latency TTFT Radar & Sparklines**: Probes response latency and Time To First Token (TTFT) across models, renders ASCII sparklines (` ▂▃▂ `) and 4-tier speed badges (⚡ `< 300ms`, 🟢 `< 1.2s`, 🟡 `1.5 - 3.0s`, 🔴 `> 3.0s`), and exposes `GET /dsh-model-sync/health/latency` for intelligent downstream routing.
-* 💸 **Dynamic Live Pricing Sync & Prompt Caching**: Periodic background updates of live model pricing from OpenRouter and LiteLLM snapshots with persistent disk fallback cache, tracking prompt cache read/write costs (`cacheReadPerToken`, `cacheWritePerToken`), with `GET /dsh-model-sync/pricing` and `POST /dsh-model-sync/pricing/sync` endpoints.
+* ⚡ **Latency Radar & Sparklines**: Probes response latency across models, renders ASCII sparklines (` ▂▃▂ `) and 4-tier speed badges (⚡ `< 300ms`, 🟢 `< 1.2s`, 🟡 `1.5 - 3.0s`, 🔴 `> 3.0s`), and exposes `GET /dsh-model-sync/health/latency` for intelligent downstream routing. TTFT is reported only when a probe actually measures it.
+* 💸 **Dynamic Live Pricing Sync & Prompt Caching**: Periodic background updates of live model pricing from the OpenRouter catalog with a persistent disk fallback cache, tracking prompt cache read/write costs (`cacheReadPerToken`, `cacheWritePerToken`), with `GET /dsh-model-sync/pricing` and `POST /dsh-model-sync/pricing/sync` endpoints.
 * 💰 **Built-in Reference Pricing Database**: Canonical token pricing database automatically enriches models for OpenAI, Anthropic, Groq, Mistral, xAI, and DeepSeek, enabling cost-limit filtering and `@cheap` auto-resolution even when upstream APIs omit pricing metadata.
 * 🎯 **Dynamic Smart Virtual Aliases & Auto-Fallback**: Route requests to virtual aliases like `@fast`, `@cheap`, and `@best-code`, with automatic fallback chains when circuit breakers open or health probes fail.
 * 📏 **Real Context Limits & Boundary Safety (`contextWindow` / `maxOutputTokens`)**: precise separation of input and generation limits, prevention of 400 `max_tokens` errors via auto-clamping, and clear `In: 128k | Out: 8k` badges in Web UI.
@@ -94,7 +94,6 @@ graph LR
 * 🎛️ **Command Code Model Selection**: Full discovery of Command Code models with granular checkbox selection in the UI, automatically syncing `visibleModels` to `llm-commandcode` settings.
 * 🎯 **ClineBot Subscription Plan Sync**: Dedicated adapter querying `GET /users/me/plan` to discover only active subscription-included models, eliminating catalog clutter from out-of-plan endpoints.
 * 🔌 **Generic / Custom Adapter Support**: Connect arbitrary OpenAI-compatible `/v1/models` endpoints with configurable auth (`bearer`, `x-api-key`, `query-key`, `none`).
-* 📊 **Balance & Quota Monitoring**: Queries upstream billing endpoints (where supported) to report account credit balances and prevent unexpected exhaustion.
 * 📜 **Sync History & Diff Auditing**: Tracks all newly discovered models, deprecated IDs, and modified capabilities with timestamped diff logs in the Web UI.
 * 🖥️ **Full Web GUI Panel (**Settings → Model Synchronization**)**:
   * Live status cards per provider with active model counters;
@@ -125,6 +124,11 @@ graph LR
 | `custom` | Configurable | Any custom OpenAI or Google compatible gateway |
 
 ---
+
+## Requirements
+
+- DeepSeek Harness `0.2.0-rc.2 || >=0.2.1-rc.2 <0.3.0-0` (verified on `0.2.2-rc.5`)
+- Node.js 20 or newer
 
 ## 📦 Quick Installation
 
