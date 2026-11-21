@@ -19,3 +19,4 @@ docs/research/
 docs/testing/
 
 release_notes_*.md
+.commandcode/
