@@ -1,3 +1,8 @@
+## [0.5.34] - 2026-11-27
+
+### Fixed
+- **Preserve DSH `reasoningEfforts` (#340 / github#2)**: `normalizeModel`, `reconcileModels`, and `history.js:cloneModel` now preserve per-model `reasoningEfforts` maps (including `off: null` and custom wire values) and explicit `false` values via `structuredClone`. Local `reasoningEfforts` declarations take precedence over conflicting discovery metadata without unioning levels, and survive both `settings.replace` syncs and history rollbacks.
+
 ## [0.5.33] - 2026-11-21
 
 ### Fixed
